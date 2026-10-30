@@ -15,9 +15,22 @@ sources:
   attribution: Wikidata
   redistribution: Allowed
   notes: Streamed and filtered; the full dump is not stored. Entities with coordinates (P625) in the seed
-    class hierarchy.
-  retrieved_at: null
-  files: []
+    class hierarchy. The recorded files come from a partial pass over the first 6,000,000 dump lines (class
+    hierarchy from the Wikidata Query Service); a full pass has not been run.
+  retrieved_at: '2026-10-30T13:24:42Z'
+  files:
+  - path: raw/knowledge_base/wikidata/class_map.json
+    url: https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.bz2
+    size: 347020
+    sha256: acd30293ecf68106febcffb04c6352867b2118899f4717ff761b35910e9cea92
+  - path: raw/knowledge_base/wikidata/names.parquet
+    url: https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.bz2
+    size: 24396823
+    sha256: a180642b10a9b2ba66512586d36477fc2956f3c85a3104a32d9279c5581a521a
+  - path: raw/knowledge_base/wikidata/places.parquet
+    url: https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.bz2
+    size: 16931378
+    sha256: abd93baea3c7c673895ebf97a10d7ad0a5b57cda8c1a37fb50912af22abc313c
 - id: geonames
   name: GeoNames gazetteer
   kind: static
@@ -28,7 +41,7 @@ sources:
   attribution: GeoNames (geonames.org)
   redistribution: Allowed with attribution
   notes: No published checksums; the first verified download is recorded.
-  retrieved_at: '2026-10-30T12:41:02Z'
+  retrieved_at: '2026-10-30T13:00:02Z'
   files:
   - path: raw/gazetteer/geonames/admin1CodesASCII.txt
     url: https://download.geonames.org/export/dump/admin1CodesASCII.txt
@@ -38,6 +51,14 @@ sources:
     url: https://download.geonames.org/export/dump/admin2Codes.txt
     size: 2371888
     sha256: e0cd374c39ea78dfd878edfbdcd339f7bdd4016f0147c90fc6a5e45eb7f10279
+  - path: raw/gazetteer/geonames/allCountries.zip
+    url: https://download.geonames.org/export/dump/allCountries.zip
+    size: 422509342
+    sha256: 2be9c961e3d762ac9d34302698e8e3c305ab5d6eb57534aaf0ff79da047812ca
+  - path: raw/gazetteer/geonames/alternateNamesV2.zip
+    url: https://download.geonames.org/export/dump/alternateNamesV2.zip
+    size: 205171559
+    sha256: 4eb176ecd0b60c9ed4c9464047b74c827738a7baf8da2cc0cbaeccb157678175
   - path: raw/gazetteer/geonames/cities15000.zip
     url: https://download.geonames.org/export/dump/cities15000.zip
     size: 3364684

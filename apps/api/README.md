@@ -1,0 +1,70 @@
+# API package: database, place knowledge base
+
+This package holds the database schema (Alembic migrations) and the ETL that builds the place
+knowledge base. The HTTP application is added in a later phase.
+
+## Local database
+
+PostgreSQL 17 with PostGIS and pgvector, see `docs/adr/ADR-004-postgresql-17-for-development.md`.
+
+```
+brew install postgresql@17 postgis pgvector      # once
+make db-init                                      # creates .local/pgdata on port 5433
+make db-upgrade                                   # applies migrations/versions
+```
+
+Connection settings come from `DATABASE_URL` (see `.env.example`). The default points at the
+development cluster. `infra/postgres/dev_cluster.sh psql` opens a shell.
+
+## Schema
+
+Migrations live in `migrations/versions` and execute the SQL in `migrations/sql`:
+
+| Revision | Content |
+|---|---|
+| 0001 | Extensions: postgis, vector, pg_trgm, pgcrypto |
+| 0002 | Reference tables, uncertainty rules, `places`, `place_aliases`, `place_embeddings`, review and ETL tables |
+| 0003 | Tenancy and security, news and NLP, events, assets and alerts, business tables |
+
+Row level security and the materialized views `mrr_monthly` and `cohort_retention` are added in
+phases 5 and 7, with the code that depends on them.
+
+## Building the place knowledge base
+
+Inputs are produced by phase 1 (`make data`, `make data-wikidata`).
+
+```
+make etl            # reference data, staging, merge, hierarchy, uncertainty, polygons, H3
+make etl-embed      # bge-m3 embeddings, most populous places first (EMBED_LIMIT=100000 to bound)
+make etl-quality    # quality checks, 1,000 name search evaluation, docs/place_kb_report.md
+make etl-plans      # latency and EXPLAIN output, docs/query_plans.md
+```
+
+Steps can also be run one at a time: `python -m meridian.etl reference|stage-geonames|stage-wikidata|merge|hierarchy|finalize|embed|quality|eval|plans`
+from this directory with `PYTHONPATH=.`.
+
+Design decisions are in `docs/adr/ADR-005-place-knowledge-base.md`. Results of the last build are
+in `docs/place_kb_report.md`.
+
+## Using the gazetteer
+
+```python
+from meridian.db import connect
+from meridian.geo.search import search_places
+
+with connect() as conn:
+    for hit in search_places(conn, "Springfield", k=5, country_code="US"):
+        print(hit.name, hit.type, hit.country_code, hit.uncertainty_km, round(hit.score, 3))
+```
+
+`meridian.geo.names.normalize_name` produces the comparison key stored in the database; apply it to
+any text before comparing it with `name_normalized` or `alias_normalized`.
+
+## Tests
+
+```
+.venv/bin/pytest apps/api
+```
+
+Database tests create a throwaway database on the local cluster and drop it afterwards; they are
+skipped when PostgreSQL is not reachable.

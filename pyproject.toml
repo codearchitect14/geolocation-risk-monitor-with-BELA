@@ -1,7 +1,14 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = []
+
 [project]
-name = "meridian-signal-data"
-version = "0.1.0"
-description = "Data acquisition tooling for the operational disruption intelligence platform"
+name = "meridian-signal"
+version = "0.2.0"
+description = "Data acquisition, place knowledge base, and backend tooling for the operational disruption intelligence platform"
 requires-python = ">=3.11"
 dependencies = [
     "httpx>=0.27",
@@ -13,6 +20,16 @@ dependencies = [
     "huggingface_hub>=0.24",
     "orjson>=3.9",
     "defusedxml>=0.7",
+    "sqlalchemy>=2",
+    "alembic>=1.13",
+    "psycopg[binary]>=3.2",
+    "pgvector>=0.3",
+    "h3>=4",
+    "pandas>=2",
+    "pandera>=0.20",
+    "unidecode>=1.3",
+    "rapidfuzz>=3",
+    "sentence-transformers>=3",
 ]
 
 [project.optional-dependencies]
@@ -21,7 +38,7 @@ dev = ["pytest>=8", "ruff>=0.5", "mypy>=1.10", "types-PyYAML", "types-defusedxml
 [tool.ruff]
 line-length = 120
 target-version = "py311"
-src = ["data/scripts", "data/tests"]
+src = ["data/scripts", "data/tests", "apps/api"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "S"]
@@ -29,14 +46,17 @@ ignore = ["S101", "S603", "S607"]
 
 [tool.ruff.lint.per-file-ignores]
 "data/tests/*" = ["S", "E501"]
+"apps/api/tests/*" = ["S", "E501"]
+"apps/api/meridian/etl/*" = ["E501"]
+"apps/api/migrations/*" = ["E501", "I001"]
 
 [tool.pytest.ini_options]
-pythonpath = ["data/scripts"]
-testpaths = ["data/tests"]
+pythonpath = ["data/scripts", "apps/api"]
+testpaths = ["data/tests", "apps/api/tests"]
 
 [tool.mypy]
 python_version = "3.11"
 strict = true
-mypy_path = "data/scripts"
+mypy_path = "data/scripts:apps/api"
 explicit_package_bases = true
 ignore_missing_imports = true

@@ -287,13 +287,55 @@ def place_type_for(instance_of: list[str], class_map: dict[str, str]) -> str | N
     return min(types, key=lambda t: order[t]) if types else None
 
 
+WDQS_URL = "https://query.wikidata.org/sparql"
+
+
+def fetch_class_map_from_wdqs(client: Any, pause: float = 5.0) -> dict[str, str]:
+    """Expand the seed classes through the live Wikidata Query Service.
+
+    This replaces the subclass edges collected from the dump, which are only complete after
+    a full pass. One query per seed class; priority order is the same as build_class_map.
+    """
+    class_map: dict[str, str] = {}
+    limiter = common.RateLimiter(pause)
+    for place_type, seeds in SEED_CLASSES:
+        for seed in seeds:
+            query = f"SELECT ?c WHERE {{ ?c wdt:P279* wd:{seed} }}"
+            limiter.wait("wdqs")
+            response = common.request_with_retry(
+                client,
+                "GET",
+                WDQS_URL,
+                params={"query": query, "format": "json"},
+                headers={"Accept": "application/sparql-results+json"},
+                logger=log,
+                timeout=120.0,
+            )
+            response.raise_for_status()
+            for row in response.json()["results"]["bindings"]:
+                class_map.setdefault(row["c"]["value"].rsplit("/", 1)[-1], place_type)
+            class_map.setdefault(seed, place_type)
+        log.info("class closure for %s: %d classes so far", place_type, len(class_map))
+    return class_map
+
+
 # ---------------------------------------------------------------------------
 # Passes
 # ---------------------------------------------------------------------------
 
 
-def scan(lines: Iterable[bytes], work: Path, languages: set[str], limit: int | None) -> dict[str, int]:
-    """Pass 1: write subclass edges and coordinate candidates to the work directory."""
+def scan(
+    lines: Iterable[bytes],
+    work: Path,
+    languages: set[str],
+    limit: int | None,
+    class_map: dict[str, str] | None = None,
+) -> dict[str, int]:
+    """Pass 1: write subclass edges and coordinate candidates to the work directory.
+
+    With a precomputed class_map the subclass edges are not needed and only candidates that
+    already match a place type are written, which keeps the spool small.
+    """
     work.mkdir(parents=True, exist_ok=True)
     counts = {"lines": 0, "edges": 0, "candidates": 0}
     started = time.monotonic()
@@ -305,16 +347,18 @@ def scan(lines: Iterable[bytes], work: Path, languages: set[str], limit: int | N
             if counts["lines"] % 500_000 == 0:
                 rate = counts["lines"] / (time.monotonic() - started)
                 log.info("scanned %d lines (%.0f/s): %s", counts["lines"], rate, counts)
-            if b'"P625"' not in line and b'"P279"' not in line:
+            if b'"P625"' not in line and (class_map is not None or b'"P279"' not in line):
                 continue
             entity = entity_from_line(line)
             if entity is None:
                 continue
-            parents = item_ids(entity, "P279")
+            parents = item_ids(entity, "P279") if class_map is None else []
             if parents and isinstance(entity.get("id"), str):
                 edges.write(json.dumps({"id": entity["id"], "parents": parents}).encode() + b"\n")
                 counts["edges"] += 1
             candidate = candidate_from_entity(entity, languages)
+            if candidate and class_map is not None and place_type_for(candidate["instance_of"], class_map) is None:
+                continue
             if candidate:
                 spool.write(json.dumps(candidate, ensure_ascii=False).encode() + b"\n")
                 counts["candidates"] += 1
@@ -357,9 +401,12 @@ NAME_SCHEMA = pa.schema(
 )
 
 
-def filter_candidates(work: Path, out_dir: Path, batch_size: int = 100_000) -> dict[str, Any]:
+def filter_candidates(
+    work: Path, out_dir: Path, batch_size: int = 100_000, class_map: dict[str, str] | None = None
+) -> dict[str, Any]:
     """Pass 2: keep candidates inside the class closure and write parquet files."""
-    class_map = build_class_map(load_edges(work))
+    if class_map is None:
+        class_map = build_class_map(load_edges(work))
     common.write_json(out_dir / "class_map.json", dict(sorted(class_map.items())))
     kept = 0
     by_type: dict[str, int] = {}
@@ -432,6 +479,13 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--languages", default=",".join(DEFAULT_LANGUAGES))
     parser.add_argument("--limit-lines", type=int, help="stop after N dump lines (smoke tests)")
+    parser.add_argument(
+        "--class-map-source",
+        choices=["dump", "wdqs"],
+        default="dump",
+        help="build the class hierarchy from dump edges or the Wikidata Query Service",
+    )
+    parser.add_argument("--class-map", type=Path, help="reuse a class_map.json written by an earlier run")
     parser.add_argument("--cleanup", action="store_true", help="delete the work directory when done")
     parser.add_argument("--out", type=Path, help="output directory")
     args = parser.parse_args(argv)
@@ -442,11 +496,19 @@ def main(argv: list[str] | None = None) -> int:
     languages = {x.strip() for x in args.languages.split(",") if x.strip()}
     try:
         scan_counts: dict[str, int] = {}
+        class_map: dict[str, str] | None = None
+        if args.class_map:
+            class_map = json.loads(args.class_map.read_text(encoding="utf-8"))
+        elif args.class_map_source == "wdqs" and not args.filter_only:
+            with common.make_client(timeout=120.0) as client:
+                class_map = fetch_class_map_from_wdqs(client)
+            out_dir.mkdir(parents=True, exist_ok=True)
+            common.write_json(out_dir / "class_map.json", dict(sorted(class_map.items())))
         if not args.filter_only:
             lines = file_lines(args.dump) if args.dump else url_lines(args.url)
-            scan_counts = scan(lines, work, languages, args.limit_lines)
+            scan_counts = scan(lines, work, languages, args.limit_lines, class_map)
             log.info("scan complete: %s", scan_counts)
-        result = filter_candidates(work, out_dir)
+        result = filter_candidates(work, out_dir, class_map=class_map)
     except Exception as exc:
         log.error("wikidata subset failed: %s", exc)
         common.write_status("wikidata", False, {"error": str(exc)})

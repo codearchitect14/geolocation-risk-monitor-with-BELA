@@ -13,3 +13,4 @@ data/processed/*
 !data/processed/.gitkeep
 data/logs/
 data/annotation/tasks/
+.local/
