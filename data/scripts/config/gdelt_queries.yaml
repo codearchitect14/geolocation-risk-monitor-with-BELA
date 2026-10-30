@@ -1,0 +1,108 @@
+# Topic query matrix for the GDELT DOC 2.0 harvester.
+# Each topic lists search terms per source language. Phrases are quoted by the
+# harvester. Terms must be at least three characters. Add languages by adding
+# a key under `languages` and a term list for every topic.
+languages:
+  english: {sourcelang: english}
+  spanish: {sourcelang: spanish}
+  french: {sourcelang: french}
+  german: {sourcelang: german}
+  portuguese: {sourcelang: portuguese}
+
+topics:
+  fire:
+    english: [fire, blaze, wildfire]
+    spanish: [incendio, "fuego forestal"]
+    french: [incendie, "feu de forêt"]
+    german: [Brand, Feuer, Waldbrand]
+    portuguese: [incêndio, "fogo florestal"]
+  explosion:
+    english: [explosion, blast]
+    spanish: [explosión, estallido]
+    french: [explosion, déflagration]
+    german: [Explosion, Detonation]
+    portuguese: [explosão]
+  spill:
+    english: ["oil spill", "chemical spill", "toxic leak"]
+    spanish: ["derrame de petróleo", "derrame químico", "fuga tóxica"]
+    french: ["marée noire", "déversement chimique", "fuite toxique"]
+    german: [Ölteppich, Chemieunfall, Giftleck]
+    portuguese: ["derramamento de óleo", "vazamento químico", "vazamento tóxico"]
+  flood:
+    english: [flood, flooding, "flash flood"]
+    spanish: [inundación, inundaciones, crecida]
+    french: [inondation, inondations, crue]
+    german: [Überschwemmung, Hochwasser, Flut]
+    portuguese: [inundação, enchente, alagamento]
+  storm:
+    english: [storm, hurricane, typhoon, cyclone, tornado]
+    spanish: [tormenta, huracán, tifón, ciclón, tornado]
+    french: [tempête, ouragan, typhon, cyclone, tornade]
+    german: [Sturm, Orkan, Taifun, Zyklon, Tornado]
+    portuguese: [tempestade, furacão, tufão, ciclone, tornado]
+  earthquake:
+    english: [earthquake, tremor, aftershock]
+    spanish: [terremoto, sismo, réplica]
+    french: ["tremblement de terre", séisme, secousse]
+    german: [Erdbeben, Nachbeben, Beben]
+    portuguese: [terremoto, sismo, abalo]
+  strike:
+    english: [strike, walkout, "industrial action"]
+    spanish: [huelga, paro, "paro laboral"]
+    french: [grève, débrayage]
+    german: [Streik, Arbeitsniederlegung]
+    portuguese: [greve, paralisação]
+  protest:
+    english: [protest, demonstration, riot, unrest]
+    spanish: [protesta, manifestación, disturbios]
+    french: [manifestation, émeute, troubles]
+    german: [Protest, Demonstration, Ausschreitungen]
+    portuguese: [protesto, manifestação, tumulto]
+  blockade:
+    english: [blockade, roadblock, picket]
+    spanish: [bloqueo, bloqueos, "corte de ruta"]
+    french: [blocus, barrage, blocage]
+    german: [Blockade, Straßensperre]
+    portuguese: [bloqueio, bloqueios]
+  port_closure:
+    english: ["port closed", "port closure", "port shutdown", "terminal closed"]
+    spanish: ["puerto cerrado", "cierre del puerto", "cierre portuario"]
+    french: ["port fermé", "fermeture du port"]
+    german: [Hafensperrung, "Hafen gesperrt", "Hafen geschlossen"]
+    portuguese: ["porto fechado", "fechamento do porto", "paralisação do porto"]
+  airport_closure:
+    english: ["airport closed", "airport closure", "flights suspended", "flights cancelled"]
+    spanish: ["aeropuerto cerrado", "cierre del aeropuerto", "vuelos cancelados"]
+    french: ["aéroport fermé", "fermeture de l'aéroport", "vols annulés"]
+    german: [Flughafensperrung, "Flughafen gesperrt", "Flüge gestrichen"]
+    portuguese: ["aeroporto fechado", "fechamento do aeroporto", "voos cancelados"]
+  road_closure:
+    english: ["road closed", "road closure", "highway closed", "bridge closed"]
+    spanish: ["carretera cerrada", "cierre de carretera", "autopista cerrada"]
+    french: ["route fermée", "fermeture de la route", "autoroute fermée"]
+    german: [Straßensperrung, "Autobahn gesperrt", Vollsperrung]
+    portuguese: ["estrada fechada", "rodovia interditada", "interdição da rodovia"]
+  power_outage:
+    english: ["power outage", blackout, "power cut"]
+    spanish: [apagón, "corte de luz", "corte de energía"]
+    french: ["panne de courant", "coupure d'électricité", "coupure de courant"]
+    german: [Stromausfall, Blackout]
+    portuguese: [apagão, "queda de energia", "falta de luz"]
+  outbreak:
+    english: [outbreak, epidemic, "disease cluster"]
+    spanish: [brote, epidemia]
+    french: [épidémie, "foyer de contamination"]
+    german: [Ausbruch, Epidemie, Seuche]
+    portuguese: [surto, epidemia]
+  derailment:
+    english: [derailment, "train crash", "rail accident"]
+    spanish: [descarrilamiento, "accidente ferroviario"]
+    french: [déraillement, "accident ferroviaire"]
+    german: [Zugunglück, Entgleisung]
+    portuguese: [descarrilamento, "acidente ferroviário"]
+  accident:
+    english: ["industrial accident", "factory accident", "plant accident", "pile-up"]
+    spanish: ["accidente industrial", "accidente en fábrica", "accidente de planta"]
+    french: ["accident industriel", "accident d'usine"]
+    german: [Industrieunfall, Werksunfall, Fabrikunglück]
+    portuguese: ["acidente industrial", "acidente em fábrica"]

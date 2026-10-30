@@ -1,0 +1,39 @@
+<View>
+  <Header value="Event gold: classify the reported event and mark where it happened"/>
+  <Text name="title" value="$title"/>
+  <Text name="snippet" value="$snippet"/>
+  <HyperText name="link" value="$link_html" inline="true"/>
+  <Choices name="event_type" toName="title" choice="single" showInline="false" required="true">
+    <Choice value="industrial_accident"/>
+    <Choice value="natural_hazard"/>
+    <Choice value="transport_disruption"/>
+    <Choice value="labor_action"/>
+    <Choice value="civil_unrest"/>
+    <Choice value="security_incident"/>
+    <Choice value="infrastructure_outage"/>
+    <Choice value="health_outbreak"/>
+    <Choice value="other"/>
+    <Choice value="none"/>
+  </Choices>
+  <Choices name="severity" toName="title" choice="single" showInline="true">
+    <Choice value="1"/>
+    <Choice value="2"/>
+    <Choice value="3"/>
+    <Choice value="4"/>
+  </Choices>
+  <Choices name="location_level" toName="title" choice="single" showInline="true">
+    <Choice value="facility"/>
+    <Choice value="city"/>
+    <Choice value="admin2"/>
+    <Choice value="admin1"/>
+    <Choice value="country"/>
+    <Choice value="unknown"/>
+  </Choices>
+  <TextArea name="event_location" toName="title" rows="1"
+            placeholder="Name, then Wikidata Q-id or GeoNames id, then latitude and longitude"/>
+  <TextArea name="near_asset" toName="title" rows="2"
+            placeholder="For each synthetic asset shown in the task: asset id and yes or no (within the area of the event)"/>
+  <Choices name="private_person" toName="title" choice="multiple" showInline="true">
+    <Choice value="subject_is_named_private_person"/>
+  </Choices>
+</View>

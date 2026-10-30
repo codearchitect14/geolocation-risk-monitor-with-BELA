@@ -1,0 +1,26 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  data-tooling:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install -e ".[dev]"
+      - name: Character check (no U+2014)
+        run: .venv/bin/python infra/ci/check_no_em_dash.py .
+      - name: Lint
+        run: .venv/bin/ruff check data infra
+      - name: Type check
+        run: .venv/bin/mypy data/scripts
+      - name: Tests
+        run: .venv/bin/pytest -q

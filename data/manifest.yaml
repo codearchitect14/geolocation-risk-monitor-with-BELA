@@ -1,0 +1,428 @@
+# Machine-readable registry of every data source.
+# kind: static   downloaded files with size and SHA-256 recorded under `files`
+# kind: harvest  appended-to feeds; run statistics recorded under `last_run`
+# kind: external not downloaded by a script (own work or decided later)
+# Run `make verify-data` to check recorded checksums.
+version: 1
+sources:
+- id: wikidata
+  name: Wikidata place and facility subset
+  kind: static
+  url: https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.bz2
+  script: build_wikidata_subset.py
+  local_path: raw/knowledge_base/wikidata/
+  license: CC0 1.0
+  attribution: Wikidata
+  redistribution: Allowed
+  notes: Streamed and filtered; the full dump is not stored. Entities with coordinates (P625) in the seed
+    class hierarchy.
+  retrieved_at: null
+  files: []
+- id: geonames
+  name: GeoNames gazetteer
+  kind: static
+  url: https://download.geonames.org/export/dump/
+  script: download_geonames.py
+  local_path: raw/gazetteer/geonames/
+  license: Creative Commons Attribution (confirm version and wording on geonames.org)
+  attribution: GeoNames (geonames.org)
+  redistribution: Allowed with attribution
+  notes: No published checksums; the first verified download is recorded.
+  retrieved_at: '2026-10-30T12:41:02Z'
+  files:
+  - path: raw/gazetteer/geonames/admin1CodesASCII.txt
+    url: https://download.geonames.org/export/dump/admin1CodesASCII.txt
+    size: 151571
+    sha256: 2e4867f5397acb056ea26377601b57af37cb4c81399770225018e9e439e91ad3
+  - path: raw/gazetteer/geonames/admin2Codes.txt
+    url: https://download.geonames.org/export/dump/admin2Codes.txt
+    size: 2371888
+    sha256: e0cd374c39ea78dfd878edfbdcd339f7bdd4016f0147c90fc6a5e45eb7f10279
+  - path: raw/gazetteer/geonames/cities15000.zip
+    url: https://download.geonames.org/export/dump/cities15000.zip
+    size: 3364684
+    sha256: 449edf72e23bbb81532f5617bca2ba2e37357304ab6db34733a19a325add3f7d
+  - path: raw/gazetteer/geonames/countryInfo.txt
+    url: https://download.geonames.org/export/dump/countryInfo.txt
+    size: 32115
+    sha256: 5c710efde90ee4cca15001c9f6a97ae7a74c7020b365504913ddc3afeb6d3671
+  - path: raw/gazetteer/geonames/featureCodes_en.txt
+    url: https://download.geonames.org/export/dump/featureCodes_en.txt
+    size: 58642
+    sha256: d44f129c1cffdeabf759c99fe7ea5b84f615c7f3e7366fb76ccf990f408f6af7
+  - path: raw/gazetteer/geonames/hierarchy.zip
+    url: https://download.geonames.org/export/dump/hierarchy.zip
+    size: 2073451
+    sha256: 57e1d0659e437bb9de914525c660c12d606c702effedad2edd9d40025d72f902
+  - path: raw/gazetteer/geonames/iso-languagecodes.txt
+    url: https://download.geonames.org/export/dump/iso-languagecodes.txt
+    size: 137908
+    sha256: cb0d34f492775deec8ec5713da6efa4463dad99b5e7ba2172bd094cfdcb76571
+- id: natural_earth
+  name: Natural Earth vector layers
+  kind: static
+  url: https://www.naturalearthdata.com/downloads/
+  script: download_natural_earth.py
+  local_path: raw/boundaries/natural_earth/
+  license: Public domain (United States)
+  attribution: Made with Natural Earth
+  redistribution: Allowed
+  notes: GeoJSON for admin-1 omits type_en, valid_from, valid_to (GADM dependent columns).
+  retrieved_at: '2026-10-30T12:25:24Z'
+  files:
+  - path: raw/boundaries/natural_earth/ne_10m_admin_0_countries/ne_10m_admin_0_countries.geojson
+    url: null
+    size: 22448653
+    sha256: 0c789d4188d64cb18227797d34f5054613376015fc6d96a0984e3d6edf65d3af
+  - path: raw/boundaries/natural_earth/ne_10m_admin_0_countries/ne_10m_admin_0_countries.zip
+    url: https://naciscdn.org/naturalearth/10m/cultural/ne_10m_admin_0_countries.zip
+    size: 4930492
+    sha256: ce1ac7036499a0edd641fbc093cd209a98f96a49d2eca8480aaacad35138a7f6
+  - path: raw/boundaries/natural_earth/ne_10m_admin_1_states_provinces/ne_10m_admin_1_states_provinces.geojson
+    url: null
+    size: 61839362
+    sha256: 7a762a4b81d6db139cebc79c3f9e39c0211d4732b267500e3ab434aad6652721
+  - path: raw/boundaries/natural_earth/ne_10m_admin_1_states_provinces/ne_10m_admin_1_states_provinces.zip
+    url: https://naciscdn.org/naturalearth/10m/cultural/ne_10m_admin_1_states_provinces.zip
+    size: 14909524
+    sha256: efc59726337323058f9446210adc96673179cd344e053666ee3d28cb58ba2b05
+  - path: raw/boundaries/natural_earth/ne_10m_populated_places/ne_10m_populated_places.geojson
+    url: null
+    size: 18481363
+    sha256: 39bf0b6e1b8456fae60661ac3903280209e14e57f315a85cc5e2bd86efc8d0e8
+  - path: raw/boundaries/natural_earth/ne_10m_populated_places/ne_10m_populated_places.zip
+    url: https://naciscdn.org/naturalearth/10m/cultural/ne_10m_populated_places.zip
+    size: 2811199
+    sha256: cd149186f03d2603e0410da399b980a4357d0ac32d3a2305a49ed3dffcc41d7b
+  - path: raw/boundaries/natural_earth/ne_50m_admin_0_countries/ne_50m_admin_0_countries.geojson
+    url: null
+    size: 4459871
+    sha256: 9b9e8f7b1f6f49626bc7622388e2312d4809caeee5c1b3ef88d2e2f3e63487e7
+  - path: raw/boundaries/natural_earth/ne_50m_admin_0_countries/ne_50m_admin_0_countries.zip
+    url: https://naciscdn.org/naturalearth/50m/cultural/ne_50m_admin_0_countries.zip
+    size: 799734
+    sha256: 5fed433373581fa648920435f937d95f2d3c0200e067409c6478dcdf1b853139
+  - path: raw/boundaries/natural_earth/ne_50m_land/ne_50m_land.geojson
+    url: null
+    size: 2382338
+    sha256: 889ebe45b34113c24a89603e3e43e16c49e18e28dc463a78a5e15525dceed1f9
+  - path: raw/boundaries/natural_earth/ne_50m_land/ne_50m_land.zip
+    url: https://naciscdn.org/naturalearth/50m/physical/ne_50m_land.zip
+    size: 457183
+    sha256: 0b8e670cf80dce9cbebe2a193bc44ba5602758c22e1fa603980553646d7ff162
+- id: gdelt_doc
+  name: GDELT DOC 2.0 article discovery
+  kind: harvest
+  url: https://api.gdeltproject.org/api/v2/doc/doc
+  script: harvest_gdelt.py
+  local_path: raw/news/gdelt/
+  license: Free for research use; metadata only
+  attribution: GDELT Project
+  redistribution: Metadata only; publishers keep copyright
+  notes: About one request per five seconds, 250 results per query.
+  retrieved_at: '2026-10-30T12:32:33Z'
+  last_run:
+    queries: 4
+    failed: 3
+    capped: 0
+    articles_seen: 0
+    written: 0
+- id: gdelt_gkg
+  name: GDELT GKG 2.0 location baseline
+  kind: harvest
+  url: https://data.gdeltproject.org/gdeltv2/
+  script: download_gkg.py
+  local_path: raw/news/gdelt_gkg/
+  license: Free for research use; metadata only
+  attribution: GDELT Project
+  redistribution: Metadata only; publishers keep copyright
+  notes: Raw zip files are deleted after the V2Locations field is extracted.
+  retrieved_at: '2026-10-30T12:32:36Z'
+  last_run:
+    converted: 2
+    skipped: 0
+    missing: 0
+    articles: 1935
+- id: article_text
+  name: Article text extraction
+  kind: harvest
+  url: null
+  script: fetch_article_text.py
+  local_path: raw/news/articles/
+  license: Publisher copyright
+  attribution: Link to the original article
+  redistribution: Snippets of at most 300 characters only
+  notes: robots.txt honored, per-domain rate limits, no full text stored.
+  retrieved_at: null
+  last_run: null
+- id: cc_news
+  name: Multilingual CC-News
+  kind: static
+  url: https://huggingface.co/datasets/intfloat/multilingual_cc_news
+  script: download_cc_news.py
+  local_path: raw/news/cc_news/
+  license: Publisher copyright; non-commercial testing
+  attribution: intfloat/multilingual_cc_news; CloverSearch/cc-news-mutlilingual
+  redistribution: Not redistributed; show title, snippet, and link only
+  notes: Parquet files come from the auto-converted revision pinned in the script.
+  retrieved_at: '2026-10-30T12:41:34Z'
+  files:
+  - path: raw/news/cc_news/af/train/0000.parquet
+    url: https://huggingface.co/datasets/intfloat/multilingual_cc_news
+    size: 9186578
+    sha256: 33d5d5d27eaa445af6d2d3b2e1d7809a840da0d7bfc401f7dcea8a46685a9aaf
+- id: usgs
+  name: USGS earthquake feeds
+  kind: harvest
+  url: https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson
+  script: pull_usgs.py
+  local_path: raw/hazards/usgs/
+  license: Public domain
+  attribution: U.S. Geological Survey
+  redistribution: Allowed
+  notes: Polled every 5 minutes. History uses the FDSN event query API.
+  retrieved_at: '2026-10-30T12:26:37Z'
+  last_run:
+    mode: history
+    received: 158
+    written: 158
+    rejected: 0
+- id: nws
+  name: National Weather Service alerts
+  kind: harvest
+  url: https://api.weather.gov/alerts/active
+  script: pull_nws.py
+  local_path: raw/hazards/nws/
+  license: Open data, free for any purpose per NWS
+  attribution: National Weather Service
+  redistribution: Allowed
+  notes: Requires an identifying User-Agent. Covers the past seven days; use NCEI for archives. US only.
+  retrieved_at: '2026-10-30T12:37:54Z'
+  last_run:
+    received: 518
+    written: 518
+    rejected: 0
+    with_geometry: 14
+    bytes: 2179447
+- id: firms
+  name: NASA FIRMS active fire detections
+  kind: harvest
+  url: https://firms.modaps.eosdis.nasa.gov/api/area/
+  script: pull_firms.py
+  local_path: raw/hazards/firms/
+  license: Free with MAP_KEY
+  attribution: NASA FIRMS
+  redistribution: Follow NASA FIRMS data use policy
+  notes: Limit 5,000 transactions per 10 minutes. Day range 1 to 5.
+  retrieved_at: null
+  last_run: null
+- id: reliefweb
+  name: ReliefWeb reports and disasters (optional)
+  kind: harvest
+  url: https://api.reliefweb.int/v2
+  script: pull_reliefweb.py
+  local_path: raw/hazards/reliefweb/
+  license: Open access; some content belongs to original sources
+  attribution: ReliefWeb (UN OCHA)
+  redistribution: Title, snippet, and link only
+  notes: Requires an approved appname. Country-level location only.
+  retrieved_at: null
+  last_run: null
+- id: gdacs
+  name: GDACS global disaster alerts
+  kind: external
+  url: https://www.gdacs.org
+  script: null
+  local_path: null
+  license: Reuse terms not confirmed
+  attribution: null
+  redistribution: Excluded until terms are confirmed in writing
+  notes: Not ingested. Alerts are automated and not a substitute for official alerts.
+- id: eupeg
+  name: EUPEG public geoparsing corpora
+  kind: static
+  url: https://github.com/geoai-lab/EUPEG
+  script: download_eupeg.py
+  local_path: raw/eval/eupeg/
+  license: Repository GPL-3.0; each corpus keeps its authors' license (confirm before redistribution)
+  attribution: LGL, GeoVirus, TR-News, GeoWebNews, WikToR, Hu2014, Ju2016 authors; EUPEG authors
+  redistribution: Evaluation use only; not redistributed
+  notes: Pinned to a commit. GeoCorpora is excluded (tweet IDs only).
+  retrieved_at: '2026-10-30T12:26:27Z'
+  files:
+  - path: raw/eval/eupeg/geovirus.jsonl
+    url: null
+    size: 794559
+    sha256: ebf1e1f16b034b5f54f8fe9341f77f9d8459a6eda7010f9c8437db48c69910d7
+  - path: raw/eval/eupeg/geowebnews.jsonl
+    url: null
+    size: 1476728
+    sha256: dfcb13068baa8e27b6826549efd0ba5ce57c6a995e53459043a179a83dcb3cf1
+  - path: raw/eval/eupeg/lgl.jsonl
+    url: null
+    size: 2148873
+    sha256: 1e194f3bb2aa99b03d26a7867230a347be5a759f6df3cd45a8f901f3a365e0ca
+  - path: raw/eval/eupeg/original/GWN.xml
+    url: https://raw.githubusercontent.com/geoai-lab/EUPEG/97d5b6c74887fa3e7ab515899b625fc586e7ba5f/corpora/GWN.xml
+    size: 2426111
+    sha256: 462774afea350db9e371a0f62fabea7ac9c3b806b4cc73aa20aebd1e34ddca31
+  - path: raw/eval/eupeg/original/GeoVirus.xml
+    url: https://raw.githubusercontent.com/geoai-lab/EUPEG/97d5b6c74887fa3e7ab515899b625fc586e7ba5f/corpora/GeoVirus.xml
+    size: 1066458
+    sha256: 06a77cb97f8c36bed47717f49571cbe465d5d61a0995cafa8a5d798c8f47c986
+  - path: raw/eval/eupeg/original/GreenVille.txt
+    url: https://raw.githubusercontent.com/geoai-lab/EUPEG/97d5b6c74887fa3e7ab515899b625fc586e7ba5f/corpora/Hu2014/GreenVille.txt
+    size: 6222
+    sha256: 6b00a7d6abb1a8e67b1d00bffb7d62ff317cf769a1db90c9289742730b8ef455
+  - path: raw/eval/eupeg/original/TR-News.xml
+    url: https://raw.githubusercontent.com/geoai-lab/EUPEG/97d5b6c74887fa3e7ab515899b625fc586e7ba5f/corpora/TR-News.xml
+    size: 997629
+    sha256: a1b256661e16b51fa02e7d617dc131e01237dd252872cf13fe92b0d26f5823e5
+  - path: raw/eval/eupeg/original/Washington.txt
+    url: https://raw.githubusercontent.com/geoai-lab/EUPEG/97d5b6c74887fa3e7ab515899b625fc586e7ba5f/corpora/Hu2014/Washington.txt
+    size: 18691
+    sha256: f06f7c24f37b018d31da7df0f2382998dc5640fb7f22e94759a8070f00d99765
+  - path: raw/eval/eupeg/original/WikToR.xml
+    url: https://raw.githubusercontent.com/geoai-lab/EUPEG/97d5b6c74887fa3e7ab515899b625fc586e7ba5f/corpora/WikToR.xml
+    size: 9915012
+    sha256: 71f13b6e23690d8554e76113b994a0261e105a50a59a5befccb2cc9ea702749e
+  - path: raw/eval/eupeg/original/lgl.xml
+    url: https://raw.githubusercontent.com/geoai-lab/EUPEG/97d5b6c74887fa3e7ab515899b625fc586e7ba5f/corpora/lgl.xml
+    size: 3355124
+    sha256: d251018853e8d0f7f8bf49ca6e042418a26f4718f85e1e5393a5b4ef9ae5f007
+  - path: raw/eval/eupeg/original/testing_sentence_city_ambiPlaceName.csv
+    url: https://raw.githubusercontent.com/geoai-lab/EUPEG/97d5b6c74887fa3e7ab515899b625fc586e7ba5f/corpora/Ju2016/testing_sentence_city_ambiPlaceName.csv
+    size: 835443
+    sha256: ecfcc570407f94896bf6bbebaa5927a79904e69849167fb2cf4c5ecf83a045fa
+  - path: raw/eval/eupeg/tr-news.jsonl
+    url: null
+    size: 502346
+    sha256: aff303ba3cbfb0832191158780851e742adcfc0b748ca870d06354b59a5b0681
+  - path: raw/eval/eupeg/wiktor.jsonl
+    url: null
+    size: 11730960
+    sha256: 5c1d18e56bac27de6a33a35c7f36d88f98f344f00681df9151530ac86b6bc321
+- id: mewsli_x
+  name: Mewsli-X (optional)
+  kind: static
+  url: https://huggingface.co/datasets/izhx/mewsli-x
+  script: download_mewsli_x.py
+  local_path: raw/eval/mewsli_x/
+  license: Apache-2.0 (per dataset card)
+  attribution: Mewsli-X authors
+  redistribution: Allowed under Apache-2.0
+  notes: General linking sanity check only.
+  retrieved_at: '2026-10-30T12:41:29Z'
+  files:
+  - path: raw/eval/mewsli_x/README.md
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 6062
+    sha256: ee31a66c6b506f678ad23215690e32b11860050cd34da30b71e33642298c1fe2
+  - path: raw/eval/mewsli_x/wikinews_mentions/ar/dev.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 154683
+    sha256: 2d4d74a16de9612b07253e73e74ad0b0a80c1ca9fe4c1536a186981fc48c639d
+  - path: raw/eval/mewsli_x/wikinews_mentions/ar/test.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 713537
+    sha256: 1dd5f4bdbb8321a6f105a811fdb181667452d87bb42b7c893e12a07809b25415
+  - path: raw/eval/mewsli_x/wikinews_mentions/de/dev.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 97203
+    sha256: b3b0d1e014a49e6026492a77c402b69b6f0915e9f5723711dd5265d260dec681
+  - path: raw/eval/mewsli_x/wikinews_mentions/de/test.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 461407
+    sha256: 42c17f2a4eec2519e3b7454639bb6ffdbc34b8fec162367452bb439cb8f6f7d5
+  - path: raw/eval/mewsli_x/wikinews_mentions/en/dev.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 89845
+    sha256: ed3d6a9ca63bfb8c7a6bdf97c5b8b0533f8421a8bdc45c18bf602ad701085a84
+  - path: raw/eval/mewsli_x/wikinews_mentions/en/test.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 415039
+    sha256: 58921f26f963ae2e2b9ba49efcdc5aa89697a84346767310b905b89f3b9c49cc
+  - path: raw/eval/mewsli_x/wikinews_mentions/es/dev.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 105562
+    sha256: edc53bb2d9fb54ecfe7b1f456559b7531ba9b31e25614551db3788458b968028
+  - path: raw/eval/mewsli_x/wikinews_mentions/es/test.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 531753
+    sha256: cc91d46da39d85d3ee76a376e94be59bf15396dfbf03ac682fff8032797c33ac
+  - path: raw/eval/mewsli_x/wikinews_mentions/fa/dev.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 29675
+    sha256: a09d0ffe5a506c956d320e0f118182d99f66e3663460fd0e63cfe5efb83f2d93
+  - path: raw/eval/mewsli_x/wikinews_mentions/fa/test.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 192455
+    sha256: 541ff3bf4a0a83de3e6d5d19a7dd98c5fd175cce174cf6abad829f668142d2f1
+  - path: raw/eval/mewsli_x/wikinews_mentions/ja/dev.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 112577
+    sha256: 02c6ee280a4128f914960d0f6a602b89949b9fd01c55a4795a9d70eb23bce00a
+  - path: raw/eval/mewsli_x/wikinews_mentions/ja/test.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 569475
+    sha256: 6669ec361dfb3af254de79e8cc6d3571010171890df228257cc3d1a596d672a5
+  - path: raw/eval/mewsli_x/wikinews_mentions/pl/dev.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 83865
+    sha256: 3bccb1a63b81c74e4a018d8e34c6e6170b4372275455b7733a6dd4de5fd948f2
+  - path: raw/eval/mewsli_x/wikinews_mentions/pl/test.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 418748
+    sha256: a17aeac0f82286d73bb86858214644141f4ffb48b1083748eee8403f6d8b2593
+  - path: raw/eval/mewsli_x/wikinews_mentions/ro/dev.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 43973
+    sha256: f24b3df3f497be6e8bc8e7dc65116755e320ffff1c75ca01a1335bc9a8e627b9
+  - path: raw/eval/mewsli_x/wikinews_mentions/ro/test.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 200535
+    sha256: 2e1fd52607d4144e4a88a192c413084e3f71ceb0437e8a6fe2c5fe29699cabf1
+  - path: raw/eval/mewsli_x/wikinews_mentions/ta/dev.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 178155
+    sha256: 9e738a4494b3a6b9987b5c5ae616142ffff23cf4a939ad0d4bc29f4e2ed5579b
+  - path: raw/eval/mewsli_x/wikinews_mentions/ta/test.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 920466
+    sha256: 4dcc07958940de111b875c94e58e50411a8f8838d9b46b88091e20d4954946bf
+  - path: raw/eval/mewsli_x/wikinews_mentions/tr/dev.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 73244
+    sha256: bc39326af1e1d092ad4a68a5edd91d80cda68bd391da36021656f2aeacb38c7c
+  - path: raw/eval/mewsli_x/wikinews_mentions/tr/test.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 341410
+    sha256: de7753781bfc31b41c8d467b5b118dee8569e03027fe600c9f60fc0ff1387c74
+  - path: raw/eval/mewsli_x/wikinews_mentions/uk/dev.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 131844
+    sha256: 908455259e3626eb77c8e2d5d1ebc64407f6386f57dfa7ec523ec8de87dfb589
+  - path: raw/eval/mewsli_x/wikinews_mentions/uk/test.jsonl
+    url: https://huggingface.co/datasets/izhx/mewsli-x
+    size: 673456
+    sha256: ff531c423ca2086dbb37af9b9f6c9ce56089ae29abb496db9be9055ec72b8e48
+- id: gold
+  name: Self-built gold evaluation sets
+  kind: external
+  url: null
+  script: validate_gold.py
+  local_path: gold/
+  license: Own work
+  attribution: Project annotators
+  redistribution: Committed to this repository
+  notes: Mention gold and event gold, annotated in Label Studio.
+- id: basemap
+  name: Basemap (decided in phase 0)
+  kind: external
+  url: null
+  script: null
+  local_path: null
+  license: ODbL for OpenStreetMap derived tiles; Natural Earth fallback is public domain
+  attribution: OpenStreetMap contributors (when tiles are used)
+  redistribution: Per ODbL
+  notes: Option A PMTiles extract or Option B Natural Earth polygons only.

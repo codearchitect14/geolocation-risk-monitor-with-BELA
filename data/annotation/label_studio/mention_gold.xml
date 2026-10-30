@@ -1,0 +1,19 @@
+<View>
+  <Header value="Mention gold: mark every place or facility mention and link it"/>
+  <Text name="text" value="$text" granularity="word"/>
+  <Labels name="mention" toName="text">
+    <Label value="PLACE" background="#2F74D8"/>
+    <Label value="FACILITY" background="#00A3A3"/>
+    <Label value="NOT_A_PLACE" background="#6C7A89"/>
+  </Labels>
+  <TextArea name="target_id" toName="text" perRegion="true" editable="true" rows="1"
+            placeholder="Wikidata Q-id, GeoNames id (gn:123456), or NIL"/>
+  <Choices name="ambiguity" toName="text" perRegion="true" choice="single" showInline="true">
+    <Choice value="unambiguous"/>
+    <Choice value="ambiguous"/>
+  </Choices>
+  <Choices name="notes_flag" toName="text" choice="multiple" showInline="true">
+    <Choice value="needs_second_review"/>
+    <Choice value="text_unclear"/>
+  </Choices>
+</View>

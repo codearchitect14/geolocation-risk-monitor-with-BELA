@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.env
+.env.*
+!.env.example
+node_modules/
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/logs/
+data/annotation/tasks/
