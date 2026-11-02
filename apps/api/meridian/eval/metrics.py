@@ -58,13 +58,21 @@ def curve_auc(errors: list[float]) -> float:
     return sum(math.log1p(min(e, MAX_ERROR_KM)) for e in errors) / (len(errors) * scale)
 
 
-def summarize(errors: list[float | None], total_gold: int, predicted_resolved: int, matched: int) -> dict[str, float]:
+def summarize(
+    errors: list[float | None], total_gold: int, predicted_resolved: int | None, matched: int
+) -> dict[str, float]:
     """errors has one entry per gold toponym: a distance in km, or None when no prediction was matched."""
     present = [e for e in errors if e is not None]
     all_errors = [e if e is not None else MAX_ERROR_KM for e in errors]
-    precision = matched / predicted_resolved if predicted_resolved else 0.0
+    precision = (
+        float("nan") if predicted_resolved is None else (matched / predicted_resolved if predicted_resolved else 0.0)
+    )
     recall = matched / total_gold if total_gold else 0.0
-    f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
+    f1 = (
+        float("nan")
+        if precision != precision
+        else (2 * precision * recall / (precision + recall) if precision + recall else 0.0)
+    )
     return {
         "gold": float(total_gold),
         "detected": float(matched),

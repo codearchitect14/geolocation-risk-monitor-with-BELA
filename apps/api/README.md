@@ -68,3 +68,20 @@ any text before comparing it with `name_normalized` or `alias_normalized`.
 
 Database tests create a throwaway database on the local cluster and drop it afterwards; they are
 skipped when PostgreSQL is not reachable.
+
+## Place linking engine (phase 3)
+
+```
+make nel-index                 # one-time: float16 copy of the BELA entity vectors (services/nel/README.md)
+make nel-up && make llm-up     # entity linker (port 8082) and local language model (port 8081), both on the Apple GPU
+make geo-up                    # HTTP service for POST /v1/locate and the gazetteer search (port 8083)
+make eval-cache eval-train eval   # BELA over the public corpora, train the re-ranker, evaluate, write docs/eval/report.md
+make eval-throughput           # 10,000 article run
+make eval-gkg                  # agreement with GDELT's own locations
+```
+
+Library entry point: `meridian.linking.locate.locate(pipeline, text, title=..., outlet_country=...)`. Configuration is versioned in
+`meridian/config/geo_config_v1.yaml`. Results: `docs/eval/report.md`; limits and failure modes: `docs/model_card.md`.
+
+`python -m meridian.etl enrich --nel-cache <file>` adds places that BELA proposes but the place table lacks, through the Wikidata API
+(set `MS_CONTACT` to a URL or email: Wikimedia rejects anonymous clients). A full dump pass (`make data-wikidata`) makes this unnecessary.

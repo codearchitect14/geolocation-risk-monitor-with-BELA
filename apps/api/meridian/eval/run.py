@@ -203,15 +203,35 @@ def run_system(
 
 
 def aggregate(rows: list[dict[str, Any]], selector: Any = None) -> dict[str, float]:
+    """Metrics for the rows chosen by selector. Detection precision needs the predictions of whole documents,
+    so it is only reported when no selector narrows the rows; recall is always the share of chosen gold detected."""
     chosen = [r for r in rows if selector is None or selector(r)]
     errors = [r["error_km"] for r in chosen]
-    # detection precision uses per-document counts, counted once per document
-    seen: dict[tuple[str, str], tuple[int, int]] = {}
-    for r in chosen:
-        seen[(r["corpus"], r["doc_id"])] = (r["predicted"], r["matched"])
-    predicted = sum(p for p, _ in seen.values())
-    matched = sum(m for _, m in seen.values())
+    if selector is None:
+        seen: dict[tuple[str, str], tuple[int, int]] = {}
+        for r in chosen:
+            seen[(r["corpus"], r["doc_id"])] = (r["predicted"], r["matched"])
+        predicted: int | None = sum(p for p, _ in seen.values())
+        matched = sum(m for _, m in seen.values())
+    else:
+        predicted = None
+        matched = sum(1 for e in errors if e is not None)
     return summarize(errors, len(chosen), predicted, matched)
+
+
+def build_table(rows: list[dict[str, Any]], ambiguous: set[str]) -> dict[str, dict[str, Any]]:
+    table: dict[str, dict[str, Any]] = {}
+    for name in sorted({r["system"] for r in rows}):
+        sys_rows = [r for r in rows if r["system"] == name]
+        table[name] = {
+            "all": aggregate(sys_rows),
+            "ambiguous": aggregate(sys_rows, lambda r: normalize_name(r["surface"]) in ambiguous),
+            **{
+                f"corpus_{c}": aggregate(sys_rows, lambda r, c=c: r["corpus"] == c)
+                for c in sorted({r["corpus"] for r in sys_rows})
+            },
+        }
+    return table
 
 
 def write_outputs(rows: list[dict[str, Any]], extra: dict[str, Any]) -> None:
@@ -258,17 +278,7 @@ def evaluate(
     run_system("S5", dev, conn, pipeline, baselines, cache, dev_rows, {})
     ambiguous = ambiguous_surfaces(conn, test)
 
-    table: dict[str, dict[str, Any]] = {}
-    for name in sorted({r["system"] for r in rows}):
-        sys_rows = [r for r in rows if r["system"] == name]
-        table[name] = {
-            "all": aggregate(sys_rows),
-            "ambiguous": aggregate(sys_rows, lambda r: normalize_name(r["surface"]) in ambiguous),
-            **{
-                f"corpus_{c}": aggregate(sys_rows, lambda r, c=c: r["corpus"] == c)
-                for c in sorted({r["corpus"] for r in sys_rows})
-            },
-        }
+    table = build_table(rows, ambiguous)
     # calibration of S5 confidence by route, fitted on dev and checked on test
     cal = fit_calibration(dev_rows, [r for r in rows if r["system"] == "S5"])
     summary_path = systems.cache_path(EVAL_DIR, checkpoint).with_suffix(".summary.json")
@@ -483,6 +493,7 @@ def main(argv: list[str] | None = None) -> int:
     ev = sub.add_parser("evaluate")
     ev.add_argument("--checkpoint", default="model_wiki.ckpt")
     ev.add_argument("--no-llm", action="store_true")
+    sub.add_parser("recompute", help="rebuild result tables from the latest saved run")
     an = sub.add_parser("analyze", help="error analysis from the latest saved run")
     an.add_argument("--system", default="S6")
     tp = sub.add_parser("throughput")
@@ -505,6 +516,19 @@ def main(argv: list[str] | None = None) -> int:
             rows, labels, stats = collect_training(pipeline, docs, cache)
             report = Reranker.train(rows, labels, "reranker_v1_geo_config_v1", RERANKER_PATH)
             print(json.dumps({**stats, **report}, indent=1))
+        elif args.command == "recompute":
+            latest = sorted((DOCS_DIR / "runs").glob("run-*.csv"))[-1]
+            with latest.open(encoding="utf-8") as handle:
+                saved = list(csv.DictReader(handle))
+            for r in saved:
+                r["error_km"] = float(r["error_km"]) if r["error_km"] else None
+                r["predicted"], r["matched"] = int(r["predicted"]), int(r["matched"])
+            test_rows = [r for r in saved if r["split"] == "test"]
+            test_docs = [d for d in load_documents(conn) if d.split == "test"]
+            result = json.loads((EVAL_DIR / "result.json").read_text(encoding="utf-8"))
+            result["table"] = build_table(test_rows, ambiguous_surfaces(conn, test_docs))
+            (EVAL_DIR / "result.json").write_text(json.dumps(result, indent=1, default=str) + "\n", encoding="utf-8")
+            print(f"rebuilt tables from {latest.name}")
         elif args.command == "analyze":
             latest = sorted((DOCS_DIR / "runs").glob("run-*.csv"))[-1]
             with latest.open(encoding="utf-8") as handle:

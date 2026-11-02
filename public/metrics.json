@@ -1,0 +1,11 @@
+{
+ "generated_at": "2026-11-02T16:08:46Z",
+ "source": "docs/eval/report.md",
+ "evaluation": "public geoparsing corpora (LGL, TR-News, GeoWebNews, GeoVirus, WikToR sample), test split",
+ "places_indexed": 525626,
+ "median_error_km": 0.2,
+ "acc_161km": 0.6577,
+ "acc_161km_ambiguous": 0.6948,
+ "acc_161km_best_gazetteer_baseline_ambiguous": 0.5861,
+ "system": "S6 S5 + local model adjudication"
+}

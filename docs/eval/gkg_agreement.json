@@ -1,0 +1,773 @@
+{
+ "summary": {
+  "articles_sampled": 150,
+  "articles_fetched": 108,
+  "fetch_failures": 42,
+  "gkg_locations_covered_by_ours": 0.793,
+  "our_places_confirmed_by_gkg": 0.3693,
+  "gkg_locations": 739,
+  "our_places": 1825,
+  "event_location_matches_first_gkg_location": 0.3474,
+  "event_locations": 95,
+  "seconds": 826.0,
+  "note": "agreement between two automatic systems; disagreement does not identify the wrong one"
+ },
+ "articles": [
+  {
+   "url": "https://www.thestar.com.my/news/world/2026/10/29/us-couple039s-retirement-dream-in-ruins-after-residential-cruise-scrapped-in-cambodia",
+   "gkg_covered": 1,
+   "gkg_total": 1,
+   "ours_confirmed": 1,
+   "ours_total": 7
+  },
+  {
+   "url": "https://www.finanznachrichten.de/nachrichten-2026-10/69967142-elektros-inc-america-s-lithium-future-takes-center-stage-elektros-explores-a-new-york-opportunity-200.htm",
+   "gkg_covered": 4,
+   "gkg_total": 4,
+   "ours_confirmed": 5,
+   "ours_total": 18
+  },
+  {
+   "url": "https://gator995.com/ixp/204/p/cody-johnson-fighting-cowboys-for-fun/",
+   "gkg_covered": 0,
+   "gkg_total": 1,
+   "ours_confirmed": 0,
+   "ours_total": 4
+  },
+  {
+   "url": "http://www.israelherald.com/news/279402757/raamgate-an-earthquake-netanyahu-calls-on-zionist-parties-to-shun-arab-parties-after-allegations-of-foreign-funding-of-polls",
+   "gkg_covered": 2,
+   "gkg_total": 2,
+   "ours_confirmed": 7,
+   "ours_total": 25
+  },
+  {
+   "url": "https://whnz.iheart.com/content/2026-10-28-james-okeefe-charged-with-unlawful-voting-in-minnesota/",
+   "gkg_covered": 4,
+   "gkg_total": 4,
+   "ours_confirmed": 7,
+   "ours_total": 11
+  },
+  {
+   "url": "https://calgarysun.com/news/alberta-electoral-boundaries-ndp-legal-challenge/wcm/04b7ae7c-0694-476b-a760-479706675927",
+   "gkg_covered": 8,
+   "gkg_total": 10,
+   "ours_confirmed": 3,
+   "ours_total": 17
+  },
+  {
+   "url": "https://nbcmontana.com/news/nation-world/hundreds-of-ballots-left-in-skid-row-homeless-shelter-hallway-report-los-angeles-bill-essayli-doj-california-voter-registration-rrt",
+   "gkg_covered": 7,
+   "gkg_total": 8,
+   "ours_confirmed": 7,
+   "ours_total": 13
+  },
+  {
+   "url": "https://www.latimes.com/opinion/story/2026-10-29/trump-opposition-movement-bill-clinton-barack-obama",
+   "gkg_covered": 5,
+   "gkg_total": 8,
+   "ours_confirmed": 7,
+   "ours_total": 28
+  },
+  {
+   "url": "https://campbellrivermirror.com/2026/10/28/parks-canada-rolls-out-rogers-pass-winter-permits-in-final-season-of-current-avalanche-agreement/",
+   "gkg_covered": 0,
+   "gkg_total": 7,
+   "ours_confirmed": 0,
+   "ours_total": 14
+  },
+  {
+   "url": "https://allafrica.com/stories/202610290356.html",
+   "gkg_covered": 13,
+   "gkg_total": 13,
+   "ours_confirmed": 12,
+   "ours_total": 20
+  },
+  {
+   "url": "https://www.heraldscotland.com/news/26680316.edinburgh-bakery-teamed-michelin-guide-chef/",
+   "gkg_covered": 9,
+   "gkg_total": 9,
+   "ours_confirmed": 6,
+   "ours_total": 26
+  },
+  {
+   "url": "https://www.al-monitor.com/originals/2026/10/explainer-how-could-israel-break-election-deadlock",
+   "gkg_covered": 1,
+   "gkg_total": 1,
+   "ours_confirmed": 2,
+   "ours_total": 9
+  },
+  {
+   "url": "https://www.dunmowbroadcast.co.uk/news/national/26679490.charles-shakes-maracas-joins-dancers-carnival-parade/",
+   "gkg_covered": 9,
+   "gkg_total": 9,
+   "ours_confirmed": 1,
+   "ours_total": 22
+  },
+  {
+   "url": "https://www.the42.ie/league-cup-round-up-7208419-Oct2026/",
+   "gkg_covered": 27,
+   "gkg_total": 27,
+   "ours_confirmed": 25,
+   "ours_total": 68
+  },
+  {
+   "url": "https://www.dakotanewsnow.com/2026/10/28/national-first-responders-day-shines-light-burden-they-bear/",
+   "gkg_covered": 4,
+   "gkg_total": 4,
+   "ours_confirmed": 5,
+   "ours_total": 11
+  },
+  {
+   "url": "https://propakistani.pk/2026/10/29/xiaomi-launches-2x-cheaper-clip-on-earbuds-with-32-hour-battery-life/",
+   "gkg_covered": 0,
+   "gkg_total": 9,
+   "ours_confirmed": 0,
+   "ours_total": 5
+  },
+  {
+   "url": "https://www.johnogroat-journal.co.uk/news/caithness-family-history-society-facing-an-uncertain-future-448702/",
+   "gkg_covered": 9,
+   "gkg_total": 9,
+   "ours_confirmed": 12,
+   "ours_total": 19
+  },
+  {
+   "url": "https://943thepoint.com/ixp/396/p/mischief-night-name-history-new-jersey/",
+   "gkg_covered": 9,
+   "gkg_total": 9,
+   "ours_confirmed": 17,
+   "ours_total": 20
+  },
+  {
+   "url": "https://www.dailyexcelsior.com/dgp-says-police-committed-to-make-secure-safe-drug-free-jk/",
+   "gkg_covered": 0,
+   "gkg_total": 1,
+   "ours_confirmed": 0,
+   "ours_total": 2
+  },
+  {
+   "url": "https://keyt.com/news/national-world/cnn-national/2026/10/29/accused-cornell-student-to-make-case-for-removing-special-prosecutor-letitia-james-from-sex-assault-investigation/",
+   "gkg_covered": 7,
+   "gkg_total": 7,
+   "ours_confirmed": 7,
+   "ours_total": 20
+  },
+  {
+   "url": "https://theleader.info/2026/10/29/torrevieja-cancels-halloween-parade-and-public-events-following-toledo-train-tragedy/",
+   "gkg_covered": 6,
+   "gkg_total": 6,
+   "ours_confirmed": 6,
+   "ours_total": 12
+  },
+  {
+   "url": "https://cbs2iowa.com/news/nation-world/brewers-fans-in-northeast-wis-celebrate-world-series-title-rush-to-buy-championship-gear",
+   "gkg_covered": 8,
+   "gkg_total": 8,
+   "ours_confirmed": 12,
+   "ours_total": 18
+  },
+  {
+   "url": "https://insidetheiggles.com/cowboys-overpaying-for-ex-eagles-stud-josh-sweat-would-boost-philly-s-nfc-east-odds",
+   "gkg_covered": 11,
+   "gkg_total": 11,
+   "ours_confirmed": 12,
+   "ours_total": 22
+  },
+  {
+   "url": "https://www.stripes.com/branches/army/2026-10-28/army-sites-commercial-drone-testing-23291497.html",
+   "gkg_covered": 3,
+   "gkg_total": 5,
+   "ours_confirmed": 7,
+   "ours_total": 25
+  },
+  {
+   "url": "https://www.wbaltv.com/article/us-bans-imports-chinese-biotech-companies-labor-allegations/74280233",
+   "gkg_covered": 2,
+   "gkg_total": 10,
+   "ours_confirmed": 3,
+   "ours_total": 25
+  },
+  {
+   "url": "https://www.wuft.org/2026-10-28/trump-administration-will-allow-pharmacies-to-make-popular-peptides",
+   "gkg_covered": 1,
+   "gkg_total": 1,
+   "ours_confirmed": 1,
+   "ours_total": 13
+  },
+  {
+   "url": "https://www.collingwoodfc.com.au/news/2158412/three-inclusions-for-round-12-squad",
+   "gkg_covered": 0,
+   "gkg_total": 5,
+   "ours_confirmed": 0,
+   "ours_total": 8
+  },
+  {
+   "url": "https://www.nwemail.co.uk/news/national/26679490.charles-shakes-maracas-joins-dancers-carnival-parade/",
+   "gkg_covered": 9,
+   "gkg_total": 9,
+   "ours_confirmed": 1,
+   "ours_total": 22
+  },
+  {
+   "url": "https://www.times-series.co.uk/news/national/26679426.charles-tickled-boxing-clubs-t-shirt-depicting-king-ring/",
+   "gkg_covered": 4,
+   "gkg_total": 4,
+   "ours_confirmed": 2,
+   "ours_total": 2
+  },
+  {
+   "url": "https://www.cessnockadvertiser.com.au/story/9381345/qantas-launches-direct-sydney-to-las-vegas-flights/",
+   "gkg_covered": 24,
+   "gkg_total": 29,
+   "ours_confirmed": 22,
+   "ours_total": 35
+  },
+  {
+   "url": "https://www.wyff4.com/article/missing-teen-search-left-home/74277122",
+   "gkg_covered": 2,
+   "gkg_total": 9,
+   "ours_confirmed": 1,
+   "ours_total": 6
+  },
+  {
+   "url": "https://www.ky3.com/2026/10/29/tennessee-governor-suspects-christa-pikes-sentence-will-stay-same-after-failed-execution/",
+   "gkg_covered": 3,
+   "gkg_total": 3,
+   "ours_confirmed": 7,
+   "ours_total": 16
+  },
+  {
+   "url": "https://www.hillingdontimes.co.uk/news/national/26678804.losing-presidential-candidate-bolsonaro-arrives-us-via-argentina-ecuador/",
+   "gkg_covered": 7,
+   "gkg_total": 7,
+   "ours_confirmed": 9,
+   "ours_total": 14
+  },
+  {
+   "url": "https://www.hrw.org/news/2026/10/29/india-mass-voter-roll-exclusions-deeply-flawed",
+   "gkg_covered": 8,
+   "gkg_total": 23,
+   "ours_confirmed": 3,
+   "ours_total": 14
+  },
+  {
+   "url": "https://www.theguardian.com/music/2026/oct/29/mega-mega-mega-going-back-to-romford-how-an-outer-london-suburb-became-a-metropolis-for-90s-dance-music",
+   "gkg_covered": 25,
+   "gkg_total": 28,
+   "ours_confirmed": 32,
+   "ours_total": 54
+  },
+  {
+   "url": "https://www.bbc.com/news/articles/c678prm55gzzo",
+   "gkg_covered": 1,
+   "gkg_total": 1,
+   "ours_confirmed": 1,
+   "ours_total": 5
+  },
+  {
+   "url": "https://www.wlwt.com/article/its-big-astronomers-make-startling-discovery-of-a-possible-dwarf-planet-beyond-pluto-kuiper-belt-space-astronomy/74275216",
+   "gkg_covered": 1,
+   "gkg_total": 3,
+   "ours_confirmed": 1,
+   "ours_total": 25
+  },
+  {
+   "url": "https://www.thehindu.com/news/national/what-the-mlc-elections-do-and-do-not-tell-us/article71639966.ece",
+   "gkg_covered": 2,
+   "gkg_total": 3,
+   "ours_confirmed": 2,
+   "ours_total": 4
+  },
+  {
+   "url": "https://www.kvnf.org/npr-news/2026-10-29/state-ballots-let-voters-decide-on-abortion-taxes-transgender-restrictions",
+   "gkg_covered": 23,
+   "gkg_total": 25,
+   "ours_confirmed": 27,
+   "ours_total": 40
+  },
+  {
+   "url": "https://news4sanantonio.com/news/local/ronnie-salas-sentenced-to-70-years-for-2025-murder-of-andre-montera",
+   "gkg_covered": 8,
+   "gkg_total": 8,
+   "ours_confirmed": 8,
+   "ours_total": 10
+  },
+  {
+   "url": "https://www.kccu.org/business/2026-10-29/business-as-a-liberal-art-some-high-schools-say-yes",
+   "gkg_covered": 2,
+   "gkg_total": 2,
+   "ours_confirmed": 10,
+   "ours_total": 20
+  },
+  {
+   "url": "https://www.euronews.com/video/2026/10/29/watch-fuel-crisis-strands-200-passengers-aboard-luxury-cruise-ship-odyssey",
+   "gkg_covered": 1,
+   "gkg_total": 1,
+   "ours_confirmed": 1,
+   "ours_total": 1
+  },
+  {
+   "url": "https://wksn.com/news-and-closings/health-headlines/cad4e2f3a72f130de4967ab262e48458",
+   "gkg_covered": 1,
+   "gkg_total": 1,
+   "ours_confirmed": 3,
+   "ours_total": 12
+  },
+  {
+   "url": "https://www.herefordtimes.com/news/national/26680686.badenoch-says-racist-attacks-will-not-work-nigerian-scammer-comments/",
+   "gkg_covered": 0,
+   "gkg_total": 2,
+   "ours_confirmed": 0,
+   "ours_total": 6
+  },
+  {
+   "url": "https://www.willistonherald.com/news/glendive-man-killed-in-bridge-accident",
+   "gkg_covered": 1,
+   "gkg_total": 1,
+   "ours_confirmed": 1,
+   "ours_total": 7
+  },
+  {
+   "url": "https://www.newtimesslo.com/halcyon-braces-for-its-first-major-water-system-upgrade-in-more-than-50-years/",
+   "gkg_covered": 16,
+   "gkg_total": 21,
+   "ours_confirmed": 6,
+   "ours_total": 34
+  },
+  {
+   "url": "https://www.wgal.com/article/pa-deadly-motorcycle-crash-coroner-lancaster-route-30/74281650",
+   "gkg_covered": 0,
+   "gkg_total": 1,
+   "ours_confirmed": 0,
+   "ours_total": 8
+  },
+  {
+   "url": "https://www.the-star.co.ke/news/2026-10-29-gachagua-why-not-local-teams-at-talanta-opener",
+   "gkg_covered": 3,
+   "gkg_total": 4,
+   "ours_confirmed": 3,
+   "ours_total": 22
+  },
+  {
+   "url": "https://www.burytimes.co.uk/news/national/uk-today/26679788.uk-sun-care-company-falls-administration-27-years/",
+   "gkg_covered": 2,
+   "gkg_total": 2,
+   "ours_confirmed": 14,
+   "ours_total": 30
+  },
+  {
+   "url": "https://www.westernadvocate.com.au/story/9381752/bathurst-in-1985-look-back-at-life-in-47-photos-for-throwback-thursday/",
+   "gkg_covered": 0,
+   "gkg_total": 2,
+   "ours_confirmed": 0,
+   "ours_total": 2
+  },
+  {
+   "url": "https://www.wral.com/news/local/dont-trash-it-smash-it-give-your-halloween-pumpkin-a-second-life-october-2026/",
+   "gkg_covered": 17,
+   "gkg_total": 19,
+   "ours_confirmed": 21,
+   "ours_total": 39
+  },
+  {
+   "url": "https://www.dailymail.com/tvshowbiz/article-16247353/dolores-huerta-barack-michelle-obama-eva-longoria-death.html",
+   "gkg_covered": 5,
+   "gkg_total": 6,
+   "ours_confirmed": 5,
+   "ours_total": 10
+  },
+  {
+   "url": "https://www.investegate.co.uk/announcement/rns/georgina-energy-plc--gex/interim-results-for-six-months-ended-31-july-2026/9848398",
+   "gkg_covered": 0,
+   "gkg_total": 5,
+   "ours_confirmed": 0,
+   "ours_total": 30
+  },
+  {
+   "url": "https://newschannel9.com/news/nation-world/experimental-lilly-drug-tops-ozempic-in-weight-loss-study",
+   "gkg_covered": 0,
+   "gkg_total": 4,
+   "ours_confirmed": 0,
+   "ours_total": 7
+  },
+  {
+   "url": "https://wdsm710.com/2026/10/29/nba-roundup-nikola-jokics-200th-triple-double-leads-nuggets-past-pelicans/",
+   "gkg_covered": 15,
+   "gkg_total": 20,
+   "ours_confirmed": 17,
+   "ours_total": 47
+  },
+  {
+   "url": "https://www.islands.com/2296952/livingston-uk-historic-town-between-edinburgh-glasglow-boutique-shops-local-eats-endless-outdoor-fun/",
+   "gkg_covered": 17,
+   "gkg_total": 18,
+   "ours_confirmed": 41,
+   "ours_total": 46
+  },
+  {
+   "url": "https://www.falmouthpacket.co.uk/news/national/26679757.deadly-train-crash-spain-raises-concerns-safety-rail-network/",
+   "gkg_covered": 2,
+   "gkg_total": 2,
+   "ours_confirmed": 1,
+   "ours_total": 4
+  },
+  {
+   "url": "https://www.aol.com/articles/caterpillar-third-quarter-profit-rises-103146000.html",
+   "gkg_covered": 0,
+   "gkg_total": 1,
+   "ours_confirmed": 0,
+   "ours_total": 8
+  },
+  {
+   "url": "https://www.swindonadvertiser.co.uk/news/26677814.nationwide-boosts-savings-rates-major-shake-up---full-details/",
+   "gkg_covered": 0,
+   "gkg_total": 1,
+   "ours_confirmed": 0,
+   "ours_total": 2
+  },
+  {
+   "url": "https://oklahomawatch.org/2026/10/29/oklahoma-voter-data-law-faces-federal-challenge-over-access-limits/",
+   "gkg_covered": 32,
+   "gkg_total": 34,
+   "ours_confirmed": 26,
+   "ours_total": 31
+  },
+  {
+   "url": "https://www.themarketsdaily.com/2026/10/28/jpmorgan-chase-co-forecasts-strong-price-appreciation-for-nucor-nysenue-stock.html",
+   "gkg_covered": 0,
+   "gkg_total": 5,
+   "ours_confirmed": 0,
+   "ours_total": 22
+  },
+  {
+   "url": "https://www.messengernewspapers.co.uk/news/national/26680686.badenoch-says-racist-attacks-will-not-work-nigerian-scammer-comments/",
+   "gkg_covered": 0,
+   "gkg_total": 2,
+   "ours_confirmed": 0,
+   "ours_total": 6
+  },
+  {
+   "url": "https://www.mirror.co.uk/tv/tv-news/hollyoaks-cast-summer-strallen-theatre-37820930",
+   "gkg_covered": 2,
+   "gkg_total": 2,
+   "ours_confirmed": 5,
+   "ours_total": 47
+  },
+  {
+   "url": "https://news.crossmap.com/2026/10/28/gospel-artist-guy-penrod-announces-serious-health-diagnosis-calls-for-prayers/",
+   "gkg_covered": 0,
+   "gkg_total": 1,
+   "ours_confirmed": 0,
+   "ours_total": 2
+  },
+  {
+   "url": "https://www.summitdaily.com/news/colorado-opening-day-a-basin-past-50-years/",
+   "gkg_covered": 18,
+   "gkg_total": 19,
+   "ours_confirmed": 33,
+   "ours_total": 37
+  },
+  {
+   "url": "https://www.newhamrecorder.co.uk/news/national/uk-today/26679946.6-10-brits-get-sun-withdrawal-clocks-go-back/",
+   "gkg_covered": 0,
+   "gkg_total": 2,
+   "ours_confirmed": 0,
+   "ours_total": 1
+  },
+  {
+   "url": "https://www.abc.net.au/listen/programs/am/outback-town-transforming-itself-into-tourism-hub/107321562",
+   "gkg_covered": 0,
+   "gkg_total": 1,
+   "ours_confirmed": 0,
+   "ours_total": 7
+  },
+  {
+   "url": "https://www.theargus.co.uk/news/26680559.urgent-seafront-police-search-launched-woman-reported-missing/",
+   "gkg_covered": 4,
+   "gkg_total": 4,
+   "ours_confirmed": 5,
+   "ours_total": 6
+  },
+  {
+   "url": "https://www.fox4news.com/news/fight-identify-mailers-texas-transgender-informational-pamphlets-taken-court",
+   "gkg_covered": 16,
+   "gkg_total": 16,
+   "ours_confirmed": 16,
+   "ours_total": 21
+  },
+  {
+   "url": "https://www.manilatimes.net/2026/10/29/tmt-newswire/globenewswire/davion-healthcare-plc-agrees-135-million-acquisition-of-profitable-us-home-healthcare-business/2457198",
+   "gkg_covered": 3,
+   "gkg_total": 5,
+   "ours_confirmed": 4,
+   "ours_total": 18
+  },
+  {
+   "url": "https://www.dailysabah.com/politics/diplomacy/turkic-states-foreign-ministers-convene-in-ankara-ahead-of-13th-ots-summit",
+   "gkg_covered": 3,
+   "gkg_total": 3,
+   "ours_confirmed": 5,
+   "ours_total": 7
+  },
+  {
+   "url": "https://www.owensoundsuntimes.com/press-releases/newsfile/f3-announces-grant-of-stock-options-and-restricted-share-units-2/",
+   "gkg_covered": 1,
+   "gkg_total": 3,
+   "ours_confirmed": 3,
+   "ours_total": 19
+  },
+  {
+   "url": "https://www.dailystar.co.uk/showbiz/breaking-breaking-bad-wire-director-37820954",
+   "gkg_covered": 1,
+   "gkg_total": 1,
+   "ours_confirmed": 2,
+   "ours_total": 26
+  },
+  {
+   "url": "https://www.oxfordmail.co.uk/news/national/26679499.train-attacker-asked-passenger-do-want-die--rampage-court-told/",
+   "gkg_covered": 18,
+   "gkg_total": 18,
+   "ours_confirmed": 12,
+   "ours_total": 19
+  },
+  {
+   "url": "https://www.readingchronicle.co.uk/news/26679949.charge-withdrawn-u-turn-m4-bridge-incident/",
+   "gkg_covered": 1,
+   "gkg_total": 1,
+   "ours_confirmed": 1,
+   "ours_total": 6
+  },
+  {
+   "url": "https://www.irvinetimes.com/news/national/26677778.healey-budget-offers-help-families-firms-hit-global-economic-storm/",
+   "gkg_covered": 1,
+   "gkg_total": 2,
+   "ours_confirmed": 5,
+   "ours_total": 18
+  },
+  {
+   "url": "https://sojo1049.com/ixp/394/p/is-this-new-jerseys-spookiest-house/",
+   "gkg_covered": 3,
+   "gkg_total": 3,
+   "ours_confirmed": 3,
+   "ours_total": 4
+  },
+  {
+   "url": "https://www.impartialreporter.com/news/26678162.family-remembers-enniskillen-teacher-kenny-mckeown/",
+   "gkg_covered": 13,
+   "gkg_total": 13,
+   "ours_confirmed": 12,
+   "ours_total": 24
+  },
+  {
+   "url": "https://www.timesleader.com/news/1763780/cornell-faculty-to-begin-voting-on-no-confidence-measure-over-handling-of-sexual-assault-allegations",
+   "gkg_covered": 1,
+   "gkg_total": 3,
+   "ours_confirmed": 1,
+   "ours_total": 11
+  },
+  {
+   "url": "https://westfaironline.com/affordable-housing/ribbon-cutting-for-st-clair-in-yonkers/",
+   "gkg_covered": 6,
+   "gkg_total": 6,
+   "ours_confirmed": 12,
+   "ours_total": 22
+  },
+  {
+   "url": "https://econotimes.com/FirstEnergy-Plans-Grid-Technology-Trial-on-Pennsylvania-Transmission-Line-1765444",
+   "gkg_covered": 6,
+   "gkg_total": 6,
+   "ours_confirmed": 8,
+   "ours_total": 10
+  },
+  {
+   "url": "https://livenews.co.nz/2026/10/30/vinhomes-green-paradise-to-enter-global-vote-for-the-future-of-urban-living/",
+   "gkg_covered": 2,
+   "gkg_total": 5,
+   "ours_confirmed": 1,
+   "ours_total": 16
+  },
+  {
+   "url": "https://fox56.com/news/local/pennsylvania-measles-cases-near-1400-across-44-counties",
+   "gkg_covered": 5,
+   "gkg_total": 6,
+   "ours_confirmed": 8,
+   "ours_total": 11
+  },
+  {
+   "url": "https://www.somersetcountygazette.co.uk/news/national/uk-today/26679946.6-10-brits-get-sun-withdrawal-clocks-go-back/",
+   "gkg_covered": 0,
+   "gkg_total": 2,
+   "ours_confirmed": 0,
+   "ours_total": 1
+  },
+  {
+   "url": "https://www.prnewswire.com/news-releases/adc-therapeutics-announces-zynlonta-updates-in-japan-302922936.html",
+   "gkg_covered": 1,
+   "gkg_total": 1,
+   "ours_confirmed": 3,
+   "ours_total": 30
+  },
+  {
+   "url": "https://fox17.com/news/local/clarksville-felon-gets-10-year-sentence-after-pleading-guilty-to-possessing-ghost-gun",
+   "gkg_covered": 4,
+   "gkg_total": 4,
+   "ours_confirmed": 3,
+   "ours_total": 6
+  },
+  {
+   "url": "https://www.techradar.com/pro/elon-musks-spacexai-hit-with-multi-million-dollar-fine-for-building-mississippi-data-centers-without-the-right-permits",
+   "gkg_covered": 10,
+   "gkg_total": 11,
+   "ours_confirmed": 15,
+   "ours_total": 21
+  },
+  {
+   "url": "https://commercialobserver.com/2026/10/71-fifth-avenue-leasehold-sale-namdar-realty-group/",
+   "gkg_covered": 0,
+   "gkg_total": 1,
+   "ours_confirmed": 0,
+   "ours_total": 18
+  },
+  {
+   "url": "https://www.sbnation.com/nfl/1134078/nfl-picks-week-8-complete-list-straight-up-confidence-upsets-snf-mnf-tnf",
+   "gkg_covered": 0,
+   "gkg_total": 4,
+   "ours_confirmed": 0,
+   "ours_total": 15
+  },
+  {
+   "url": "https://horseshoeheroes.com/jonathan-taylor-showed-week-7-why-hes-colts-best-trade-asset",
+   "gkg_covered": 2,
+   "gkg_total": 2,
+   "ours_confirmed": 2,
+   "ours_total": 28
+  },
+  {
+   "url": "https://www.perthnow.com.au/entertainment/celebrity-gossip/jennifer-lawrence-came-down-hard-after-extra-crew-members-were-on-set-for-nude-scene-c-23090165",
+   "gkg_covered": 0,
+   "gkg_total": 1,
+   "ours_confirmed": 0,
+   "ours_total": 10
+  },
+  {
+   "url": "https://www.irishmirror.ie/news/irish-news/crime/jury-louth-triple-murder-trial-37820654",
+   "gkg_covered": 10,
+   "gkg_total": 10,
+   "ours_confirmed": 7,
+   "ours_total": 14
+  },
+  {
+   "url": "https://www.npr.org/2026/10/27/nx-s1-6019678/bolsonaro-brazil-lula-election-trump",
+   "gkg_covered": 7,
+   "gkg_total": 8,
+   "ours_confirmed": 2,
+   "ours_total": 14
+  },
+  {
+   "url": "https://abc13.com/story/new-york-governor-kathy-hochul-responds-rapper-nicki-minaj-calls-evil/19994096/",
+   "gkg_covered": 4,
+   "gkg_total": 4,
+   "ours_confirmed": 6,
+   "ours_total": 6
+  },
+  {
+   "url": "https://kfgo.com/2026/10/28/lawsuit-seeks-to-block-trump-administration-effort-to-find-noncitizen-voters/",
+   "gkg_covered": 5,
+   "gkg_total": 5,
+   "ours_confirmed": 5,
+   "ours_total": 16
+  },
+  {
+   "url": "https://vietnam.vnanet.vn/english/long-form/early-blooming-peach-blossoms-delight-visitors-in-da-lat-474523.html",
+   "gkg_covered": 0,
+   "gkg_total": 1,
+   "ours_confirmed": 0,
+   "ours_total": 6
+  },
+  {
+   "url": "https://www.brantfordexpositor.ca/press-releases/pr-newswire/sanofi-expands-canadians-covid-19-vaccine-choice-with-availability-of-nuvaxovidfor-the-2026-2027-respiratory-season/",
+   "gkg_covered": 1,
+   "gkg_total": 2,
+   "ours_confirmed": 1,
+   "ours_total": 17
+  },
+  {
+   "url": "https://www.atlantanewsfirst.com/2026/10/28/energy-officials-visits-georgia-tech-us-seeks-expand-battery-manufacturing/",
+   "gkg_covered": 8,
+   "gkg_total": 8,
+   "ours_confirmed": 9,
+   "ours_total": 11
+  },
+  {
+   "url": "http://www.utahindependent.com/news/279402164/rebounding-penguins-get-another-shot-at-mammoth",
+   "gkg_covered": 7,
+   "gkg_total": 7,
+   "ours_confirmed": 10,
+   "ours_total": 40
+  },
+  {
+   "url": "https://campaignbrief.com/moshy-spoofs-obsession-backrooms-and-you-can-see-everything-in-new-halloween-ooh-campaign/",
+   "gkg_covered": 1,
+   "gkg_total": 1,
+   "ours_confirmed": 1,
+   "ours_total": 3
+  },
+  {
+   "url": "https://kbat.com/ixp/156/p/travel-safety-countries-americans/",
+   "gkg_covered": 4,
+   "gkg_total": 4,
+   "ours_confirmed": 1,
+   "ours_total": 1
+  },
+  {
+   "url": "https://www.thesouthafrican.com/news/sas-water-quality-under-scrutiny-is-cape-towns-tap-water-safe-to-drink/",
+   "gkg_covered": 10,
+   "gkg_total": 12,
+   "ours_confirmed": 13,
+   "ours_total": 16
+  },
+  {
+   "url": "https://turnto10.com/news/nation-world/small-business-owners-crave-stability-as-inflation-trade-war-fallout-stifle-main-street-kevin-warsh-president-donald-trump-tariffs",
+   "gkg_covered": 3,
+   "gkg_total": 6,
+   "ours_confirmed": 5,
+   "ours_total": 10
+  },
+  {
+   "url": "https://ottawasun.com/opinion/letters/you-said-it-sens-need-backup-to-be-better",
+   "gkg_covered": 2,
+   "gkg_total": 2,
+   "ours_confirmed": 6,
+   "ours_total": 27
+  },
+  {
+   "url": "https://www.lankanewspapers.com/2026/10/29/sri-lanka-and-japan-seal-rs-4-56-billion-grant-deal-to-tackle-kelani-river-flooding",
+   "gkg_covered": 2,
+   "gkg_total": 7,
+   "ours_confirmed": 1,
+   "ours_total": 1
+  },
+  {
+   "url": "https://www.lynnnews.co.uk/national/charles-shakes-maracas-and-joins-dancers-in-carnival-parade-173575/",
+   "gkg_covered": 1,
+   "gkg_total": 1,
+   "ours_confirmed": 1,
+   "ours_total": 22
+  },
+  {
+   "url": "https://www.wimbledonguardian.co.uk/news/national/26679499.train-attacker-asked-passenger-do-want-die--rampage-court-told/",
+   "gkg_covered": 18,
+   "gkg_total": 18,
+   "ours_confirmed": 12,
+   "ours_total": 19
+  },
+  {
+   "url": "https://www.dorsetecho.co.uk/news/national/26677778.healey-budget-offers-help-families-firms-hit-global-economic-storm/",
+   "gkg_covered": 1,
+   "gkg_total": 2,
+   "ours_confirmed": 5,
+   "ours_total": 18
+  }
+ ]
+}

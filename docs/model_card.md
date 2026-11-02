@@ -1,6 +1,6 @@
 # Model card: place linking and event geolocation engine
 
-Configuration version: `geo_config_v1` (status: initial, see "Calibration status"). Evaluation: `docs/eval/report.md`.
+Configuration version: `geo_config_v1` (status: calibrated on public corpora, see "Calibration status"). Evaluation: `docs/eval/report.md`.
 This product gives situational awareness, not official warnings. Signals are derived from public news and public
 data feeds; verify with local authorities and follow their guidance.
 
@@ -44,18 +44,60 @@ locations for training.
 
 ## Evaluation
 
-See `docs/eval/report.md` for the figures, protocol, and what was not evaluated. In brief: accuracy within 25 and 161 km,
-median and mean distance error, and detection precision and recall on the test half of the public corpora, for two
-gazetteer baselines, BELA alone, the hybrid, and the hybrid with the local model.
+Full tables, protocol, and error analysis: `docs/eval/report.md` and `docs/eval/error_analysis.md`. Test split of the public
+geoparsing corpora (787 documents, 6,466 gold toponyms, 2,969 of them ambiguous names). Accuracy counts a gold toponym with
+no matching prediction as wrong.
 
-Not yet evaluated, because the data does not exist: the hand-labeled mention and event gold sets; event type and
-severity F1; the share of false alerts; behavior on languages beyond the few present in the public corpora.
+| System | Acc within 25 km | Acc within 161 km | Acc 161 km, ambiguous names | Acc 161 km, detected toponyms only |
+|---|---:|---:|---:|---:|
+| S1 largest-population GeoNames match (gold spans given) | 41.6% | 43.8% | 45.2% | 58.7% |
+| S2 GeoNames with country and region context (gold spans given) | 48.1% | 50.5% | 58.6% | 67.6% |
+| S4 BELA alone | 25.9% | 29.8% | 26.1% | 85.9% |
+| S5 hybrid (no local model) | 58.6% | 65.7% | 69.5% | 85.2% |
+| S6 hybrid with local model adjudication | 58.7% | 65.8% | 69.5% | 85.7% |
+
+What the numbers say:
+
+- The hybrid beats the best gazetteer baseline by 10.9 points of accuracy within 161 km on ambiguous names, although the
+  baselines were given the gold spans and the hybrid had to find them itself. The target was 5 points.
+- BELA alone is accurate when it links a place (85.9% within 161 km) but finds few of the gold toponyms (34.8% recall):
+  it ignores place names it does not know and tags organizations and concepts. The gazetteer fallback and the re-ranker
+  raise recall to 77%.
+- **The local model adds almost nothing measurable** (+0.1 point). It handled 12.9% of resolved mentions (target: at most
+  25%). Its value so far is the stored reason shown to analysts; do not claim an accuracy gain from it.
+- Calibration (isotonic, fitted on the dev half): expected calibration error on the test half fell from 0.108 to 0.016 for
+  adjudicated mentions and from 0.117 to 0.024 for fallback mentions. It barely moved for accepted mentions (0.048 to 0.044).
+- Speed: the BELA stage runs at 22 passages per second on the Apple GPU (p95 document latency 0.31 s).
+
+The accuracy figures are conservative in one respect. A prediction counts as a detection only when its span overlaps the gold
+span with an intersection over union of at least 0.4, so "Shreveport Police Department" resolved to Shreveport is scored as a
+miss for the gold span "Shreveport". The error analysis shows several of the 975 "span not detected" cases are of this kind.
+This scoring effect applies equally to S4, S5 and S6.
+
+Outcome of every gold toponym for the hybrid system: 58.7% resolved within 25 km, 7.1% within 161 km, 11.0% resolved
+wrongly, 8.1% detected but left unresolved, 15.1% not detected.
+
+Two further checks on real news:
+
+- **Throughput.** 10,000 English, Spanish, and German articles went through the whole pipeline (no local model) with no
+  failures at 3.8 articles per second (p95 latency 2.2 s) on the Apple GPU.
+- **Agreement with GDELT's own locations** (108 current articles, no gold): the hybrid finds 79% of the city and state
+  locations GDELT extracted; only 37% of the places the hybrid reports appear in GDELT's lists (the hybrid reports far more
+  places per article). The hybrid's single event location falls within range of GDELT's first location for 35% of articles. This is
+  agreement between two automatic systems, not accuracy, and the first GDELT location is not necessarily the event location, but
+  the low figure is a reason to treat the event location as unvalidated until the event gold set exists.
+
+Not yet evaluated, because the data does not exist: the hand-labeled mention and event gold sets; event type and severity F1;
+the share of false alerts; behavior on languages beyond the few in the public corpora (the corpora are mostly English news).
+Detection precision is 41 to 43%: most mentions BELA proposes are not places and are correctly left unresolved, so this figure
+mainly reflects the gold sets annotating only some of the places in a text.
 
 ## Calibration status
 
-Confidence by route is calibrated with isotonic regression on the dev half and checked on the test half. The event
-location confidence is a heuristic (score share and position evidence), **not calibrated**, because there is no event
-gold set. Thresholds are initial values; they become `frozen` when calibrated on the gold sets.
+Confidence by route is calibrated with isotonic regression on the dev half and checked on the test half of the public corpora.
+The event location confidence is a heuristic (score share and position evidence), **not calibrated**, because there is no event
+gold set. Thresholds are set from the public corpora, not from the project's own gold sets, so `geo_config_v1` is marked
+`calibrated_on_public_corpora`, not `frozen`.
 
 ## Limitations and failure modes
 

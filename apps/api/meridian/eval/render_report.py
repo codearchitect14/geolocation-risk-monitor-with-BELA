@@ -23,7 +23,7 @@ def pct(value: float | None) -> str:
 
 
 def km(value: float | None) -> str:
-    return "n/a" if value is None or value != value else f"{value:,.0f}"
+    return "n/a" if value is None or value != value else (f"{value:,.1f}" if value < 10 else f"{value:,.0f}")
 
 
 def table(headers: list[str], rows: list[list[Any]]) -> str:
@@ -114,9 +114,10 @@ def render(result: dict[str, Any]) -> str:
         "- S1 and S2 are given the gold spans, so they measure disambiguation only; detection is not applicable to them.",
         "- The ambiguous subset is the gold toponyms whose name matches at least two places in the knowledge base "
         f"({result['ambiguous_gold']:,} of {result['test_gold']:,}).",
-        "- Not evaluated: the hand-labeled mention and event gold sets (no annotation has been done), GDELT's own locations as a baseline "
-        "(S3: the public corpora predate GDELT's article coverage), BLINK re-ranking (S7, see ADR-002), event type and severity F1 "
-        "(phase 4), NIL handling, and the Mewsli-X sanity check.",
+        "- S3 (GDELT's own extracted locations) has no gold to score against on the public corpora, which predate GDELT's article "
+        "coverage. It is compared with the hybrid system as an agreement study on current news (last section).",
+        "- Not evaluated: the hand-labeled mention and event gold sets (no annotation has been done), BLINK re-ranking (S7, see "
+        "ADR-002), event type and severity F1 (phase 4), NIL handling, and the Mewsli-X sanity check.",
         "",
         "## Results on the test split",
         "",
@@ -217,6 +218,58 @@ def render(result: dict[str, Any]) -> str:
                 f"- `{route}`: expected calibration error {c['test_ece_before']} before and {c['test_ece_after']} after "
                 f"(dev {c['dev_n']:,} predictions, test {c['test_n']:,})."
             ]
+    run = DOCS_DIR / "throughput.json"
+    if run.exists():
+        tp = json.loads(run.read_text(encoding="utf-8"))
+        out += [
+            "",
+            "## Throughput test on real articles",
+            "",
+            f"{tp['articles']:,} news articles ({', '.join(tp['languages'])}) through the complete pipeline "
+            f"(chunking, BELA, routing, fallback, re-ranking, event location; no local model) with {tp['workers']} client workers.",
+            "",
+            table(
+                ["Measure", "Value"],
+                [
+                    ["Articles", f"{tp['articles']:,}"],
+                    ["Failures", tp["failures"]],
+                    ["Total time", f"{tp['seconds'] / 60:.1f} minutes"],
+                    ["Articles per second", tp["articles_per_second"]],
+                    ["Mentions per article", tp["mentions_per_article"]],
+                    ["Latency p50 / p95", f"{tp['p50_seconds']} s / {tp['p95_seconds']} s"],
+                    ["Passed", "yes" if tp["passed"] else "no"],
+                ],
+            ),
+        ]
+    agree = DOCS_DIR / "gkg_agreement.json"
+    if agree.exists():
+        g = json.loads(agree.read_text(encoding="utf-8"))["summary"]
+        out += [
+            "",
+            "## Agreement with GDELT's own locations (system S3)",
+            "",
+            f"Sample: {g['articles_fetched']} current English news articles ({g['articles_sampled']} sampled, "
+            f"{g['fetch_failures']} could not be fetched, robots.txt honored) with the locations GDELT's GKG extracted for them. "
+            "There is no gold, so this measures agreement between two automatic systems; where they differ either may be right.",
+            "",
+            table(
+                ["Measure", "Value"],
+                [
+                    [
+                        "GDELT city and state locations that the hybrid also found (within 25 km, 161 km for states)",
+                        f"{pct(g['gkg_locations_covered_by_ours'])} of {g['gkg_locations']:,}",
+                    ],
+                    [
+                        "Hybrid city and region places that GDELT also lists",
+                        f"{pct(g['our_places_confirmed_by_gkg'])} of {g['our_places']:,}",
+                    ],
+                    [
+                        "Hybrid event location within range of GDELT's first location",
+                        f"{pct(g['event_location_matches_first_gkg_location'])} of {g['event_locations']:,} articles",
+                    ],
+                ],
+            ),
+        ]
     out += ["", "## Targets", "", table(["Target", "Result", "Status"], targets(result)), ""]
     return "\n".join(out)
 

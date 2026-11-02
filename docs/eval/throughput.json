@@ -1,0 +1,22 @@
+{
+ "articles": 10000,
+ "failures": 0,
+ "seconds": 2619.0,
+ "articles_per_second": 3.82,
+ "mentions_per_article": 39.2,
+ "p50_seconds": 0.857,
+ "p95_seconds": 2.199,
+ "workers": 4,
+ "languages": [
+  "en",
+  "es",
+  "de"
+ ],
+ "routes": {
+  "unresolved": 257257,
+  "fallback": 116942,
+  "adjudicate": 11094,
+  "accept": 6779
+ },
+ "passed": true
+}
