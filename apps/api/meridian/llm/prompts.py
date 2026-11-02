@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from meridian.llm.client import wrap_data
 
-EVENT_LABEL_VERSION = "event_label_v1"
+EVENT_LABEL_VERSION = "event_label_v2"
 ADJUDICATE_VERSION = "adjudicate_v1"
 
 EVENT_TYPE_GUIDE = """Event types:
@@ -18,6 +18,7 @@ EVENT_TYPE_GUIDE = """Event types:
 - health_outbreak: disease outbreak or epidemic
 - other: a real disruption that fits none of the above
 - none: not a disruption (sports, opinion, entertainment, routine crime about one person, history, business results)
+Subtype: the specific kind (fire, explosion, spill, collapse, flood, storm, earthquake, wildfire, heat, volcanic, landslide, port_closure, airport_closure, road_closure, rail_closure, accident, strike, protest, riot, attack, power_outage, telecom_outage, water_outage, outbreak, other). Use other when none fits.
 Severity: 1 minor and local, 2 moderate with closures of hours or limited damage, 3 major with significant damage, injuries, or closures of a day or more, 4 severe with widespread damage, multiple deaths, or loss of a major facility or route.
 subject_is_named_private_person: true when the report is about a crime or incident whose subject is a named private individual."""
 

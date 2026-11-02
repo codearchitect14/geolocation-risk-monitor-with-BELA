@@ -1,0 +1,161 @@
+# Versioned rules for hazard normalization, event clustering, exposure scoring, and alerting.
+# Every stored event and exposure records this version. Add events_config_v2.yaml for changes; never edit a released file.
+version: events_config_v1
+
+# Weight of each source kind. An event's reliability combines its sources as 1 - product(1 - reliability).
+source_reliability:
+  usgs: 0.95
+  nws: 0.90
+  firms: 0.80
+  reliefweb: 0.70
+  news: 0.60
+max_event_reliability: 0.99
+# An event is "confirmed" when it has this many independent sources (distinct feeds, or distinct news outlets).
+confirmation_min_sources: 2
+
+hazard_feeds:
+  usgs:
+    min_magnitude_worldwide: 4.5
+    min_magnitude_near_assets: 2.5
+    near_assets_km: 100
+    uncertainty_km: 10
+    # Severity by magnitude, lowest class first. Deep events shake less, so depth lowers the class.
+    magnitude_classes:
+      - {min: 0.0, severity: 1}
+      - {min: 4.5, severity: 2}
+      - {min: 5.5, severity: 3}
+      - {min: 6.5, severity: 4}
+    deep_km: 300           # at or below this depth no reduction; deeper events drop one level
+    pager_alert_severity: {green: 1, yellow: 2, orange: 3, red: 4}   # USGS PAGER alert level raises the class
+  nws:
+    ignore_events: [Test Message, Small Craft Advisory, Rip Current Statement, High Surf Advisory, Hydrologic Outlook,
+                    Frost Advisory, Freeze Watch, Freeze Warning, Beach Hazards Statement, Low Water Advisory]
+    severity: {Extreme: 4, Severe: 3, Moderate: 2, Minor: 1, Unknown: 1}
+    watch_lowers_by: 1                          # Watch and Outlook products are one level lower than Warnings
+    uncertain_certainty: [Possible, Unlikely]     # one level lower than the stated severity (never below 1)
+    # Alert name prefix to event type and subtype (first match wins).
+    event_types:
+      - {match: "Tornado", type: natural_hazard, subtype: storm}
+      - {match: "Hurricane", type: natural_hazard, subtype: storm}
+      - {match: "Tropical Storm", type: natural_hazard, subtype: storm}
+      - {match: "Typhoon", type: natural_hazard, subtype: storm}
+      - {match: "Storm Surge", type: natural_hazard, subtype: flood}
+      - {match: "Severe Thunderstorm", type: natural_hazard, subtype: storm}
+      - {match: "Flash Flood", type: natural_hazard, subtype: flood}
+      - {match: "Coastal Flood", type: natural_hazard, subtype: flood}
+      - {match: "Flood", type: natural_hazard, subtype: flood}
+      - {match: "Blizzard", type: natural_hazard, subtype: storm}
+      - {match: "Winter Storm", type: natural_hazard, subtype: storm}
+      - {match: "Ice Storm", type: natural_hazard, subtype: storm}
+      - {match: "Winter Weather", type: natural_hazard, subtype: storm}
+      - {match: "Heavy Snow", type: natural_hazard, subtype: storm}
+      - {match: "Lake Effect Snow", type: natural_hazard, subtype: storm}
+      - {match: "Gale Warning", type: natural_hazard, subtype: storm}
+      - {match: "Storm Warning", type: natural_hazard, subtype: storm}
+      - {match: "Special Marine Warning", type: natural_hazard, subtype: storm}
+      - {match: "High Wind", type: natural_hazard, subtype: storm}
+      - {match: "Wind Advisory", type: natural_hazard, subtype: storm}
+      - {match: "Excessive Heat", type: natural_hazard, subtype: heat}
+      - {match: "Extreme Heat", type: natural_hazard, subtype: heat}
+      - {match: "Heat Advisory", type: natural_hazard, subtype: heat}
+      - {match: "Extreme Cold", type: natural_hazard, subtype: storm}
+      - {match: "Dense Fog", type: natural_hazard, subtype: fog}
+      - {match: "Dust Storm", type: natural_hazard, subtype: storm}
+      - {match: "Volcano", type: natural_hazard, subtype: volcanic}
+      - {match: "Tsunami", type: natural_hazard, subtype: flood}
+      - {match: "Earthquake", type: natural_hazard, subtype: earthquake}
+      - {match: "Red Flag", type: natural_hazard, subtype: fire_weather}
+      - {match: "Fire Weather", type: natural_hazard, subtype: fire_weather}
+      - {match: "Wildfire", type: natural_hazard, subtype: wildfire}
+      - {match: "Special Weather Statement", type: natural_hazard, subtype: storm}
+    # Subtypes capped at this severity (advisories rarely disrupt operations on their own).
+    severity_caps: {fog: 2, fire_weather: 2, heat: 3}
+    zone_fetch_pause_seconds: 0.5
+    uncertainty_km: 0
+  firms:
+    dbscan_eps_km: 3
+    dbscan_min_samples: 3
+    window_hours: 48
+    create_when_near_assets_km: 50
+    create_when_detections_at_least: 10
+    uncertainty_extra_km: 1
+    # Severity by detections and total fire radiative power (MW); the higher class wins.
+    classes:
+      - {min_detections: 0, min_frp: 0, severity: 1}
+      - {min_detections: 5, min_frp: 100, severity: 2}
+      - {min_detections: 20, min_frp: 500, severity: 3}
+      - {min_detections: 100, min_frp: 2000, severity: 4}
+  reliefweb:
+    default_severity: 2
+    uncertainty_km: 300
+
+classification:
+  # Types whose events are dropped before they are stored.
+  drop_types: [none]
+  drop_private_person: true
+  min_location_confidence: 0.0
+
+clustering:
+  default_window_hours: 48
+  window_hours: {natural_hazard: 96, health_outbreak: 168, labor_action: 120, civil_unrest: 96, infrastructure_outage: 72}
+  # Maximum distance between two reports of one event: the sum of their uncertainties but at least this, per type.
+  min_distance_km: {industrial_accident: 5, natural_hazard: 50, transport_disruption: 15, labor_action: 15, civil_unrest: 15,
+                    security_incident: 10, infrastructure_outage: 30, health_outbreak: 100, other: 15}
+  max_distance_km: 400
+  # Types that may describe the same incident (news about a fire and a satellite fire detection, for example).
+  compatible_types:
+    - [industrial_accident, natural_hazard]
+  # Subtypes that must agree when both are known, within these groups.
+  subtype_groups:
+    - [fire, wildfire, explosion]
+    - [flood, storm]
+  title_similarity_min: 0.62           # news with news; a hazard feed record needs only type, place, and time
+  h3_resolution: 7
+  h3_ring: 3
+
+status:
+  # Developing: a second source arrived within this many hours of first sight.
+  developing_hours: 6
+  # Ongoing: older than developing_hours and still reported inside the quiet period.
+  # Resolved: nothing new for this many hours (by type; default applies otherwise).
+  quiet_hours: {industrial_accident: 24, transport_disruption: 36, infrastructure_outage: 48, natural_hazard: 72,
+                labor_action: 72, civil_unrest: 48, security_incident: 48, health_outbreak: 168, other: 48}
+  default_quiet_hours: 48
+
+exposure:
+  severity_weight: {1: 0.15, 2: 0.35, 3: 0.60, 4: 0.85}
+  criticality_factor: {1: 0.6, 2: 0.8, 3: 1.0, 4: 1.2, 5: 1.4}
+  type_weight: {industrial_accident: 1.0, natural_hazard: 1.0, security_incident: 0.9, transport_disruption: 0.8,
+                infrastructure_outage: 0.8, labor_action: 0.6, civil_unrest: 0.6, health_outbreak: 0.5, other: 0.4}
+  # Distance decay length in km, by type and subtype (default entry per type).
+  lambda_km:
+    industrial_accident: {default: 5}
+    natural_hazard: {default: 25, flood: 25, storm: 25, wildfire: 10, heat: 50, fog: 15, volcanic: 50, fire_weather: 25}
+    transport_disruption: {default: 15}
+    labor_action: {default: 15}
+    civil_unrest: {default: 15}
+    security_incident: {default: 10}
+    infrastructure_outage: {default: 30}
+    health_outbreak: {default: 100}
+    other: {default: 15}
+  # Earthquakes: decay length by magnitude class (km). A class applies from its minimum magnitude upward.
+  earthquake_lambda_km:
+    - {min: 0.0, lambda: 10}
+    - {min: 4.5, lambda: 30}
+    - {min: 5.5, lambda: 60}
+    - {min: 6.5, lambda: 100}
+  # Recency half-life in hours: fast events fade quickly, slow ones persist.
+  half_life_hours: {fast: 24, slow: 72}
+  slow_subtypes: [flood, storm, heat, volcanic, outbreak, power_outage, water_outage, telecom_outage, strike, fog]
+  slow_types: [health_outbreak, infrastructure_outage, labor_action]
+  levels: {critical: 0.70, high: 0.50, medium: 0.30}
+  # Exposures below this score are not stored.
+  min_store_score: 0.05
+  # Search radius beyond the uncertainty, in multiples of lambda (exp(-6) is below 0.3 percent).
+  search_lambda_multiples: 6
+
+alerts:
+  default_min_level: medium
+  # A stored alert is updated, not duplicated, when the level rises or the score rises by at least this much.
+  update_score_delta: 0.10
+  reopen_after_levels: 2                 # a dismissed or resolved alert reopens if the level rises by this many steps

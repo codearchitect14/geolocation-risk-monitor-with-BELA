@@ -85,3 +85,21 @@ Library entry point: `meridian.linking.locate.locate(pipeline, text, title=..., 
 
 `python -m meridian.etl enrich --nel-cache <file>` adds places that BELA proposes but the place table lacks, through the Wikidata API
 (set `MS_CONTACT` to a URL or email: Wikimedia rejects anonymous clients). A full dump pass (`make data-wikidata`) makes this unnecessary.
+
+## Event pipeline and exposure (phase 4)
+
+```
+make events-demo               # synthetic tenant (150 sites sampled from the place table), labeled illustrative
+make events-usgs               # USGS files in data/raw/hazards/usgs (REPLAY=1 scores each record as of its own time)
+make events-nws                # NWS alerts; zone polygons are fetched once and cached (set MS_CONTACT)
+make events-status             # refresh new/developing/ongoing/resolved
+make events-smoke              # classifier smoke check on 37 author-written headlines (not a gold evaluation)
+make events-synth              # exposure alert precision and recall on synthetic scenarios
+make events-report             # counts of events, exposures, and alerts
+python -m meridian.events replay-news --path <cc_news parquet> --limit 150   # testing use only
+```
+
+Rules and weights are in `meridian/config/events_config_v1.yaml`; every event, exposure, and alert row records the version. Modules in
+`meridian/events`: `normalizers/` (usgs, nws, firms, reliefweb), `classify.py` (local model label), `news.py` (article to event),
+`ingest.py` (create, revise, supersede, merge), `status.py`, `exposure.py`, `alerts.py`, `service.py` (feed files), `cli.py`.
+Design and limits: `docs/adr/ADR-008-event-pipeline.md` and `docs/events_report.md`.

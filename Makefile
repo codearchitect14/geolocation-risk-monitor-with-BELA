@@ -1,7 +1,7 @@
 PY ?= .venv/bin/python
 SCRIPTS := data/scripts
 
-.PHONY: eval-throughput eval-gkg nel-index nel-up nel-down llm-fetch llm-up llm-down eval-cache eval-train eval geo-up db-init db-start db-stop db-reset db-upgrade etl etl-embed etl-quality etl-plans etl-report help setup data data-small data-geonames data-natural-earth data-eupeg data-wikidata \
+.PHONY: events-demo events-usgs events-nws events-status events-smoke events-synth events-report eval-throughput eval-gkg nel-index nel-up nel-down llm-fetch llm-up llm-down eval-cache eval-train eval geo-up db-init db-start db-stop db-reset db-upgrade etl etl-embed etl-quality etl-plans etl-report help setup data data-small data-geonames data-natural-earth data-eupeg data-wikidata \
 	harvest harvest-daemon harvest-status backfill-gkg verify-data data-report tasks \
 	validate-gold lint typecheck test check-style check
 
@@ -112,6 +112,28 @@ etl-quality:
 
 etl-plans:
 	$(APIRUN) -m meridian.etl plans
+
+# Event pipeline (phase 4); the demo tenant is synthetic
+events-demo:
+	$(APIRUN) -m meridian.events demo-tenant
+
+events-usgs:
+	$(APIRUN) -m meridian.events ingest-usgs $(if $(REPLAY),--replay,)
+
+events-nws:
+	$(APIRUN) -m meridian.events ingest-nws $(if $(REPLAY),--replay,)
+
+events-status:
+	$(APIRUN) -m meridian.events update-status
+
+events-smoke:
+	$(APIRUN) -m meridian.events.smoke
+
+events-synth:
+	$(APIRUN) -m meridian.events.synth_eval
+
+events-report:
+	$(APIRUN) -m meridian.events report
 
 # Entity linking engine (phase 3)
 nel-index:

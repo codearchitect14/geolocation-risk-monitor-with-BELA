@@ -1,0 +1,37 @@
+{"title": "Fire breaks out at chemical plant outside Rotterdam, workers evacuated", "expected_type": "industrial_accident", "expected_severity": 2, "expected_private_person": false}
+{"title": "Explosion rocks refinery in Texas, two injured", "expected_type": "industrial_accident", "expected_severity": 3, "expected_private_person": false}
+{"title": "Toxic spill closes river downstream of fertilizer factory", "expected_type": "industrial_accident", "expected_severity": 3, "expected_private_person": false}
+{"title": "Warehouse blaze in Manchester spreads to neighbouring units", "expected_type": "industrial_accident", "expected_severity": 2, "expected_private_person": false}
+{"title": "Incendio en planta química de Tarragona obliga a evacuar a vecinos", "expected_type": "industrial_accident", "expected_severity": 3, "expected_private_person": false}
+{"title": "Brand in Chemiefabrik bei Ludwigshafen, Anwohner sollen Fenster schließen", "expected_type": "industrial_accident", "expected_severity": 3, "expected_private_person": false}
+{"title": "Magnitude 6.8 earthquake strikes off coast of Japan, tsunami advisory issued", "expected_type": "natural_hazard", "expected_severity": 4, "expected_private_person": false}
+{"title": "Flash floods cut off villages in northern Italy after heavy rain", "expected_type": "natural_hazard", "expected_severity": 3, "expected_private_person": false}
+{"title": "Hurricane makes landfall in Florida with 120 mph winds", "expected_type": "natural_hazard", "expected_severity": 4, "expected_private_person": false}
+{"title": "Wildfire forces thousands to flee homes in northern California", "expected_type": "natural_hazard", "expected_severity": 3, "expected_private_person": false}
+{"title": "Heatwave pushes temperatures above 45C across southern Spain", "expected_type": "natural_hazard", "expected_severity": 2, "expected_private_person": false}
+{"title": "Terremoto de magnitud 5.9 sacude el sur de México", "expected_type": "natural_hazard", "expected_severity": 3, "expected_private_person": false}
+{"title": "Typhoon closes ports and cancels flights across southern China", "expected_type": "natural_hazard", "expected_severity": 3, "expected_private_person": false}
+{"title": "Container port in Rotterdam closed after crane collapse", "expected_type": "transport_disruption", "expected_severity": 3, "expected_private_person": false}
+{"title": "Airport shut for hours after runway incident", "expected_type": "transport_disruption", "expected_severity": 2, "expected_private_person": false}
+{"title": "Highway closed in both directions after multi-vehicle crash near Denver", "expected_type": "transport_disruption", "expected_severity": 1, "expected_private_person": false}
+{"title": "Rail freight halted across Germany as signal system fails", "expected_type": "transport_disruption", "expected_severity": 3, "expected_private_person": false}
+{"title": "Dockworkers begin 48-hour strike at major European ports", "expected_type": "labor_action", "expected_severity": 3, "expected_private_person": false}
+{"title": "Truckers block border crossing in protest over fuel prices", "expected_type": "labor_action", "expected_severity": 3, "expected_private_person": false}
+{"title": "Huelga de transportistas paraliza el puerto de Valencia", "expected_type": "labor_action", "expected_severity": 3, "expected_private_person": false}
+{"title": "Thousands march in capital as protests over prices turn violent", "expected_type": "civil_unrest", "expected_severity": 3, "expected_private_person": false}
+{"title": "Riots erupt in suburb after police shooting, cars set alight", "expected_type": "civil_unrest", "expected_severity": 3, "expected_private_person": false}
+{"title": "Armed attack on convoy near border leaves several dead", "expected_type": "security_incident", "expected_severity": 4, "expected_private_person": false}
+{"title": "Cyberattack knocks out systems at logistics company", "expected_type": "security_incident", "expected_severity": 3, "expected_private_person": false}
+{"title": "Power outage leaves 200,000 without electricity after substation fault", "expected_type": "infrastructure_outage", "expected_severity": 3, "expected_private_person": false}
+{"title": "Water supply cut to entire district after main pipe bursts", "expected_type": "infrastructure_outage", "expected_severity": 2, "expected_private_person": false}
+{"title": "Mobile network down across region for six hours", "expected_type": "infrastructure_outage", "expected_severity": 2, "expected_private_person": false}
+{"title": "Cholera outbreak reported in refugee camps, health officials warn", "expected_type": "health_outbreak", "expected_severity": 3, "expected_private_person": false}
+{"title": "Measles cases rise in three counties as vaccination drops", "expected_type": "health_outbreak", "expected_severity": 2, "expected_private_person": false}
+{"title": "Mayor opens new community center downtown", "expected_type": "none", "expected_severity": 1, "expected_private_person": false}
+{"title": "Local team wins championship after dramatic final", "expected_type": "none", "expected_severity": 1, "expected_private_person": false}
+{"title": "Company reports quarterly profit above expectations", "expected_type": "none", "expected_severity": 1, "expected_private_person": false}
+{"title": "Review: the best restaurants to try this autumn", "expected_type": "none", "expected_severity": 1, "expected_private_person": false}
+{"title": "Council approves budget for road resurfacing next year", "expected_type": "none", "expected_severity": 1, "expected_private_person": false}
+{"title": "Neighbor Maria Lopez, 34, injured when her kitchen caught fire", "expected_type": "industrial_accident", "expected_severity": 1, "expected_private_person": true}
+{"title": "Local man John Walker arrested after bar fight", "expected_type": "none", "expected_severity": 1, "expected_private_person": true}
+{"title": "Teacher Anna Meyer dies in car accident on way to school", "expected_type": "none", "expected_severity": 1, "expected_private_person": true}

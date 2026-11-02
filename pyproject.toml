@@ -51,6 +51,7 @@ ignore = ["S101", "S603", "S607"]
 "apps/api/meridian/linking/*" = ["E501"]
 "apps/api/meridian/llm/*" = ["E501"]
 "apps/api/meridian/eval/*" = ["E501"]
+"apps/api/meridian/events/*" = ["E501"]
 "services/*" = ["E501"]
 "apps/api/migrations/*" = ["E501", "I001"]
 

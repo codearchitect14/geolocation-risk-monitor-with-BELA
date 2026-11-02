@@ -20,10 +20,40 @@ EventType = Literal[
 ]
 
 
+EventSubtype = Literal[
+    "fire",
+    "explosion",
+    "spill",
+    "collapse",
+    "flood",
+    "storm",
+    "earthquake",
+    "wildfire",
+    "heat",
+    "volcanic",
+    "landslide",
+    "port_closure",
+    "airport_closure",
+    "road_closure",
+    "rail_closure",
+    "accident",
+    "strike",
+    "protest",
+    "riot",
+    "attack",
+    "power_outage",
+    "telecom_outage",
+    "water_outage",
+    "outbreak",
+    "other",
+]
+
+
 class EventLabel(BaseModel):
     # The reason comes first so the model reasons before it commits to a label.
     reason: str = Field(max_length=200)
     event_type: EventType
+    subtype: EventSubtype
     severity: int = Field(ge=1, le=4, description="1 minor, 2 moderate, 3 major, 4 severe")
     subject_is_named_private_person: bool
 
