@@ -186,12 +186,24 @@ sources:
   attribution: intfloat/multilingual_cc_news; CloverSearch/cc-news-mutlilingual
   redistribution: Not redistributed; show title, snippet, and link only
   notes: Parquet files come from the auto-converted revision pinned in the script.
-  retrieved_at: '2026-10-30T12:41:34Z'
+  retrieved_at: '2026-10-30T15:41:52Z'
   files:
   - path: raw/news/cc_news/af/train/0000.parquet
     url: https://huggingface.co/datasets/intfloat/multilingual_cc_news
     size: 9186578
     sha256: 33d5d5d27eaa445af6d2d3b2e1d7809a840da0d7bfc401f7dcea8a46685a9aaf
+  - path: raw/news/cc_news/de/partial-train/0000.parquet
+    url: https://huggingface.co/datasets/intfloat/multilingual_cc_news
+    size: 304001928
+    sha256: 5348edd103fbb960a021dd2981ce6ad6db0dfa1b4783c12ea7be0f8930646822
+  - path: raw/news/cc_news/en/partial-train/0000.parquet
+    url: https://huggingface.co/datasets/intfloat/multilingual_cc_news
+    size: 299988716
+    sha256: 280311ea807abb77a2bf9b961bc2419bb186f2c29f22b4cafebecfc2df6e06fb
+  - path: raw/news/cc_news/es/partial/train/0000.parquet
+    url: https://huggingface.co/datasets/intfloat/multilingual_cc_news
+    size: 299061232
+    sha256: c2ba144324f3598ebc2e6b4dcd5d7181a784ee4842e310e729c029194a29196f
 - id: usgs
   name: USGS earthquake feeds
   kind: harvest
@@ -447,3 +459,68 @@ sources:
   attribution: OpenStreetMap contributors (when tiles are used)
   redistribution: Per ODbL
   notes: Option A PMTiles extract or Option B Natural Earth polygons only.
+- id: bela
+  name: BELA entity linker (checkpoints, entity index, embeddings)
+  kind: static
+  url: https://huggingface.co/wannaphong/BELA
+  script: data/scripts/parallel_download.py
+  local_path: raw/models/bela/
+  license: MIT (Meta Platforms); mirror repository declares MIT
+  attribution: Meta AI BELA authors; mirror by wannaphong
+  redistribution: Allowed under MIT; the project is not affiliated with the authors
+  notes: model_wiki.ckpt and model_e2e.ckpt, index.txt (16.5M QIDs), embeddings.pt (19.8 GB, SHA-256 verified),
+    and a float16 copy built by services/nel/prepare_index.py. Checkpoints are loaded with weights_only=True.
+  retrieved_at: '2026-10-30T17:41:52Z'
+  files:
+  - path: raw/models/bela/embeddings.pt
+    url: https://huggingface.co/wannaphong/BELA
+    size: 19765027987
+    sha256: c2e38b13703cea69c2c12fe14eba29f00c98e74bd16fd2e01bb29183aac5a309
+  - path: raw/models/bela/index.txt
+    url: https://huggingface.co/wannaphong/BELA
+    size: 158216234
+    sha256: 65403dd2c236629cba026156acc8fb31c1907525824d512a90679d16ea1fe124
+  - path: raw/models/bela/model_e2e.ckpt
+    url: https://huggingface.co/wannaphong/BELA
+    size: 2243429835
+    sha256: 0cca72f2e2848251a87e0cd6d72998effb1f4e9a84af40262d20f0a7cad3c81a
+  - path: raw/models/bela/model_wiki.ckpt
+    url: https://huggingface.co/wannaphong/BELA
+    size: 2243434498
+    sha256: b13ec79092a6a60db30e3e366aa1e0dc55ecc85a02ab4427ef4d163847a7dd26
+- id: xlmr_tokenizer
+  name: XLM-R sentencepiece model
+  kind: external
+  url: https://huggingface.co/FacebookAI/xlm-roberta-large
+  script: null
+  local_path: null
+  license: MIT
+  attribution: Facebook AI (XLM-R authors)
+  redistribution: Allowed
+  notes: Fetched on first start of the NEL service through huggingface_hub.
+- id: qwen3_gguf
+  name: Qwen3-4B-Instruct-2507 Q4_K_M (GGUF)
+  kind: static
+  url: https://huggingface.co/unsloth/Qwen3-4B-Instruct-2507-GGUF
+  script: services/llm/fetch_model.py
+  local_path: raw/models/llm/
+  license: Apache-2.0
+  attribution: Qwen team (Alibaba Cloud); GGUF build by unsloth
+  redistribution: Allowed under Apache-2.0
+  notes: Pinned revision; SHA-256 verified against the Hub digest.
+  retrieved_at: '2026-10-30T17:41:53Z'
+  files:
+  - path: raw/models/llm/Qwen3-4B-Instruct-2507-Q4_K_M.gguf
+    url: https://huggingface.co/unsloth/Qwen3-4B-Instruct-2507-GGUF
+    size: 2497281120
+    sha256: 3605803b982cb64aead44f6c1b2ae36e3acdb41d8e46c8a94c6533bc4c67e597
+- id: bge_m3
+  name: bge-m3 embedding model
+  kind: external
+  url: https://huggingface.co/BAAI/bge-m3
+  script: null
+  local_path: null
+  license: MIT
+  attribution: BAAI (Beijing Academy of Artificial Intelligence)
+  redistribution: Allowed
+  notes: Loaded through sentence-transformers; used for place embeddings.

@@ -1,0 +1,47 @@
+# Versioned configuration of the place linking and geolocation engine.
+# Every stored decision records this version. Change values by adding a new file (geo_config_v2.yaml),
+# never by editing a released one.
+version: geo_config_v1
+status: calibrated_on_public_corpora   # becomes "frozen" once calibrated on the project gold sets
+
+mention_detection:
+  md_threshold: 0.2
+  checkpoint: model_wiki.ckpt
+
+routing:
+  accept:
+    min_el_score: 0.70
+    min_margin: 0.15
+  adjudicate:
+    min_el_score: 0.40
+  # A re-ranked candidate must reach this probability to be trusted; below it the mention stays unresolved.
+  resolve_min_probability: 0.10
+  # A non-place entity that outscores the best place candidate by this much marks a non-geographic use
+  # (for example a person who shares a place name).
+  non_geographic_override:
+    min_el_score: 0.50
+    min_advantage: 0.10
+
+chunking:
+  max_chars: 700
+  overlap_sentences: 1
+
+candidates:
+  bela_top_k: 10
+  gazetteer_top_k: 20
+  max_total: 30
+
+llm:
+  # Used only when the two best candidates stay close after re-ranking.
+  adjudicate_margin: 0.10
+  max_candidates: 5
+  timeout_seconds: 60
+  max_tokens: 200
+  prompt_version: adjudicate_v1
+
+event_location:
+  # Specificity order used by the rules fallback and as a model feature.
+  specificity: {facility: 5, city: 4, town: 4, village: 4, admin2: 3, admin1: 2, country: 1}
+  headline_chars: 160
+  lead_sentences: 2
+  min_confidence_for_site_alerts: 0.5

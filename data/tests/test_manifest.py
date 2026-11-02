@@ -13,7 +13,9 @@ def test_repository_manifest_is_well_formed() -> None:
 def test_every_manifest_script_exists() -> None:
     for source in common.load_manifest()["sources"]:
         if source.get("script"):
-            assert (common.SCRIPTS_DIR / source["script"]).exists(), source["id"]
+            script = source["script"]
+            path = common.SCRIPTS_DIR.parents[1] / script if "/" in script else common.SCRIPTS_DIR / script
+            assert path.exists(), source["id"]
 
 
 def test_readme_licensing_register_lists_every_source() -> None:

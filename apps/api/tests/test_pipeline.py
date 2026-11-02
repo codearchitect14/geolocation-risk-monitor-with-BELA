@@ -269,3 +269,26 @@ def test_merge_refuses_to_rebuild_when_events_exist(scenario: psycopg.Connection
         with scenario.cursor() as cur:
             cur.execute("DELETE FROM events")
         scenario.commit()
+
+
+def test_incremental_merge_adds_places_without_touching_existing_ones(scenario: psycopg.Connection[Any]) -> None:
+    with scenario.cursor() as cur:
+        cur.execute("TRUNCATE stg_wikidata, stg_wd_names")
+        cur.executemany(
+            "INSERT INTO stg_wikidata VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+            [
+                # a brand new place
+                wd("Q777", "Hoek van Holland", "village", 51.98, 4.13, country="Q55", pop=9000),
+                # claims the GeoNames id of Rotterdam, which already belongs to Q647
+                wd("Q778", "Rotterdam Municipality", "admin_region", 51.92, 4.48, country="Q55", gid=2747891),
+            ],
+        )
+    scenario.commit()
+    before = one(scenario, "SELECT count(*) FROM places")
+    merge.incremental(scenario)
+    scenario.commit()
+    assert one(scenario, "SELECT count(*) FROM places") == before + 2
+    assert one(scenario, "SELECT qid FROM places WHERE geonames_id = 2747891") == "Q647"  # unchanged
+    assert one(scenario, "SELECT geonames_id FROM places WHERE qid = 'Q778'") is None  # did not steal the id
+    reasons = [r[0] for r in one_all(scenario, "SELECT reason FROM place_merge_review WHERE qid = 'Q778'")]
+    assert "duplicate_geonames_link" in reasons

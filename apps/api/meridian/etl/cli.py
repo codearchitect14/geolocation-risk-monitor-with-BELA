@@ -5,11 +5,12 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import sys
 from typing import Any
 
 from meridian.config import REPO_ROOT, get_settings
-from meridian.db import connect
+from meridian.db import connect, etl_step
 from meridian.etl import (
     embeddings,
     finalize,
@@ -21,6 +22,7 @@ from meridian.etl import (
     reference,
     search_eval,
     wikidata,
+    wikidata_api,
 )
 
 BUILD_STEPS = ["reference", "stage-geonames", "stage-wikidata", "merge", "hierarchy", "finalize"]
@@ -45,6 +47,11 @@ def main(argv: list[str] | None = None) -> int:
     build.add_argument("--min-population", type=int, default=1000)
     build.add_argument("--force", action="store_true", help="rebuild even if dependent tables hold data")
     sub.choices["merge"].add_argument("--force", action="store_true")
+    enrich = sub.add_parser("enrich", help="add missing Wikidata places for the QIDs BELA proposes")
+    enrich.add_argument("--nel-cache", required=True, help="JSONL cache written by meridian.eval cache-nel")
+    enrich.add_argument("--top", type=int, default=3, help="candidates per mention to consider")
+    enrich.add_argument("--min-score", type=float, default=0.05)
+    enrich.add_argument("--limit", type=int, help="fetch at most this many QIDs")
     embed = sub.add_parser("embed")
     embed.add_argument("--kinds", default="name,description,alias")
     embed.add_argument("--limit", type=int)
@@ -70,6 +77,20 @@ def main(argv: list[str] | None = None) -> int:
             hierarchy.run(conn)
         if command in ("finalize", "build"):
             finalize.run(conn)
+        if command == "enrich":
+            from pathlib import Path
+
+            qids: set[str] = set()
+            with Path(args.nel_cache).open(encoding="utf-8") as handle:
+                for line in handle:
+                    for mention in json.loads(line)["mentions"]:
+                        qids.update(c["qid"] for c in mention["candidates"][: args.top] if c["score"] >= args.min_score)
+            contact = os.environ.get("MS_CONTACT", "").strip() or "local development run"
+            with etl_step(conn, "enrich") as stats:
+                stats.update(wikidata_api.enrich(conn, sorted(qids), contact, args.limit))
+            hierarchy.run(conn)
+            finalize.run(conn)
+            embeddings.run(conn, {"name", "description", "alias"}, None, rebuild_index=False)
         if command == "embed":
             embeddings.run(conn, set(args.kinds.split(",")), args.limit, args.device)
         if command in ("quality", "eval", "plans"):

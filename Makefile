@@ -1,7 +1,7 @@
 PY ?= .venv/bin/python
 SCRIPTS := data/scripts
 
-.PHONY: db-init db-start db-stop db-reset db-upgrade etl etl-embed etl-quality etl-plans etl-report help setup data data-small data-geonames data-natural-earth data-eupeg data-wikidata \
+.PHONY: eval-throughput eval-gkg nel-index nel-up nel-down llm-fetch llm-up llm-down eval-cache eval-train eval geo-up db-init db-start db-stop db-reset db-upgrade etl etl-embed etl-quality etl-plans etl-report help setup data data-small data-geonames data-natural-earth data-eupeg data-wikidata \
 	harvest harvest-daemon harvest-status backfill-gkg verify-data data-report tasks \
 	validate-gold lint typecheck test check-style check
 
@@ -69,10 +69,10 @@ validate-gold:
 	$(PY) $(SCRIPTS)/validate_gold.py
 
 lint:
-	.venv/bin/ruff check data infra apps
+	.venv/bin/ruff check data infra apps services
 
 typecheck:
-	.venv/bin/mypy data/scripts apps/api/meridian
+	.venv/bin/mypy data/scripts apps/api/meridian services/nel services/geo
 
 test:
 	.venv/bin/pytest -q
@@ -112,3 +112,41 @@ etl-quality:
 
 etl-plans:
 	$(APIRUN) -m meridian.etl plans
+
+# Entity linking engine (phase 3)
+nel-index:
+	$(PY) services/nel/prepare_index.py
+
+nel-up:
+	mkdir -p .local && cd services/nel && (PYTHONPATH=.:../../apps/api ../../.venv/bin/uvicorn nel_service.app:app --host 127.0.0.1 --port 8082 > ../../.local/nel.log 2>&1 & echo $$! > ../../.local/nel.pid)
+
+nel-down:
+	-kill `cat .local/nel.pid` && rm -f .local/nel.pid
+
+llm-fetch:
+	$(PY) services/llm/fetch_model.py
+
+llm-up:
+	mkdir -p .local && (services/llm/run_server.sh > .local/llm.log 2>&1 & echo $$! > .local/llm.pid)
+
+llm-down:
+	services/llm/run_server.sh stop
+
+geo-up:
+	cd services/geo && (PYTHONPATH=.:../../apps/api ../../.venv/bin/uvicorn geo_service.app:app --host 127.0.0.1 --port 8083 > ../../.local/geo.log 2>&1 & echo $$! > ../../.local/geo.pid)
+
+eval-cache:
+	$(APIRUN) -m meridian.eval cache-nel
+
+eval-throughput:
+	$(APIRUN) -m meridian.eval throughput --articles 10000 --workers 4
+
+eval-gkg:
+	$(APIRUN) -m meridian.eval.gkg_agreement 200
+
+eval-train:
+	$(APIRUN) -m meridian.eval train
+
+eval:
+	$(APIRUN) -m meridian.eval evaluate
+	$(APIRUN) -m meridian.eval.render_report

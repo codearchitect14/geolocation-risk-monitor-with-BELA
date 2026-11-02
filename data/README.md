@@ -28,6 +28,8 @@ data/
     hazards/reliefweb/         optional reports and disasters
     eval/eupeg/                converted evaluation corpora (<corpus>.jsonl) and original files
     eval/mewsli_x/             optional linking benchmark
+    models/bela/               BELA checkpoints, entity index, embeddings (about 33 GB with the float16 copy)
+    models/llm/                local language model (GGUF)
     _status/                   per-job heartbeat files read by `make harvest-status`
   processed/            git-ignored parquet outputs of later ETL phases, plus row_counts.*
   gold/                 hand-labeled evaluation sets (committed, small)
@@ -149,6 +151,10 @@ affiliated with their authors.
 | GDACS (`gdacs`) | Reuse terms not confirmed | not applicable | Excluded | no |
 | EUPEG corpora (`eupeg`) | Repository GPL-3.0; each corpus keeps its authors' license | Corpus authors and EUPEG authors | Evaluation use only; not redistributed | methodology page |
 | Mewsli-X (`mewsli_x`) | Apache-2.0 per dataset card | Mewsli-X authors | Allowed under Apache-2.0 | methodology page |
+| BELA (`bela`) | MIT (Meta Platforms); mirror repository declares MIT | Meta AI BELA authors; the project is not affiliated with them | Allowed under MIT | methodology page |
+| XLM-R tokenizer (`xlmr_tokenizer`) | MIT | Facebook AI (XLM-R authors) | Allowed | methodology page |
+| Qwen3-4B-Instruct-2507 (`qwen3_gguf`) | Apache-2.0 | Qwen team (Alibaba Cloud); GGUF build by unsloth | Allowed under Apache-2.0 | methodology page |
+| bge-m3 (`bge_m3`) | MIT | BAAI | Allowed | methodology page |
 | Gold sets (`gold`) | Own work | Project annotators | Committed | no |
 | Basemap (`basemap`) | ODbL for OpenStreetMap derived tiles | OpenStreetMap contributors | Per ODbL | yes, when tiles are used |
 

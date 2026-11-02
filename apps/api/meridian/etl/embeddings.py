@@ -213,8 +213,15 @@ def build_index(conn: psycopg.Connection[Any]) -> None:
     conn.commit()
 
 
-def run(conn: psycopg.Connection[Any], kinds: set[str], limit: int | None, device: str | None = None) -> None:
+def run(
+    conn: psycopg.Connection[Any],
+    kinds: set[str],
+    limit: int | None,
+    device: str | None = None,
+    rebuild_index: bool = True,
+) -> None:
     with etl_step(conn, "embed") as stats:
-        drop_index(conn)
+        if rebuild_index:
+            drop_index(conn)
         stats.update(embed(conn, kinds, limit, device=device))
         build_index(conn)

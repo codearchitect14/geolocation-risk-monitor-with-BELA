@@ -133,10 +133,17 @@ def _link_by_geonames_id(conn: psycopg.Connection[Any]) -> dict[str, int]:
         cur.execute(
             """CREATE TEMP TABLE tmp_link AS
                SELECT DISTINCT ON (w.geonames_id) w.qid, w.geonames_id, p.id AS place_id
-                 FROM stg_wikidata w JOIN places p ON p.geonames_id = w.geonames_id
+                 FROM stg_wikidata w JOIN places p ON p.geonames_id = w.geonames_id AND p.qid IS NULL
                 ORDER BY w.geonames_id, w.sitelinks DESC NULLS LAST, w.qid"""
         )
         cur.execute("ALTER TABLE tmp_link ADD PRIMARY KEY (qid)")
+        cur.execute(
+            """INSERT INTO place_merge_review (qid, geonames_id, place_id, reason, detail)
+               SELECT w.qid, w.geonames_id, p.id, 'duplicate_geonames_link',
+                      'GeoNames id already linked to ' || p.qid
+                 FROM stg_wikidata w JOIN places p ON p.geonames_id = w.geonames_id
+                WHERE p.qid IS NOT NULL AND p.qid <> w.qid"""
+        )
         cur.execute(
             """INSERT INTO place_merge_review (qid, geonames_id, place_id, reason, detail)
                SELECT w.qid, w.geonames_id, l.place_id, 'duplicate_geonames_link',
@@ -267,7 +274,9 @@ def _insert_wikidata_only(conn: psycopg.Connection[Any]) -> dict[str, int]:
             """INSERT INTO places (qid, geonames_id, name, name_normalized, type, country_code, population,
                                    lat, lon, centroid, geom, sitelinks, description, website, source, merge_method)
                SELECT w.qid,
-                      CASE WHEN w.geonames_id IS NOT NULL AND w.rn = 1 THEN w.geonames_id END,
+                      CASE WHEN w.geonames_id IS NOT NULL AND w.rn = 1
+                           AND NOT EXISTS (SELECT 1 FROM places x WHERE x.geonames_id = w.geonames_id)
+                           THEN w.geonames_id END,
                       w.name, w.name_normalized,
                       CASE WHEN w.place_type IN ('city', 'town', 'village') AND w.population IS NOT NULL
                            THEN CASE WHEN w.population >= %s THEN 'city'
@@ -301,6 +310,20 @@ def _insert_wikidata_only(conn: psycopg.Connection[Any]) -> dict[str, int]:
         cur.execute("ANALYZE places")
         cur.execute("ANALYZE place_aliases")
     return {"places_wikidata_only": inserted, "aliases_wikidata": aliases}
+
+
+def incremental(conn: psycopg.Connection[Any]) -> dict[str, Any]:
+    """Merge the rows currently in stg_wikidata into the existing places without touching other rows.
+
+    Used by the Wikidata API enrichment: the staging tables hold only the new entities, which are linked by
+    GeoNames id, matched by name and proximity, or inserted as Wikidata-only places.
+    """
+    stats: dict[str, Any] = {}
+    _helper_tables(conn)
+    stats.update(_link_by_geonames_id(conn))
+    stats.update(_match_by_name(conn))
+    stats.update(_insert_wikidata_only(conn))
+    return stats
 
 
 def run(conn: psycopg.Connection[Any], force: bool = False) -> None:

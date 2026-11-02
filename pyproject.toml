@@ -38,7 +38,7 @@ dev = ["pytest>=8", "ruff>=0.5", "mypy>=1.10", "types-PyYAML", "types-defusedxml
 [tool.ruff]
 line-length = 120
 target-version = "py311"
-src = ["data/scripts", "data/tests", "apps/api"]
+src = ["data/scripts", "data/tests", "apps/api", "services/nel", "services/geo"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "S"]
@@ -48,15 +48,19 @@ ignore = ["S101", "S603", "S607"]
 "data/tests/*" = ["S", "E501"]
 "apps/api/tests/*" = ["S", "E501"]
 "apps/api/meridian/etl/*" = ["E501"]
+"apps/api/meridian/linking/*" = ["E501"]
+"apps/api/meridian/llm/*" = ["E501"]
+"apps/api/meridian/eval/*" = ["E501"]
+"services/*" = ["E501"]
 "apps/api/migrations/*" = ["E501", "I001"]
 
 [tool.pytest.ini_options]
-pythonpath = ["data/scripts", "apps/api"]
-testpaths = ["data/tests", "apps/api/tests"]
+pythonpath = ["data/scripts", "apps/api", "services/nel", "services/geo"]
+testpaths = ["data/tests", "apps/api/tests", "services/nel/tests"]
 
 [tool.mypy]
 python_version = "3.11"
 strict = true
-mypy_path = "data/scripts:apps/api"
+mypy_path = "data/scripts:apps/api:services/nel:services/geo"
 explicit_package_bases = true
 ignore_missing_imports = true
