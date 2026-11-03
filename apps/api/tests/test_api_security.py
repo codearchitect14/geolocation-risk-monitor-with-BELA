@@ -348,4 +348,5 @@ def test_purge_respects_retention_and_never_touches_the_audit_log(world: World, 
 def test_worker_run_once_with_nothing_due(world: World) -> None:
     from meridian.api import worker
 
-    assert worker.run_once() == {"webhooks": {"delivered": 0, "retry": 0, "abandoned": 0}}
+    result = worker.run_once()
+    assert result["webhooks"] == {"delivered": 0, "retry": 0, "abandoned": 0} and result["escalated"] == 0

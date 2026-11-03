@@ -6,7 +6,7 @@ from fastapi import APIRouter, FastAPI
 
 from meridian.api import errors
 from meridian.api.middleware import SecurityMiddleware, configure_logging
-from meridian.api.routers import admin, alerts, assets, auth, events, platform, reports, system, zones
+from meridian.api.routers import admin, alerts, assets, auth, events, platform, reports, staged, system, zones
 from meridian.api.security import ratelimit
 from meridian.api.settings import get_api_settings
 
@@ -31,7 +31,7 @@ def create_app() -> FastAPI:
     app.add_middleware(SecurityMiddleware)
     errors.install(app)
     v1 = APIRouter(prefix="/api/v1")
-    for module in (auth, assets, zones, events, alerts, reports, admin, platform, system):
+    for module in (auth, staged, assets, zones, events, alerts, reports, admin, platform, system):
         v1.include_router(module.router)
     app.include_router(v1)
     return app

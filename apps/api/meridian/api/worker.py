@@ -7,6 +7,7 @@ the same functions as tasks.
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import json
 import logging
 import sys
@@ -17,7 +18,7 @@ import psycopg
 
 from meridian.api import db
 from meridian.api.security import audit
-from meridian.api.services import webhooks
+from meridian.api.services import briefings, lifecycle, webhooks
 
 log = logging.getLogger("meridian.worker")
 DEFAULT_RETENTION_DAYS = 365
@@ -62,11 +63,71 @@ def verify_audit(conn: psycopg.Connection[Any]) -> dict[str, Any]:
     return result
 
 
+def generate_briefings(
+    conn: psycopg.Connection[Any], now: dt.datetime | None = None, mailer: Any = None, writer: Any = None
+) -> dict[str, int]:
+    """Create the daily briefing for the previous UTC day (from 06:00 UTC) and the weekly one for the previous Monday to
+    Sunday (on Mondays) for tenants that turned them on. A unique index makes the job safe to repeat."""
+    from meridian.api.services import briefings, reports
+    from meridian.api.services.mailer import get_mailer
+
+    now = now or dt.datetime.now(dt.UTC)
+    created = {"daily": 0, "weekly": 0, "emailed": 0}
+    if now.hour < 6:
+        return created
+    today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    periods = {"daily": (today - dt.timedelta(days=1), today)}
+    if today.weekday() == 0:
+        periods["weekly"] = (today - dt.timedelta(days=7), today)
+    for tenant_id, settings in conn.execute("SELECT id, settings FROM tenants WHERE status = 'active'").fetchall():
+        config = (settings or {}).get("risk_config", {})
+        for kind, (start, end) in periods.items():
+            if not config.get(f"{kind}_briefing"):
+                continue
+            tx = db.open_tx(db.Context(str(tenant_id), None, "manager"))
+            try:
+                evidence = briefings.build_evidence(tx, start, end)
+                narrative, version = briefings.narrative_for(evidence, writer)
+                row = tx.one(
+                    """INSERT INTO briefings (tenant_id, kind, period_start, period_end, evidence, narrative, model_version)
+                       VALUES (%s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING
+                       RETURNING id, kind, period_start, period_end, evidence, narrative, model_version, created_at""",
+                    (str(tenant_id), kind, start, end, json.dumps(evidence, default=str), narrative, version),
+                )
+                tx.commit()
+                if row is None:
+                    continue
+                created[kind] += 1
+                if config.get("briefing_email"):
+                    created["emailed"] += _email_briefing(tx, row, mailer or get_mailer(), reports)
+            finally:
+                tx.close()
+    return created
+
+
+def _email_briefing(tx: db.Tx, row: tuple[Any, ...], mailer: Any, reports: Any) -> int:
+    from meridian.api.services import render
+
+    view = {"id": str(row[0]), "kind": row[1], "evidence": row[4], "narrative": row[5], "created_at": row[7]}
+    document = reports.briefing_html(view)
+    pdf = render.html_to_pdf(document)
+    attachment = ("briefing.pdf", pdf, "application/pdf") if pdf else ("briefing.html", document.encode(), "text/html")
+    sent = 0
+    for (email,) in tx.all("SELECT email FROM users WHERE status = 'active' AND notify_email AND tenant_id IS NOT NULL"):
+        mailer.send(email, f"{row[1].capitalize()} briefing", (row[5] or "") + "\n", [attachment])
+        sent += 1
+    tx.execute("UPDATE briefings SET delivered_at = now() WHERE id = %s", (str(row[0]),))
+    tx.commit()
+    return sent
+
+
 def run_once() -> dict[str, Any]:
     with db.system_connection() as conn:
         delivered = webhooks.run_due(conn)
         conn.commit()
-        return {"webhooks": delivered}
+        escalated = lifecycle.escalate_due(conn)
+        briefing_counts = generate_briefings(conn, writer=briefings.local_model_writer())
+        return {"webhooks": delivered, "escalated": len(escalated), "briefings": briefing_counts}
 
 
 def main(argv: list[str] | None = None) -> int:

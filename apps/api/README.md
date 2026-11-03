@@ -127,3 +127,11 @@ Layout: `meridian/api/main.py` (application factory), `auth.py` (principals, CSR
 `routers/` (endpoint groups), `services/` (sessions, API keys, uploads, webhooks, briefings, reports), `security/` (passwords,
 tokens, MFA, rate limits, audit, SSRF checks), `worker.py`, and `meridian/notify.py` (alert payloads and streams, shared with the
 event pipeline). Security controls and test evidence: `docs/security.md`; decisions: `docs/adr/ADR-009-api-security.md`.
+
+
+## Phase 6: product workflows
+
+Guided upload (`/uploads/stage`, `/uploads/{id}/commit`), bulk asset edits, circle and region watch zones, the alert lifecycle with
+escalation and email, richer incident detail, daily and weekly briefings, PDF reports, and the correction review queue. See
+`docs/workflows.md` and `docs/adr/ADR-010-product-workflows.md`. PDF output needs `make pdf-setup` once. Run the worker
+(`make api-worker`) for webhook delivery, escalation, scheduled briefings, retention, and the audit check.

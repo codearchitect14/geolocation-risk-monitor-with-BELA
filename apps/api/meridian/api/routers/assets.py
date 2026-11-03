@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime as dt
 import hashlib
 import json
 import uuid
@@ -72,6 +73,13 @@ def _windows(value: list[dict[str, str]]) -> list[dict[str, str]]:
     for w in value:
         if not isinstance(w, dict) or set(w) - {"start", "end", "reason"} or "start" not in w or "end" not in w:
             raise ProblemError(422, "Maintenance windows need start and end timestamps.", code="invalid-window")
+        try:
+            start = dt.datetime.fromisoformat(str(w["start"]).replace("Z", "+00:00"))
+            end = dt.datetime.fromisoformat(str(w["end"]).replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise ProblemError(422, "Maintenance window times must be ISO 8601.", code="invalid-window") from exc
+        if end <= start:
+            raise ProblemError(422, "A maintenance window must end after it starts.", code="invalid-window")
         cleaned.append({k: str(v)[:80] for k, v in w.items()})
     return cleaned
 
@@ -83,6 +91,10 @@ def list_assets(
     type: str | None = Query(default=None, pattern="^(site|route|region)$"),
     bbox: str | None = Query(default=None, description="min_lon,min_lat,max_lon,max_lat"),
     status: str = Query(default="active", pattern="^(active|archived)$"),
+    tag: str | None = Query(default=None, max_length=40),
+    group_id: uuid.UUID | None = None,
+    min_criticality: int | None = Query(default=None, ge=1, le=5),
+    in_maintenance: bool | None = Query(default=None, description="Only assets inside (true) or outside (false) a maintenance window"),
     format: str = Query(default="json", pattern="^(json|geojson)$"),
     limit: int = Query(default=50, ge=1, le=200),
     cursor: str | None = None,
@@ -97,6 +109,21 @@ def list_assets(
     if type:
         where.append("type = %s")
         params.append(type)
+    if tag:
+        where.append("%s = ANY(tags)")
+        params.append(tag)
+    if group_id:
+        where.append("id IN (SELECT asset_id FROM asset_group_members WHERE group_id = %s)")
+        params.append(str(group_id))
+    if min_criticality:
+        where.append("criticality >= %s")
+        params.append(min_criticality)
+    if in_maintenance is not None:
+        active = (
+            "EXISTS (SELECT 1 FROM jsonb_array_elements(maintenance_windows) w "
+            "WHERE (w->>'start')::timestamptz <= now() AND (w->>'end')::timestamptz >= now())"
+        )
+        where.append(active if in_maintenance else f"NOT {active}")
     if bbox:
         try:
             x0, y0, x1, y1 = (float(v) for v in bbox.split(","))
@@ -422,3 +449,124 @@ def export_assets(principal: Principal = Depends(require("view")), tx: Tx = Depe
     return Response(
         out.getvalue(), media_type="text/csv", headers={"Content-Disposition": 'attachment; filename="assets.csv"'}
     )
+
+
+# -- bulk edit and group management ---------------------------------------------------------------------------------
+class BulkBody(BaseModel):
+    asset_ids: list[uuid.UUID] = Field(min_length=1, max_length=1000)
+    criticality: int | None = Field(default=None, ge=1, le=5)
+    status: Literal["active", "archived"] | None = None
+    add_tags: list[str] = Field(default_factory=list, max_length=10)
+    remove_tags: list[str] = Field(default_factory=list, max_length=10)
+    add_to_group: uuid.UUID | None = None
+    remove_from_group: uuid.UUID | None = None
+    maintenance_windows: list[dict[str, str]] | None = Field(default=None, max_length=20)
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {"asset_ids": ["00000000-0000-0000-0000-000000000000"], "criticality": 5, "add_tags": ["priority"]}
+        }
+    }
+
+
+@router.post("/assets/bulk", summary="Edit or archive many assets at once")
+def bulk_edit(
+    body: BulkBody, request: Request, principal: Principal = Depends(require("assets.write")), tx: Tx = Depends(get_tx)
+) -> dict[str, Any]:
+    ids = [str(i) for i in body.asset_ids]
+    found = {str(r[0]) for r in tx.all("SELECT id FROM assets WHERE id = ANY(%s::uuid[])", (ids,))}
+    missing = sorted(set(ids) - found)
+    if missing:
+        raise ProblemError(404, "Some assets were not found.", code="not-found", extra={"missing": missing[:20]})
+    sets: list[str] = []
+    params: list[Any] = []
+    if body.criticality is not None:
+        sets.append("criticality = %s")
+        params.append(body.criticality)
+    if body.status is not None:
+        sets.append("status = %s")
+        params.append(body.status)
+    if body.maintenance_windows is not None:
+        sets.append("maintenance_windows = %s")
+        params.append(dumps(_windows(body.maintenance_windows)))
+    add = [up.clean_text(t, 40) for t in body.add_tags if t.strip()]
+    remove = [up.clean_text(t, 40) for t in body.remove_tags]
+    if add or remove:
+        sets.append(
+            "tags = (SELECT COALESCE(array_agg(DISTINCT t), '{}') FROM unnest(tags || %s::text[]) t WHERE t <> ALL(%s::text[]))"
+        )
+        params += [add, remove]
+    for group in (body.add_to_group, body.remove_from_group):
+        if group and tx.one("SELECT 1 FROM asset_groups WHERE id = %s", (str(group),)) is None:
+            raise ProblemError(422, "The asset group does not exist.", code="invalid-group")
+    if not sets and not (body.add_to_group or body.remove_from_group):
+        raise ProblemError(422, "Nothing to change.", code="empty-change")
+    if sets:
+        tx.execute(f"UPDATE assets SET {', '.join(sets)}, updated_at = now() WHERE id = ANY(%s::uuid[])", [*params, ids])  # noqa: S608
+    if body.add_to_group:
+        tx.execute(
+            "INSERT INTO asset_group_members (group_id, asset_id) SELECT %s, unnest(%s::uuid[]) ON CONFLICT DO NOTHING",
+            (str(body.add_to_group), ids),
+        )
+    if body.remove_from_group:
+        tx.execute(
+            "DELETE FROM asset_group_members WHERE group_id = %s AND asset_id = ANY(%s::uuid[])",
+            (str(body.remove_from_group), ids),
+        )
+    audit_action(tx, request, principal, "asset.bulk_update", "asset", None, {"count": len(ids), "status": body.status})
+    tx.commit()
+    return {"updated": len(ids)}
+
+
+class GroupPatch(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=100)
+    add_asset_ids: list[uuid.UUID] = Field(default_factory=list, max_length=5000)
+    remove_asset_ids: list[uuid.UUID] = Field(default_factory=list, max_length=5000)
+
+
+@router.patch("/asset-groups/{group_id}", summary="Rename a group or change its members")
+def patch_group(
+    group_id: uuid.UUID,
+    body: GroupPatch,
+    request: Request,
+    principal: Principal = Depends(require("assets.write")),
+    tx: Tx = Depends(get_tx),
+) -> dict[str, Any]:
+    if tx.one("SELECT 1 FROM asset_groups WHERE id = %s", (str(group_id),)) is None:
+        raise not_found("Asset group")
+    try:
+        if body.name:
+            tx.execute("UPDATE asset_groups SET name = %s WHERE id = %s", (up.clean_text(body.name, 100), str(group_id)))
+    except Exception as exc:
+        tx.rollback()
+        raise ProblemError(409, "A group with this name already exists.", code="duplicate") from exc
+    if body.add_asset_ids:
+        tx.execute(
+            "INSERT INTO asset_group_members (group_id, asset_id) SELECT %s, id FROM assets WHERE id = ANY(%s::uuid[]) ON CONFLICT DO NOTHING",
+            (str(group_id), [str(i) for i in body.add_asset_ids]),
+        )
+    if body.remove_asset_ids:
+        tx.execute(
+            "DELETE FROM asset_group_members WHERE group_id = %s AND asset_id = ANY(%s::uuid[])",
+            (str(group_id), [str(i) for i in body.remove_asset_ids]),
+        )
+    audit_action(tx, request, principal, "asset_group.update", "asset_group", group_id)
+    count = tx.one("SELECT count(*) FROM asset_group_members WHERE group_id = %s", (str(group_id),))
+    name = tx.one("SELECT name FROM asset_groups WHERE id = %s", (str(group_id),))
+    tx.commit()
+    assert count is not None and name is not None
+    return {"id": str(group_id), "name": name[0], "asset_count": count[0]}
+
+
+@router.delete("/asset-groups/{group_id}", summary="Delete a group (its assets are kept)", status_code=204)
+def delete_group(
+    group_id: uuid.UUID,
+    request: Request,
+    principal: Principal = Depends(require("assets.write")),
+    tx: Tx = Depends(get_tx),
+) -> Response:
+    if tx.execute("DELETE FROM asset_groups WHERE id = %s", (str(group_id),)).rowcount == 0:
+        raise not_found("Asset group")
+    audit_action(tx, request, principal, "asset_group.delete", "asset_group", group_id)
+    tx.commit()
+    return Response(status_code=204)

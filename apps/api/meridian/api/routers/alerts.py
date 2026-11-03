@@ -10,11 +10,13 @@ from fastapi import APIRouter, Depends, Query, Request
 from pydantic import BaseModel, Field
 
 from meridian import notify
+from meridian.api import db
 from meridian.api.auth import Principal, audit_action, get_tx, require
 from meridian.api.db import Tx
 from meridian.api.errors import ProblemError
 from meridian.api.pagination import clamp_limit, decode_cursor, encode_cursor, page
 from meridian.api.routers.common import dumps, not_found
+from meridian.api.services import corrections, lifecycle
 from meridian.api.services.uploads import clean_text
 
 router = APIRouter(tags=["alerts"])
@@ -45,6 +47,8 @@ def list_alerts(
     level: str | None = Query(default=None, pattern="^(low|medium|high|critical)$"),
     asset_id: uuid.UUID | None = None,
     event_id: uuid.UUID | None = None,
+    assignee_id: uuid.UUID | None = None,
+    mine: bool = Query(default=False, description="Only alerts assigned to the caller"),
     limit: int = Query(default=50, ge=1, le=200),
     cursor: str | None = None,
     principal: Principal = Depends(require("view")),
@@ -57,6 +61,7 @@ def list_alerts(
         ("a.level = %s", level),
         ("a.asset_id = %s", str(asset_id) if asset_id else None),
         ("a.event_id = %s", str(event_id) if event_id else None),
+        ("a.assignee_id = %s", str(assignee_id) if assignee_id else (principal.user_id if mine else None)),
     ):
         if value is not None:
             where.append(clause)
@@ -128,17 +133,30 @@ def patch_alert(
             raise ProblemError(422, "The assignee is not a user of this tenant.", code="invalid-assignee")
     sets: list[str] = ["updated_at = now()"]
     params: list[Any] = []
-    if body.status and body.status != current[0]:
+    changed = bool(body.status and body.status != current[0])
+    if changed and body.status:
+        lifecycle.check_transition(current[0], body.status)
         if body.status == "dismissed" and not (body.dismissal_reason or "").strip():
             raise ProblemError(422, "A reason is required to dismiss an alert.", code="reason-required")
         sets.append("status = %s")
         params.append(body.status)
+        if body.status == "acknowledged":
+            sets.append("acknowledged_at = COALESCE(acknowledged_at, now())")
+        if body.status == "escalated":
+            sets.append("escalated_at = now()")
+        if body.status == "new":
+            sets.append("dismissal_reason = NULL")
         if body.status == "dismissed":
             sets.append("dismissal_reason = %s")
             params.append(clean_text(body.dismissal_reason or "", 300))
         tx.execute(
             "INSERT INTO alert_events (alert_id, tenant_id, actor_user_id, kind, detail) VALUES (%s, %s, %s, 'status_change', %s)",
-            (str(alert_id), principal.tenant_id, principal.user_id, dumps({"from": current[0], "to": body.status})),
+            (
+                str(alert_id),
+                principal.tenant_id,
+                principal.user_id,
+                dumps({"from": current[0], "to": body.status, "reason": clean_text(body.dismissal_reason or "", 300) or None}),
+            ),
         )
     if "assignee_id" in data:
         sets.append("assignee_id = %s")
@@ -155,6 +173,8 @@ def patch_alert(
     tx.execute(f"UPDATE alerts SET {', '.join(sets)} WHERE id = %s", [*params, str(alert_id)])  # noqa: S608
     audit_action(tx, request, principal, "alert.update", "alert", alert_id, {"status": body.status})
     tx.commit()
+    if changed:
+        notify.announce_status(tx.conn, str(alert_id))
     row = tx.one(ALERT_SQL + " WHERE a.id = %s", (str(alert_id),))
     assert row is not None
     return _alert(row)
@@ -235,13 +255,14 @@ def list_corrections(
     tx: Tx = Depends(get_tx),
 ) -> dict[str, Any]:
     sql = (
-        "SELECT id, event_id, kind, details, status, consent_for_gold, created_at, reviewed_at FROM correction_requests"
+        "SELECT c.id, c.event_id, c.kind, c.details, c.status, c.consent_for_gold, c.created_at, c.reviewed_at, e.title "
+        "FROM correction_requests c JOIN events e ON e.id = c.event_id"
     )
     params: list[Any] = []
     if status:
-        sql += " WHERE status = %s"
+        sql += " WHERE c.status = %s"
         params.append(status)
-    rows = tx.all(sql + " ORDER BY created_at DESC LIMIT %s", [*params, limit])
+    rows = tx.all(sql + " ORDER BY c.created_at DESC LIMIT %s", [*params, limit])
     return {
         "items": [
             {
@@ -253,6 +274,7 @@ def list_corrections(
                 "consent_for_gold": r[5],
                 "created_at": r[6],
                 "reviewed_at": r[7],
+                "event_title": r[8],
             }
             for r in rows
         ]
@@ -268,11 +290,19 @@ def review_correction(
     tx: Tx = Depends(get_tx),
 ) -> dict[str, Any]:
     row = tx.one(
-        "UPDATE correction_requests SET status = %s, reviewed_by = %s, reviewed_at = now(), details = details || %s WHERE id = %s RETURNING id, status",
+        "UPDATE correction_requests SET status = %s, reviewed_by = %s, reviewed_at = now(), details = details || %s "
+        "WHERE id = %s AND status = 'open' RETURNING id, status",
         (body.status, principal.user_id, dumps({"review_note": clean_text(body.note, 500)}), str(correction_id)),
     )
     if row is None:
-        raise not_found("Correction")
+        if tx.one("SELECT 1 FROM correction_requests WHERE id = %s", (str(correction_id),)) is None:
+            raise not_found("Correction")
+        raise ProblemError(409, "This correction was already reviewed.", code="already-reviewed")
     audit_action(tx, request, principal, "correction.review", "correction", correction_id, {"status": body.status})
     tx.commit()
-    return {"id": str(row[0]), "status": row[1]}
+    outcome: dict[str, Any] = {}
+    if body.status == "accepted":
+        with db.system_connection() as conn:  # events are global data; the review is the platform's own action
+            outcome = corrections.accept(conn, str(correction_id))
+            conn.commit()
+    return {"id": str(row[0]), "status": row[1], **outcome}

@@ -41,6 +41,11 @@ def endpoints(w: World) -> list[tuple[str, str, str, Any, set[str]]]:
         ("view", "GET", f"/briefings/{w.briefings['A']}", None, VIEW),
         ("view", "GET", f"/uploads/{w.uploads['A']}", None, VIEW),
         ("view", "GET", "/corrections", None, VIEW),
+        ("view", "GET", "/uploads/template", None, VIEW),
+        ("view", "GET", f"/uploads/{w.uploads['A']}/rows", None, VIEW),
+        ("view", "GET", f"/uploads/{w.uploads['A']}/result", None, VIEW),
+        ("view", "GET", "/alerts?mine=true", None, VIEW),
+        ("view", "GET", f"/briefings/{w.briefings['A']}?format=html", None, VIEW),
         ("view", "POST", "/corrections", {"event_id": ev, "kind": "wrong_type"}, VIEW),
         # alerts.act
         ("act", "PATCH", f"/alerts/{w.alerts['A']}", {"status": "acknowledged"}, ACT),
@@ -58,6 +63,11 @@ def endpoints(w: World) -> list[tuple[str, str, str, Any, set[str]]]:
         ("assets", "PATCH", f"/assets/{a['A_far']}", {"criticality": 2}, ASSETS),
         ("assets", "POST", "/asset-groups", {"name": "g"}, ASSETS),
         ("assets", "POST", "/uploads", csv, ASSETS),
+        ("assets", "POST", "/uploads/stage", csv, ASSETS),
+        ("assets", "POST", f"/uploads/{w.uploads['A']}/commit", {}, ASSETS),
+        ("assets", "POST", f"/uploads/{w.uploads['A']}/cancel", None, ASSETS),
+        ("assets", "POST", "/assets/bulk", {"asset_ids": [a["A_far"]], "criticality": 2}, ASSETS),
+        ("assets", "PATCH", f"/asset-groups/{w.groups['A']}", {"name": "Renamed"}, ASSETS),
         # rules.manage, analytics, reports
         ("rules", "POST", "/rules", {"name": "r"}, RULES),
         ("rules", "PATCH", f"/rules/{w.rules['A']}", {"enabled": True}, RULES),
@@ -65,6 +75,8 @@ def endpoints(w: World) -> list[tuple[str, str, str, Any, set[str]]]:
         ("rules", "POST", "/reports/portfolio", None, RULES),
         ("rules", "POST", f"/reports/incident/{ev}", None, RULES),
         ("rules", "GET", f"/reports/{w.reports['A']}", None, RULES),
+        ("rules", "GET", "/reports", None, RULES),
+        ("rules", "POST", f"/briefings/{w.briefings['A']}/email", {"to": ["viewer@example.org"]}, RULES),
         ("rules", "GET", "/analytics/operations", None, RULES),
         ("rules", "GET", "/analytics/quality", None, RULES),
         ("rules", "GET", "/analytics/usage", None, RULES),
@@ -104,6 +116,9 @@ def endpoints(w: World) -> list[tuple[str, str, str, Any, set[str]]]:
         # open to every signed in role
         ("open", "GET", "/auth/me", None, set(ALL)),
         ("open", "GET", "/auth/sessions", None, set(ALL)),
+        ("open", "PATCH", "/auth/me/notifications", {"email": True}, set(ALL)),
+        # deleting a group goes last so that the rows above can use it
+        ("assets", "DELETE", f"/asset-groups/{w.groups['A']}", None, ASSETS),
     ]
 
 

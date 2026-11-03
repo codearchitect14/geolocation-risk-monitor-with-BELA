@@ -4,20 +4,29 @@ from __future__ import annotations
 
 import datetime as dt
 import uuid
+from collections.abc import Callable
 from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, Query, Request, Response
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, Field, model_validator
 
 from meridian.api.auth import Principal, audit_action, get_tx, require
 from meridian.api.db import Tx
 from meridian.api.errors import ProblemError
 from meridian.api.routers.common import dumps, not_found
-from meridian.api.services import briefings, reports
+from meridian.api.security import ratelimit
+from meridian.api.services import briefings, render, reports
+from meridian.api.services.mailer import Mailer, get_mailer
 from meridian.config import get_settings
 
 router = APIRouter(tags=["briefings and reports"])
 MAX_PERIOD = dt.timedelta(days=31)
+Writer = Callable[[dict[str, Any]], str] | None
+
+
+def get_writer() -> Writer:
+    """The local model narrative writer, or None when the model server is not running."""
+    return briefings.local_model_writer()
 
 
 class BriefingBody(BaseModel):
@@ -62,11 +71,12 @@ def create_briefing(
     request: Request,
     principal: Principal = Depends(require("rules.manage")),
     tx: Tx = Depends(get_tx),
+    writer: Writer = Depends(get_writer),
 ) -> dict[str, Any]:
     end = body.period_end or dt.datetime.now(dt.UTC)
     start = body.period_start or end - (dt.timedelta(days=7) if body.kind == "weekly" else dt.timedelta(days=1))
     evidence = briefings.build_evidence(tx, start, end)
-    narrative, version = briefings.narrative_for(evidence)
+    narrative, version = briefings.narrative_for(evidence, writer)
     row = tx.one(
         f"INSERT INTO briefings (tenant_id, kind, period_start, period_end, evidence, narrative, model_version) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING {BRIEFING_SQL[7 : BRIEFING_SQL.index(' FROM')]}",  # noqa: S608
         (principal.tenant_id, body.kind, start, end, dumps(evidence), narrative, version),
@@ -86,91 +96,167 @@ def list_briefings(
     return {"items": [_briefing(r) for r in tx.all(BRIEFING_SQL + " ORDER BY created_at DESC LIMIT %s", (limit,))]}
 
 
-@router.get("/briefings/{briefing_id}", summary="One briefing")
+@router.get("/briefings/{briefing_id}", summary="One briefing, or its HTML or PDF document with format=html or format=pdf")
 def get_briefing(
-    briefing_id: uuid.UUID, principal: Principal = Depends(require("view")), tx: Tx = Depends(get_tx)
-) -> dict[str, Any]:
+    briefing_id: uuid.UUID,
+    format: str = Query(default="json", pattern="^(json|html|pdf)$"),
+    principal: Principal = Depends(require("view")),
+    tx: Tx = Depends(get_tx),
+) -> Any:
     row = tx.one(BRIEFING_SQL + " WHERE id = %s", (str(briefing_id),))
     if row is None:
         raise not_found("Briefing")
-    return _briefing(row)
+    view = _briefing(row)
+    if format == "json":
+        return view
+    document = reports.briefing_html(view)
+    if format == "html":
+        return Response(document, media_type="text/html; charset=utf-8", headers=_FILE_HEADERS | {"Content-Disposition": 'attachment; filename="briefing.html"'})
+    pdf = render.html_to_pdf(document)
+    if pdf is None:
+        raise ProblemError(503, "PDF export is not available. Use format=html.", code="pdf-unavailable")
+    return Response(pdf, media_type="application/pdf", headers=_FILE_HEADERS | {"Content-Disposition": 'attachment; filename="briefing.pdf"'})
 
 
-def _store(report_id: str, tenant_id: str, content: str, extension: str) -> str:
+class EmailBody(BaseModel):
+    to: list[str] = Field(default_factory=list, max_length=20, description="Addresses of users of this organisation; empty sends to all opted-in users")
+
+
+@router.post("/briefings/{briefing_id}/email", summary="Email a briefing as a PDF to users of this organisation")
+def email_briefing(
+    briefing_id: uuid.UUID,
+    body: EmailBody,
+    request: Request,
+    principal: Principal = Depends(require("rules.manage")),
+    tx: Tx = Depends(get_tx),
+    mailer: Mailer = Depends(get_mailer),
+) -> dict[str, Any]:
+    ratelimit.check(f"briefing-mail:{principal.tenant_id}", 20, 3600, detail="Too many briefing emails. Try again later.")
+    row = tx.one(BRIEFING_SQL + " WHERE id = %s", (str(briefing_id),))
+    if row is None:
+        raise not_found("Briefing")
+    users = tx.all("SELECT lower(email), notify_email FROM users WHERE tenant_id = %s AND status = 'active'", (principal.tenant_id,))
+    members = {u[0] for u in users}
+    if body.to:
+        wanted = {a.strip().lower() for a in body.to}
+        if wanted - members:
+            raise ProblemError(422, "Briefings can only be sent to users of this organisation.", code="invalid-recipient")
+        recipients = sorted(wanted)
+    else:
+        recipients = sorted(u[0] for u in users if u[1])
+    view = _briefing(row)
+    document = reports.briefing_html(view)
+    pdf = render.html_to_pdf(document)
+    attachment = ("briefing.pdf", pdf, "application/pdf") if pdf else ("briefing.html", document.encode(), "text/html")
+    text = (view["narrative"] or "") + "\n"
+    for address in recipients:
+        mailer.send(address, f"{view['kind'].capitalize()} briefing", text, [attachment])
+    tx.execute("UPDATE briefings SET delivered_at = now() WHERE id = %s", (str(briefing_id),))
+    audit_action(tx, request, principal, "briefing.email", "briefing", briefing_id, {"recipients": len(recipients)})
+    tx.commit()
+    return {"sent": len(recipients), "attachment": attachment[0]}
+
+
+_FILE_HEADERS = {
+    "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; img-src data:; sandbox",
+    "X-Content-Type-Options": "nosniff",
+}
+
+
+def _store(report_id: str, tenant_id: str, content: str | bytes, extension: str) -> str:
     folder = get_settings().data_dir / "processed" / "reports" / tenant_id
     folder.mkdir(parents=True, exist_ok=True)
     path = folder / f"{report_id}.{extension}"
-    path.write_text(content, encoding="utf-8")
+    if isinstance(content, bytes):
+        path.write_bytes(content)
+    else:
+        path.write_text(content, encoding="utf-8")
     return f"{tenant_id}/{report_id}.{extension}"
 
 
+FORMATS = {
+    "html": "text/html; charset=utf-8",
+    "pdf": "application/pdf",
+    "csv": "text/csv",
+}
+
+
 def _report(r: tuple[Any, ...]) -> dict[str, Any]:
-    return {"id": str(r[0]), "kind": r[1], "event_id": str(r[2]) if r[2] else None, "status": r[3], "created_at": r[4]}
+    folder = get_settings().data_dir / "processed" / "reports" / (r[5] or "").rsplit("/", 1)[0] if r[5] else None
+    formats = [f for f in FORMATS if folder and (folder / f"{r[0]}.{f}").is_file()]
+    return {"id": str(r[0]), "kind": r[1], "event_id": str(r[2]) if r[2] else None, "status": r[3], "created_at": r[4], "formats": formats}
 
 
-@router.post("/reports/incident/{event_id}", summary="Create an incident report", status_code=201)
+REPORT_SQL = "SELECT id, kind, event_id, status, created_at, file_ref FROM reports"
+
+
+def _finish(tx: Tx, request: Request, principal: Principal, new_id: str, kind: str, event_id: str | None, html: str, csv_text: str | None) -> dict[str, Any]:
+    tenant = principal.tenant_id or "platform"
+    ref = _store(new_id, tenant, html, "html")
+    pdf = render.html_to_pdf(html)
+    if pdf:
+        _store(new_id, tenant, pdf, "pdf")
+    if csv_text is not None:
+        _store(new_id, tenant, csv_text, "csv")
+    row = tx.one(
+        "INSERT INTO reports (id, tenant_id, kind, event_id, status, file_ref, created_by) VALUES (%s, %s, %s, %s, 'ready', %s, %s) "
+        "RETURNING id, kind, event_id, status, created_at, file_ref",
+        (new_id, principal.tenant_id, kind, event_id, ref, principal.user_id),
+    )
+    assert row is not None
+    audit_action(tx, request, principal, "report.create", "report", new_id, {"kind": kind, "pdf": bool(pdf)})
+    tx.commit()
+    return _report(row)
+
+
+@router.post("/reports/incident/{event_id}", summary="Create an incident report (HTML and PDF)", status_code=201)
 def create_incident_report(
     event_id: uuid.UUID,
     request: Request,
     principal: Principal = Depends(require("rules.manage")),
     tx: Tx = Depends(get_tx),
 ) -> dict[str, Any]:
-    content = reports.incident_html(tx, str(event_id))
+    ratelimit.check(f"report:{principal.user_id or principal.api_key_id}", 20, 3600, detail="Too many reports. Try again later.")
+    new_id = str(uuid.uuid4())
+    content = reports.incident_html(tx, str(event_id), new_id, dt.datetime.now(dt.UTC))
     if content is None:
         raise not_found("Event")
-    new_id = str(uuid.uuid4())
-    ref = _store(new_id, principal.tenant_id or "platform", content, "html")
-    row = tx.one(
-        "INSERT INTO reports (id, tenant_id, kind, event_id, status, file_ref, created_by) VALUES (%s, %s, 'incident', %s, 'ready', %s, %s) RETURNING id, kind, event_id, status, created_at",
-        (new_id, principal.tenant_id, str(event_id), ref, principal.user_id),
-    )
-    assert row is not None
-    audit_action(tx, request, principal, "report.create", "report", new_id, {"kind": "incident"})
-    tx.commit()
-    return _report(row)
+    return _finish(tx, request, principal, new_id, "incident", str(event_id), content, None)
 
 
-@router.post("/reports/portfolio", summary="Create a portfolio exposure report", status_code=201)
+@router.post("/reports/portfolio", summary="Create a portfolio exposure report (HTML, PDF, and CSV)", status_code=201)
 def create_portfolio_report(
     request: Request, principal: Principal = Depends(require("rules.manage")), tx: Tx = Depends(get_tx)
 ) -> dict[str, Any]:
+    ratelimit.check(f"report:{principal.user_id or principal.api_key_id}", 20, 3600, detail="Too many reports. Try again later.")
     new_id = str(uuid.uuid4())
-    ref = _store(new_id, principal.tenant_id or "platform", reports.portfolio_html(tx), "html")
-    _store(new_id, principal.tenant_id or "platform", reports.portfolio_csv(tx), "csv")
-    row = tx.one(
-        "INSERT INTO reports (id, tenant_id, kind, status, file_ref, created_by) VALUES (%s, %s, 'portfolio', 'ready', %s, %s) RETURNING id, kind, event_id, status, created_at",
-        (new_id, principal.tenant_id, ref, principal.user_id),
-    )
-    assert row is not None
-    audit_action(tx, request, principal, "report.create", "report", new_id, {"kind": "portfolio"})
-    tx.commit()
-    return _report(row)
+    html = reports.portfolio_html(tx, new_id, dt.datetime.now(dt.UTC))
+    return _finish(tx, request, principal, new_id, "portfolio", None, html, reports.portfolio_csv(tx))
 
 
-@router.get("/reports/{report_id}", summary="A report: metadata, or the file with format=html or format=csv")
+@router.get("/reports", summary="List reports")
+def list_reports(
+    limit: int = Query(default=20, ge=1, le=100), principal: Principal = Depends(require("rules.manage")), tx: Tx = Depends(get_tx)
+) -> dict[str, Any]:
+    return {"items": [_report(r) for r in tx.all(REPORT_SQL + " ORDER BY created_at DESC LIMIT %s", (limit,))]}
+
+
+@router.get("/reports/{report_id}", summary="A report: metadata, or a file with format=html, pdf, or csv")
 def get_report(
     report_id: uuid.UUID,
-    format: str = Query(default="meta", pattern="^(meta|html|csv)$"),
+    format: str = Query(default="meta", pattern="^(meta|html|pdf|csv)$"),
     principal: Principal = Depends(require("rules.manage")),
     tx: Tx = Depends(get_tx),
 ) -> Any:
-    row = tx.one(
-        "SELECT id, kind, event_id, status, created_at, file_ref FROM reports WHERE id = %s", (str(report_id),)
-    )
+    row = tx.one(REPORT_SQL + " WHERE id = %s", (str(report_id),))
     if row is None:
         raise not_found("Report")
     if format == "meta":
         return _report(row)
-    path = get_settings().data_dir / "processed" / "reports" / (row[5] or "").rsplit(".", 1)[0]
-    file = path.with_suffix("." + format)
-    if not file.is_file() or get_settings().data_dir not in file.resolve().parents:
+    root = (get_settings().data_dir / "processed" / "reports").resolve()
+    file = (root / (row[5] or "").rsplit(".", 1)[0]).with_suffix("." + format).resolve()
+    if not file.is_file() or root not in file.parents:
         raise not_found("Report file")
-    media = "text/html; charset=utf-8" if format == "html" else "text/csv"
-    headers = {
-        "Content-Disposition": f'attachment; filename="report.{format}"',
-        "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; sandbox",
-    }
-    return Response(file.read_text(encoding="utf-8"), media_type=media, headers=headers)
-
-
-_ = ProblemError
+    headers = _FILE_HEADERS | {"Content-Disposition": f'attachment; filename="report-{str(report_id)[:8]}.{format}"'}
+    data = file.read_bytes()
+    return Response(data, media_type=FORMATS[format], headers=headers)

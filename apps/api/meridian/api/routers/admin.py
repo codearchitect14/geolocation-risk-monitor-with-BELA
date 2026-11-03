@@ -467,6 +467,9 @@ class RiskConfig(BaseModel):
     include_coordinates: bool = Field(default=False, description="Allow webhooks to include asset coordinates")
     retention_days: int = Field(default=365, ge=30, le=3650)
     model_training_opt_in: bool = False
+    daily_briefing: bool = Field(default=False, description="Generate a daily briefing for the previous UTC day")
+    weekly_briefing: bool = Field(default=False, description="Generate a weekly briefing every Monday")
+    briefing_email: bool = Field(default=False, description="Email generated briefings to opted-in users")
 
     model_config = {
         "json_schema_extra": {

@@ -388,14 +388,38 @@ def me(principal: Principal = Depends(get_principal)) -> dict[str, Any]:
     if principal.user_id:
         with db.system_connection() as conn:
             row = conn.execute(
-                "SELECT email, display_name, (SELECT enabled FROM user_mfa m WHERE m.user_id = u.id) FROM users u WHERE id = %s",
+                "SELECT email, display_name, (SELECT enabled FROM user_mfa m WHERE m.user_id = u.id), notify_email FROM users u WHERE id = %s",
                 (principal.user_id,),
             ).fetchone()
         if row:
-            out.update({"id": principal.user_id, "email": row[0], "display_name": row[1], "mfa_enabled": bool(row[2])})
+            out.update(
+                {
+                    "id": principal.user_id,
+                    "email": row[0],
+                    "display_name": row[1],
+                    "mfa_enabled": bool(row[2]),
+                    "notifications": {"email": bool(row[3])},
+                }
+            )
     else:
         out.update({"api_key_id": principal.api_key_id, "scopes": principal.scopes})
     return out
+
+
+class NotificationPrefs(BaseModel):
+    email: bool
+
+
+@router.patch("/me/notifications", summary="Turn alert email on or off for the current user")
+def set_notifications(
+    body: NotificationPrefs, request: Request, principal: Principal = Depends(get_principal)
+) -> dict[str, Any]:
+    if principal.user_id is None:
+        raise ProblemError(403, "API keys have no notification settings.", code="forbidden")
+    with db.system_connection() as conn:
+        conn.execute("UPDATE users SET notify_email = %s WHERE id = %s", (body.email, principal.user_id))
+        conn.commit()
+    return {"notifications": {"email": body.email}}
 
 
 @router.get("/sessions", summary="Active sessions of the current user")

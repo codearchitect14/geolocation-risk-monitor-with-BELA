@@ -106,6 +106,11 @@ def _ingest_many(
         conn.commit()
         if result is not None and result.alert_ids:
             notify.publish_alerts(conn, result.alert_ids)
+            try:
+                notify.email_new_alerts(conn, result.alert_ids)
+            except Exception as exc:  # noqa: BLE001 - mail problems never stop ingestion
+                conn.rollback()
+                notify.log.warning("alert email failed: %s", type(exc).__name__)
     return run
 
 

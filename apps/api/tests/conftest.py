@@ -78,11 +78,12 @@ def conn(migrated_url: str) -> Iterator[psycopg.Connection[Any]]:
 
 # -- API fixtures -------------------------------------------------------------------------------------------------------
 @pytest.fixture
-def api_env(monkeypatch: pytest.MonkeyPatch) -> None:
+def api_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Any) -> None:
     from tests.api_support import ENV
 
     for key, value in ENV.items():
         monkeypatch.setenv(key, value)
+    monkeypatch.setenv("MS_DATA_DIR", str(tmp_path / "data"))  # reports and candidate files never touch the repository
 
 
 @pytest.fixture
@@ -102,10 +103,12 @@ def world(conn: psycopg.Connection[Any], api_env: None) -> Any:
 @pytest.fixture
 def app(world: Any, mailer: Any) -> Any:
     from meridian.api.main import create_app
+    from meridian.api.routers.reports import get_writer
     from meridian.api.security import ratelimit
     from meridian.api.services.mailer import get_mailer
 
     application = create_app()
+    application.dependency_overrides[get_writer] = lambda: None  # tests never depend on the local model server
     ratelimit._backend.reset()  # type: ignore[attr-defined]
     application.dependency_overrides[get_mailer] = lambda: mailer
     return application

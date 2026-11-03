@@ -592,6 +592,9 @@ def test_risk_config_and_audit(client: Any, world: World) -> None:
         "include_coordinates": False,
         "retention_days": 365,
         "model_training_opt_in": False,
+        "daily_briefing": False,
+        "weekly_briefing": False,
+        "briefing_email": False,
     }
     put = client.put(
         f"{API}/admin/risk-config",

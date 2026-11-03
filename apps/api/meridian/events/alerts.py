@@ -269,6 +269,11 @@ def _zone_alerts(
             None,
             level,
             min(score, 1.0),
-            {"zone_id": str(zone_id), "score": round(min(score, 1.0), 4), "level": level},
+            {
+                "zone_id": str(zone_id),
+                "score": round(min(score, 1.0), 4),
+                "level": level,
+                "quiet_hours": in_quiet_hours(rules.get("quiet_hours") or {}, now),
+            },
         )
         result.zone_alerts += result.created - before

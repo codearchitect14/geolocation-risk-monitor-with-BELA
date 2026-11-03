@@ -1,7 +1,7 @@
 PY ?= .venv/bin/python
 SCRIPTS := data/scripts
 
-.PHONY: api-up api-worker api-openapi api-cov api-security valkey-up valkey-down zap events-demo events-usgs events-nws events-status events-smoke events-synth events-report eval-throughput eval-gkg nel-index nel-up nel-down llm-fetch llm-up llm-down eval-cache eval-train eval geo-up db-init db-start db-stop db-reset db-upgrade etl etl-embed etl-quality etl-plans etl-report help setup data data-small data-geonames data-natural-earth data-eupeg data-wikidata \
+.PHONY: pdf-setup api-up api-worker api-openapi api-cov api-security valkey-up valkey-down zap events-demo events-usgs events-nws events-status events-smoke events-synth events-report eval-throughput eval-gkg nel-index nel-up nel-down llm-fetch llm-up llm-down eval-cache eval-train eval geo-up db-init db-start db-stop db-reset db-upgrade etl etl-embed etl-quality etl-plans etl-report help setup data data-small data-geonames data-natural-earth data-eupeg data-wikidata \
 	harvest harvest-daemon harvest-status backfill-gkg verify-data data-report tasks \
 	validate-gold lint typecheck test check-style check
 
@@ -119,6 +119,11 @@ valkey-up:
 
 valkey-down:
 	-kill `cat .local/valkey.pid` && rm -f .local/valkey.pid
+
+# PDF reports: native libraries for WeasyPrint (macOS) and the browser used for report maps.
+pdf-setup:
+	brew install pango
+	.venv/bin/playwright install chromium
 
 api-up:
 	mkdir -p .local && cd $(API) && MS_ENV=development MS_COOKIE_SECURE=false PYTHONPATH=. ../../.venv/bin/uvicorn meridian.api.main:create_app --factory --host 127.0.0.1 --port 8090 --no-server-header

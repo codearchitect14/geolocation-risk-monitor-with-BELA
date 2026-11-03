@@ -96,6 +96,74 @@ def list_events(
     return result
 
 
+def _timeline(sources: list[dict[str, Any]], updates: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Sources and pipeline updates in time order, oldest first, for the update timeline."""
+    items = [
+        {"at": s["published_at"], "kind": "source", "source_kind": s["kind"], "url": s["url"], "snippet": s["snippet"]}
+        for s in sources
+        if s["published_at"]
+    ] + [{"at": u["at"], "kind": "update", "update_type": u["type"], "detail": u["detail"]} for u in updates]
+    return sorted(items, key=lambda i: i["at"])
+
+
+def _location(tx: Tx, event_id: str) -> dict[str, Any] | None:
+    r = tx.one(
+        """SELECT ST_AsGeoJSON(e.geom)::json, e.uncertainty_km, e.location_level, e.location_confidence,
+                  CASE WHEN e.geom IS NOT NULL AND e.uncertainty_km > 0
+                       THEN ST_AsGeoJSON(ST_Buffer(ST_Centroid(e.geom)::geography, e.uncertainty_km * 1000, 24)::geometry, 5)::json END,
+                  p.id, p.name, p.type, p.country_code, p.admin1_name
+             FROM events e LEFT JOIN places p ON p.id = e.location_place_id WHERE e.id = %s""",
+        (event_id,),
+    )
+    if r is None or r[0] is None:
+        return None
+    return {
+        "geometry": r[0],
+        "uncertainty_km": r[1],
+        "level": r[2],
+        "confidence": r[3],
+        "uncertainty_circle": r[4],
+        "place": None
+        if r[5] is None
+        else {"id": r[5], "name": r[6], "type": r[7], "country_code": r[8], "admin1": r[9]},
+    }
+
+
+def _linked_places(tx: Tx, event_id: str) -> list[dict[str, Any]]:
+    rows = tx.all(
+        """SELECT p.id, p.name, p.type, p.country_code, p.admin1_name, count(*) AS mentions, p.id = e.location_place_id
+             FROM events e JOIN event_sources s ON s.event_id = e.id JOIN mentions m ON m.article_id = s.article_id
+             JOIN places p ON p.id = m.place_id WHERE e.id = %s AND m.route <> 'unresolved'
+            GROUP BY p.id, e.location_place_id ORDER BY 7 DESC, 6 DESC, p.name LIMIT 20""",
+        (event_id,),
+    )
+    return [
+        {"id": r[0], "name": r[1], "type": r[2], "country_code": r[3], "admin1": r[4], "mentions": r[5], "is_event_location": r[6]}
+        for r in rows
+    ]
+
+
+SIMILAR_RADIUS_KM = 100
+SIMILAR_WINDOW_DAYS = 365
+
+
+def _similar(tx: Tx, event_id: str, limit: int = 5) -> list[dict[str, Any]]:
+    """Earlier events of the same type within 100 km during the previous year."""
+    rows = tx.all(
+        """SELECT o.id, o.title, o.type, o.subtype, o.severity, o.status, o.first_seen_at,
+                  ST_Distance(o.geom::geography, e.geom::geography) / 1000.0
+             FROM events e JOIN events o ON o.id <> e.id AND o.type = e.type AND o.geom IS NOT NULL
+                  AND o.first_seen_at < e.first_seen_at AND o.first_seen_at >= e.first_seen_at - make_interval(days => %s)
+                  AND ST_DWithin(o.geom::geography, e.geom::geography, %s)
+            WHERE e.id = %s AND e.geom IS NOT NULL ORDER BY 8 LIMIT %s""",
+        (SIMILAR_WINDOW_DAYS, SIMILAR_RADIUS_KM * 1000, event_id, limit),
+    )
+    return [
+        {"id": str(r[0]), "title": r[1], "type": r[2], "subtype": r[3], "severity": r[4], "status": r[5], "first_seen_at": r[6], "distance_km": round(float(r[7]), 1)}
+        for r in rows
+    ]
+
+
 @router.get("/events/{event_id}", summary="One event with its sources, updates, and exposures for this tenant")
 def get_event(
     event_id: uuid.UUID, principal: Principal = Depends(require("view")), tx: Tx = Depends(get_tx)
@@ -116,12 +184,18 @@ def get_event(
             WHERE x.event_id = %s ORDER BY x.score DESC LIMIT 100""",
         (str(event_id),),
     )
+    sources_view = [
+        {"kind": s[0], "url": s[1], "published_at": s[2], "snippet": s[3], "reliability": s[4]} for s in sources
+    ]
+    updates_view = [{"type": u[0], "detail": u[1], "at": u[2]} for u in updates]
     return {
         **event_view(row),
-        "sources": [
-            {"kind": s[0], "url": s[1], "published_at": s[2], "snippet": s[3], "reliability": s[4]} for s in sources
-        ],
-        "updates": [{"type": u[0], "detail": u[1], "at": u[2]} for u in updates],
+        "sources": sources_view,
+        "updates": updates_view,
+        "timeline": _timeline(sources_view, updates_view),
+        "location": _location(tx, str(event_id)),
+        "linked_places": _linked_places(tx, str(event_id)),
+        "similar_past_incidents": _similar(tx, str(event_id)),
         "exposures": [
             {
                 "asset_id": str(e[0]),

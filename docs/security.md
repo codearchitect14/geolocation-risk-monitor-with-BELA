@@ -55,3 +55,22 @@ This page maps the security specification to what is implemented and where it is
 - **PDF reports** (WeasyPrint) are phase 6. Reports are HTML and CSV now.
 - **Platform settings and the correction review interface** have no dedicated endpoints beyond tenant management and `PATCH /corrections/{id}`.
 - Rate limits are fixed windows; a burst at a window boundary can briefly reach twice the limit.
+
+
+## Phase 6 additions
+
+| Control | Where | Tested by |
+|---|---|---|
+| Staged uploads are tenant scoped; a reviewer's place pick must be one of the stored candidates | `routers/staged.py`, `services/staging.py` | `test_workflow_assets.py`, `test_api_tenancy.py` |
+| Bulk edits are all or nothing and cannot name another tenant's assets | `routers/assets.py` | `test_workflow_assets.py`, `test_api_tenancy.py` |
+| Lifecycle transitions are enforced on the server; dismissal needs a reason | `services/lifecycle.py` | `test_workflow_alerts.py` |
+| Alert mail and webhooks never carry coordinates; quiet hours hold mail back | `notify.py` | `test_workflow_alerts.py`, `test_workflow_e2e.py` |
+| Report and briefing HTML escapes all values and is served with `default-src 'none'` | `services/reports.py` | `test_workflow_alerts.py` |
+| PDF renderer refuses every resource except `data:`; map browser has the network blocked; both run in child processes | `services/render.py` | `test_workflow_alerts.py` |
+| No third party map tiles, so asset positions are never sent out | `services/maps.py` | `test_workflow_alerts.py` |
+| Model written briefing text must match the evidence (numbers, links, names) | `services/briefings.py` | `test_workflow_alerts.py` |
+| Briefing email only to users of the tenant; reports and briefing mail are rate limited | `routers/reports.py` | `test_workflow_alerts.py` |
+| Corrections leave the tenant only with consent, without tenant ids or free text | `services/corrections.py` | `test_workflow_alerts.py` |
+
+Not done in this phase: report generation runs inside the request (no queue); the alert email has no per-alert unsubscribe link, only the
+per-user switch; the browser used for map images is Chromium run with its default sandbox and has not been hardened further.

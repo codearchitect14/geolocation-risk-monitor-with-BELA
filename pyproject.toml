@@ -42,6 +42,8 @@ dependencies = [
     "structlog>=24",
     "email-validator>=2",
     "shapely>=2",
+    "weasyprint>=68",
+    "playwright>=1.49",
 ]
 
 [project.optional-dependencies]

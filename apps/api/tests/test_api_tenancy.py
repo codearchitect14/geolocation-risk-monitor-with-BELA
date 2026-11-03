@@ -24,6 +24,36 @@ def test_tenant_b_cannot_read_tenant_a_objects(client: Any, world: World) -> Non
         assert client.get("/api/v1" + path).status_code == 404, path
 
 
+def test_workflow_endpoints_do_not_cross_tenants(client: Any, world: World) -> None:
+    login(client, world, "b_admin")
+    w = world
+    for method, path, body in (
+        ("GET", f"/uploads/{w.uploads['A']}/rows", None),
+        ("GET", f"/uploads/{w.uploads['A']}/result", None),
+        ("POST", f"/uploads/{w.uploads['A']}/commit", {}),
+        ("POST", f"/uploads/{w.uploads['A']}/cancel", None),
+        ("PATCH", f"/asset-groups/{w.groups['A']}", {"name": "x"}),
+        ("DELETE", f"/asset-groups/{w.groups['A']}", None),
+        ("POST", "/assets/bulk", {"asset_ids": [w.assets["A_near"], w.assets["B_near"]], "criticality": 1}),
+        ("POST", f"/briefings/{w.briefings['A']}/email", {}),
+        ("GET", f"/briefings/{w.briefings['A']}?format=pdf", None),
+        ("GET", f"/reports/{w.reports['A']}?format=html", None),
+    ):
+        status = client.request(method, "/api/v1" + path, json=body).status_code
+        assert status == 404, (method, path, status)
+    # B's bulk edit with a mixed list changed nothing of A's, and B's own asset was not touched either (all or nothing).
+    login(client, world, "manager")
+    assert client.get(f"/api/v1/assets/{w.assets['A_near']}").json()["criticality"] == 4
+    login(client, world, "b_manager")
+    assert client.get(f"/api/v1/assets/{w.assets['B_near']}").json()["criticality"] == 4
+    # A tenant's circle zone and region zone are private, and a zone's alert reaches only its own tenant.
+    made = client.post("/api/v1/zones", json={"name": "B circle", "circle": {"center": [-93.3, 37.2], "radius_km": 20}})
+    assert made.status_code == 201
+    login(client, world, "manager")
+    assert made.json()["id"] not in {z["id"] for z in client.get("/api/v1/zones").json()["items"]}
+    assert client.get(f"/api/v1/zones/{made.json()['id']}").status_code == 404
+
+
 def test_lists_never_contain_the_other_tenant(client: Any, world: World) -> None:
     login(client, world, "b_admin")
     w = world

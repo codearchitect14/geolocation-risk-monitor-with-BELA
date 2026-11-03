@@ -298,6 +298,33 @@
     "title": "AssetPatch",
     "type": "object"
    },
+   "Body_stage_upload_api_v1_uploads_stage_post": {
+    "properties": {
+     "file": {
+      "contentMediaType": "application/octet-stream",
+      "title": "File",
+      "type": "string"
+     },
+     "mapping": {
+      "anyOf": [
+       {
+        "maxLength": 2000,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "JSON such as {\"name\": \"Site\", \"city\": \"Town\"}",
+      "title": "Mapping"
+     }
+    },
+    "required": [
+     "file"
+    ],
+    "title": "Body_stage_upload_api_v1_uploads_stage_post",
+    "type": "object"
+   },
    "Body_upload_assets_api_v1_uploads_post": {
     "properties": {
      "file": {
@@ -352,6 +379,165 @@
     "title": "BriefingBody",
     "type": "object"
    },
+   "BulkBody": {
+    "example": {
+     "add_tags": [
+      "priority"
+     ],
+     "asset_ids": [
+      "00000000-0000-0000-0000-000000000000"
+     ],
+     "criticality": 5
+    },
+    "properties": {
+     "add_tags": {
+      "items": {
+       "type": "string"
+      },
+      "maxItems": 10,
+      "title": "Add Tags",
+      "type": "array"
+     },
+     "add_to_group": {
+      "anyOf": [
+       {
+        "format": "uuid",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Add To Group"
+     },
+     "asset_ids": {
+      "items": {
+       "format": "uuid",
+       "type": "string"
+      },
+      "maxItems": 1000,
+      "minItems": 1,
+      "title": "Asset Ids",
+      "type": "array"
+     },
+     "criticality": {
+      "anyOf": [
+       {
+        "maximum": 5.0,
+        "minimum": 1.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Criticality"
+     },
+     "maintenance_windows": {
+      "anyOf": [
+       {
+        "items": {
+         "additionalProperties": {
+          "type": "string"
+         },
+         "type": "object"
+        },
+        "maxItems": 20,
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Maintenance Windows"
+     },
+     "remove_from_group": {
+      "anyOf": [
+       {
+        "format": "uuid",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Remove From Group"
+     },
+     "remove_tags": {
+      "items": {
+       "type": "string"
+      },
+      "maxItems": 10,
+      "title": "Remove Tags",
+      "type": "array"
+     },
+     "status": {
+      "anyOf": [
+       {
+        "enum": [
+         "active",
+         "archived"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Status"
+     }
+    },
+    "required": [
+     "asset_ids"
+    ],
+    "title": "BulkBody",
+    "type": "object"
+   },
+   "Choice": {
+    "properties": {
+     "place_id": {
+      "title": "Place Id",
+      "type": "integer"
+     },
+     "row": {
+      "minimum": 1.0,
+      "title": "Row",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "row",
+     "place_id"
+    ],
+    "title": "Choice",
+    "type": "object"
+   },
+   "Circle": {
+    "properties": {
+     "center": {
+      "description": "[lon, lat]",
+      "items": {
+       "type": "number"
+      },
+      "maxItems": 2,
+      "minItems": 2,
+      "title": "Center",
+      "type": "array"
+     },
+     "radius_km": {
+      "exclusiveMinimum": 0.0,
+      "maximum": 2000.0,
+      "title": "Radius Km",
+      "type": "number"
+     }
+    },
+    "required": [
+     "center",
+     "radius_km"
+    ],
+    "title": "Circle",
+    "type": "object"
+   },
    "CommentBody": {
     "properties": {
      "text": {
@@ -365,6 +551,39 @@
      "text"
     ],
     "title": "CommentBody",
+    "type": "object"
+   },
+   "CommitBody": {
+    "example": {
+     "choices": [
+      {
+       "place_id": 12345,
+       "row": 3
+      }
+     ],
+     "skip_rows": [
+      7
+     ]
+    },
+    "properties": {
+     "choices": {
+      "items": {
+       "$ref": "#/components/schemas/Choice"
+      },
+      "maxItems": 10000,
+      "title": "Choices",
+      "type": "array"
+     },
+     "skip_rows": {
+      "items": {
+       "type": "integer"
+      },
+      "maxItems": 10000,
+      "title": "Skip Rows",
+      "type": "array"
+     }
+    },
+    "title": "CommitBody",
     "type": "object"
    },
    "CorrectionBody": {
@@ -519,6 +738,37 @@
     "title": "DemoRequest",
     "type": "object"
    },
+   "EmailBody": {
+    "properties": {
+     "to": {
+      "description": "Addresses of users of this organisation; empty sends to all opted-in users",
+      "items": {
+       "type": "string"
+      },
+      "maxItems": 20,
+      "title": "To",
+      "type": "array"
+     }
+    },
+    "title": "EmailBody",
+    "type": "object"
+   },
+   "Escalation": {
+    "properties": {
+     "after_minutes": {
+      "description": "Escalate an alert still in status new after this long",
+      "maximum": 10080.0,
+      "minimum": 5.0,
+      "title": "After Minutes",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "after_minutes"
+    ],
+    "title": "Escalation",
+    "type": "object"
+   },
    "ForgotBody": {
     "properties": {
      "email": {
@@ -557,6 +807,43 @@
      "name"
     ],
     "title": "GroupBody",
+    "type": "object"
+   },
+   "GroupPatch": {
+    "properties": {
+     "add_asset_ids": {
+      "items": {
+       "format": "uuid",
+       "type": "string"
+      },
+      "maxItems": 5000,
+      "title": "Add Asset Ids",
+      "type": "array"
+     },
+     "name": {
+      "anyOf": [
+       {
+        "maxLength": 100,
+        "minLength": 1,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     },
+     "remove_asset_ids": {
+      "items": {
+       "format": "uuid",
+       "type": "string"
+      },
+      "maxItems": 5000,
+      "title": "Remove Asset Ids",
+      "type": "array"
+     }
+    },
+    "title": "GroupPatch",
     "type": "object"
    },
    "HTTPValidationError": {
@@ -721,6 +1008,19 @@
     "title": "MfaVerifyBody",
     "type": "object"
    },
+   "NotificationPrefs": {
+    "properties": {
+     "email": {
+      "title": "Email",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "email"
+    ],
+    "title": "NotificationPrefs",
+    "type": "object"
+   },
    "QuietHours": {
     "properties": {
      "end": {
@@ -769,6 +1069,18 @@
      "retention_days": 365
     },
     "properties": {
+     "briefing_email": {
+      "default": false,
+      "description": "Email generated briefings to opted-in users",
+      "title": "Briefing Email",
+      "type": "boolean"
+     },
+     "daily_briefing": {
+      "default": false,
+      "description": "Generate a daily briefing for the previous UTC day",
+      "title": "Daily Briefing",
+      "type": "boolean"
+     },
      "include_coordinates": {
       "default": false,
       "description": "Allow webhooks to include asset coordinates",
@@ -797,6 +1109,12 @@
       "minimum": 30.0,
       "title": "Retention Days",
       "type": "integer"
+     },
+     "weekly_briefing": {
+      "default": false,
+      "description": "Generate a weekly briefing every Monday",
+      "title": "Weekly Briefing",
+      "type": "boolean"
      }
     },
     "title": "RiskConfig",
@@ -827,19 +1145,14 @@
       "type": "boolean"
      },
      "escalation": {
-      "additionalProperties": {
-       "anyOf": [
-        {
-         "type": "integer"
-        },
-        {
-         "type": "string"
-        }
-       ]
-      },
-      "maxProperties": 5,
-      "title": "Escalation",
-      "type": "object"
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Escalation"
+       },
+       {
+        "type": "null"
+       }
+      ]
      },
      "event_types": {
       "items": {
@@ -918,6 +1231,16 @@
        }
       ],
       "title": "Enabled"
+     },
+     "escalation": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Escalation"
+       },
+       {
+        "type": "null"
+       }
+      ]
      },
      "event_types": {
       "anyOf": [
@@ -1312,11 +1635,42 @@
     "type": "object"
    },
    "ZoneBody": {
+    "description": "Give exactly one of: a polygon, a circle (center and radius), or an administrative region from the place table.",
+    "example": {
+     "circle": {
+      "center": [
+       4.4,
+       51.95
+      ],
+      "radius_km": 25
+     },
+     "name": "Port approaches",
+     "rules": {
+      "min_level": "high"
+     }
+    },
     "properties": {
+     "circle": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Circle"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
      "geometry": {
-      "additionalProperties": true,
-      "title": "Geometry",
-      "type": "object"
+      "anyOf": [
+       {
+        "additionalProperties": true,
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Geometry"
      },
      "name": {
       "maxLength": 100,
@@ -1324,19 +1678,39 @@
       "title": "Name",
       "type": "string"
      },
+     "region_place_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Region Place Id"
+     },
      "rules": {
       "$ref": "#/components/schemas/ZoneRules"
      }
     },
     "required": [
-     "name",
-     "geometry"
+     "name"
     ],
     "title": "ZoneBody",
     "type": "object"
    },
    "ZonePatch": {
     "properties": {
+     "circle": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Circle"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
      "geometry": {
       "anyOf": [
        {
@@ -1361,6 +1735,17 @@
        }
       ],
       "title": "Name"
+     },
+     "region_place_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Region Place Id"
      },
      "rules": {
       "anyOf": [
@@ -1418,6 +1803,16 @@
       "minimum": 1.0,
       "title": "Min Severity",
       "type": "integer"
+     },
+     "quiet_hours": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/QuietHours"
+       },
+       {
+        "type": "null"
+       }
+      ]
      }
     },
     "title": "ZoneRules",
@@ -2192,6 +2587,35 @@
      },
      {
       "in": "query",
+      "name": "assignee_id",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "uuid",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Assignee Id"
+      }
+     },
+     {
+      "description": "Only alerts assigned to the caller",
+      "in": "query",
+      "name": "mine",
+      "required": false,
+      "schema": {
+       "default": false,
+       "description": "Only alerts assigned to the caller",
+       "title": "Mine",
+       "type": "boolean"
+      }
+     },
+     {
+      "in": "query",
       "name": "limit",
       "required": false,
       "schema": {
@@ -2607,6 +3031,95 @@
     ]
    }
   },
+  "/api/v1/asset-groups/{group_id}": {
+   "delete": {
+    "operationId": "delete_group_api_v1_asset_groups__group_id__delete",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "group_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Group Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Delete a group (its assets are kept)",
+    "tags": [
+     "assets"
+    ]
+   },
+   "patch": {
+    "operationId": "patch_group_api_v1_asset_groups__group_id__patch",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "group_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Group Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/GroupPatch"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Patch Group Api V1 Asset Groups  Group Id  Patch",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Rename a group or change its members",
+    "tags": [
+     "assets"
+    ]
+   }
+  },
   "/api/v1/assets": {
    "get": {
     "operationId": "list_assets_api_v1_assets_get",
@@ -2672,6 +3185,76 @@
        "pattern": "^(active|archived)$",
        "title": "Status",
        "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "tag",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 40,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Tag"
+      }
+     },
+     {
+      "in": "query",
+      "name": "group_id",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "uuid",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Group Id"
+      }
+     },
+     {
+      "in": "query",
+      "name": "min_criticality",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maximum": 5,
+         "minimum": 1,
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Min Criticality"
+      }
+     },
+     {
+      "description": "Only assets inside (true) or outside (false) a maintenance window",
+      "in": "query",
+      "name": "in_maintenance",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Only assets inside (true) or outside (false) a maintenance window",
+       "title": "In Maintenance"
       }
      },
      {
@@ -2799,6 +3382,49 @@
      }
     },
     "summary": "Export assets as CSV (formula safe)",
+    "tags": [
+     "assets"
+    ]
+   }
+  },
+  "/api/v1/assets/bulk": {
+   "post": {
+    "operationId": "bulk_edit_api_v1_assets_bulk_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/BulkBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Bulk Edit Api V1 Assets Bulk Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Edit or archive many assets at once",
     "tags": [
      "assets"
     ]
@@ -3130,6 +3756,49 @@
      }
     },
     "summary": "The current user or API key",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/api/v1/auth/me/notifications": {
+   "patch": {
+    "operationId": "set_notifications_api_v1_auth_me_notifications_patch",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/NotificationPrefs"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Set Notifications Api V1 Auth Me Notifications Patch",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Turn alert email on or off for the current user",
     "tags": [
      "auth"
     ]
@@ -3563,6 +4232,17 @@
        "title": "Briefing Id",
        "type": "string"
       }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "json",
+       "pattern": "^(json|html|pdf)$",
+       "title": "Format",
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -3570,8 +4250,61 @@
       "content": {
        "application/json": {
         "schema": {
+         "title": "Response Get Briefing Api V1 Briefings  Briefing Id  Get"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "One briefing, or its HTML or PDF document with format=html or format=pdf",
+    "tags": [
+     "briefings and reports"
+    ]
+   }
+  },
+  "/api/v1/briefings/{briefing_id}/email": {
+   "post": {
+    "operationId": "email_briefing_api_v1_briefings__briefing_id__email_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "briefing_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Briefing Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/EmailBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
          "additionalProperties": true,
-         "title": "Response Get Briefing Api V1 Briefings  Briefing Id  Get",
+         "title": "Response Email Briefing Api V1 Briefings  Briefing Id  Email Post",
          "type": "object"
         }
        }
@@ -3589,7 +4322,7 @@
       "description": "Validation Error"
      }
     },
-    "summary": "One briefing",
+    "summary": "Email a briefing as a PDF to users of this organisation",
     "tags": [
      "briefings and reports"
     ]
@@ -4474,6 +5207,53 @@
     ]
    }
   },
+  "/api/v1/reports": {
+   "get": {
+    "operationId": "list_reports_api_v1_reports_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 20,
+       "maximum": 100,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response List Reports Api V1 Reports Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "List reports",
+    "tags": [
+     "briefings and reports"
+    ]
+   }
+  },
   "/api/v1/reports/incident/{event_id}": {
    "post": {
     "operationId": "create_incident_report_api_v1_reports_incident__event_id__post",
@@ -4513,7 +5293,7 @@
       "description": "Validation Error"
      }
     },
-    "summary": "Create an incident report",
+    "summary": "Create an incident report (HTML and PDF)",
     "tags": [
      "briefings and reports"
     ]
@@ -4536,7 +5316,7 @@
       "description": "Successful Response"
      }
     },
-    "summary": "Create a portfolio exposure report",
+    "summary": "Create a portfolio exposure report (HTML, PDF, and CSV)",
     "tags": [
      "briefings and reports"
     ]
@@ -4562,7 +5342,7 @@
       "required": false,
       "schema": {
        "default": "meta",
-       "pattern": "^(meta|html|csv)$",
+       "pattern": "^(meta|html|pdf|csv)$",
        "title": "Format",
        "type": "string"
       }
@@ -4590,7 +5370,7 @@
       "description": "Validation Error"
      }
     },
-    "summary": "A report: metadata, or the file with format=html or format=csv",
+    "summary": "A report: metadata, or a file with format=html, pdf, or csv",
     "tags": [
      "briefings and reports"
     ]
@@ -4839,6 +5619,91 @@
     ]
    }
   },
+  "/api/v1/uploads/stage": {
+   "post": {
+    "operationId": "stage_upload_api_v1_uploads_stage_post",
+    "requestBody": {
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/Body_stage_upload_api_v1_uploads_stage_post"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Stage Upload Api V1 Uploads Stage Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Upload a file for review before any asset is created",
+    "tags": [
+     "assets"
+    ]
+   }
+  },
+  "/api/v1/uploads/template": {
+   "get": {
+    "operationId": "template_api_v1_uploads_template_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "csv",
+       "pattern": "^(csv|geojson)$",
+       "title": "Format",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Download an asset upload template",
+    "tags": [
+     "assets"
+    ]
+   }
+  },
   "/api/v1/uploads/{upload_id}": {
    "get": {
     "operationId": "get_upload_api_v1_uploads__upload_id__get",
@@ -4879,6 +5744,233 @@
      }
     },
     "summary": "One upload and its row errors",
+    "tags": [
+     "assets"
+    ]
+   }
+  },
+  "/api/v1/uploads/{upload_id}/cancel": {
+   "post": {
+    "operationId": "cancel_upload_api_v1_uploads__upload_id__cancel_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "upload_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Upload Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Cancel Upload Api V1 Uploads  Upload Id  Cancel Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Discard a staged upload",
+    "tags": [
+     "assets"
+    ]
+   }
+  },
+  "/api/v1/uploads/{upload_id}/commit": {
+   "post": {
+    "operationId": "commit_upload_api_v1_uploads__upload_id__commit_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "upload_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Upload Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CommitBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Commit Upload Api V1 Uploads  Upload Id  Commit Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Create assets from a staged upload",
+    "tags": [
+     "assets"
+    ]
+   }
+  },
+  "/api/v1/uploads/{upload_id}/result": {
+   "get": {
+    "operationId": "upload_result_api_v1_uploads__upload_id__result_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "upload_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Upload Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Per row outcome of an upload as CSV (formula safe)",
+    "tags": [
+     "assets"
+    ]
+   }
+  },
+  "/api/v1/uploads/{upload_id}/rows": {
+   "get": {
+    "operationId": "staged_rows_api_v1_uploads__upload_id__rows_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "upload_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Upload Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "status",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "pattern": "^(ready|review|duplicate|error)$",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     },
+     {
+      "in": "query",
+      "name": "offset",
+      "required": false,
+      "schema": {
+       "default": 0,
+       "maximum": 100000,
+       "minimum": 0,
+       "title": "Offset",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 100,
+       "maximum": 500,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Staged Rows Api V1 Uploads  Upload Id  Rows Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Rows of a staged upload, optionally only those needing review",
     "tags": [
      "assets"
     ]

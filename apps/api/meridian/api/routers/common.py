@@ -7,7 +7,7 @@ from typing import Any
 
 from meridian.api.errors import ProblemError
 
-ASSET_COLUMNS = "id, name, type, ST_AsGeoJSON(geom)::json, criticality, country_code, tags, status, external_id, maintenance_windows, created_at"
+ASSET_COLUMNS = "id, name, type, ST_AsGeoJSON(geom)::json, criticality, country_code, tags, status, external_id, maintenance_windows, created_at, location_source, location_uncertainty_km, place_id"
 EVENT_TYPES = (
     "industrial_accident", "natural_hazard", "transport_disruption", "labor_action", "civil_unrest", "security_incident",
     "infrastructure_outage", "health_outbreak", "other",
@@ -23,6 +23,7 @@ def asset_view(r: tuple[Any, ...]) -> dict[str, Any]:
     return {
         "id": str(r[0]), "name": r[1], "type": r[2], "geometry": r[3], "criticality": r[4], "country_code": r[5],
         "tags": r[6], "status": r[7], "external_id": r[8], "maintenance_windows": r[9], "created_at": r[10],
+        "location_source": r[11], "location_uncertainty_km": r[12], "place_id": r[13],
     }  # fmt: skip
 
 

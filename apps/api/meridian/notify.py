@@ -190,3 +190,85 @@ def publish_alerts(conn: psycopg.Connection[Any], alert_ids: list[str]) -> None:
             continue
         publish(f"alerts:{row[0]}", payload)
         publish(f"events:{row[0]}", {"event": payload["event"], "disclaimer": DISCLAIMER})
+
+
+# -- status changes ---------------------------------------------------------------------------------------------------
+def announce_status(conn: psycopg.Connection[Any], alert_id: str, kind: str = "alert.updated") -> None:
+    """Tell open streams and webhooks that an alert changed status. Call after the change is committed."""
+    row = conn.execute("SELECT tenant_id FROM alerts WHERE id = %s", (alert_id,)).fetchone()
+    payload = alert_payload(conn, alert_id, include_coordinates=False)
+    if row is None or payload is None:
+        return
+    publish(f"alerts:{row[0]}", {**payload, "kind": kind})
+
+
+# -- email ------------------------------------------------------------------------------------------------------------
+EMAIL_ROLES = ("analyst", "manager", "tenant_admin")
+EMAIL_LIMIT = 10
+
+
+def _fresh_alert(conn: psycopg.Connection[Any], alert_id: str) -> bool:
+    """True when the latest history entry is a new alert or a reopened one, and the rule's quiet hours do not apply."""
+    last = conn.execute(
+        "SELECT kind, detail FROM alert_events WHERE alert_id = %s ORDER BY id DESC LIMIT 1", (alert_id,)
+    ).fetchone()
+    if last is None:
+        return False
+    kind, detail = last
+    fresh = kind == "created" or (kind == "status_change" and "reopened_from" in (detail or {}))
+    return bool(fresh and not (detail or {}).get("quiet_hours"))
+
+
+def email_new_alerts(conn: psycopg.Connection[Any], alert_ids: list[str], mailer: Any = None) -> int:
+    """One email per recipient and tenant that lists the new alerts. Returns the number of emails sent.
+
+    Mail carries the asset name and distance, never coordinates. Quiet hours hold back email; the in-app stream still shows
+    the alert. Recipients are active analysts, managers, and administrators who have not turned email off.
+    """
+    from meridian.api.services.mailer import get_mailer
+    from meridian.api.settings import get_api_settings
+
+    mailer = mailer or get_mailer()
+    base = get_api_settings().public_url.rstrip("/")
+    by_tenant: dict[str, list[str]] = {}
+    for alert_id in alert_ids:
+        row = conn.execute("SELECT tenant_id FROM alerts WHERE id = %s", (alert_id,)).fetchone()
+        if row and _fresh_alert(conn, alert_id):
+            by_tenant.setdefault(str(row[0]), []).append(alert_id)
+    sent = 0
+    for tenant_id, ids in by_tenant.items():
+        recipients = [
+            r[0]
+            for r in conn.execute(
+                "SELECT email FROM users WHERE tenant_id = %s AND status = 'active' AND notify_email AND role = ANY(%s)",
+                (tenant_id, list(EMAIL_ROLES)),
+            ).fetchall()
+        ]
+        if not recipients:
+            continue
+        lines = []
+        for alert_id in ids[:EMAIL_LIMIT]:
+            p = alert_payload(conn, alert_id, include_coordinates=False)
+            if p is None:
+                continue
+            where = f" near {p['asset']['name']}" if p["asset"]["name"] else " in a watch zone"
+            away = f" ({p['asset']['distance_km']} km)" if p["asset"]["distance_km"] is not None else ""
+            lines.append(
+                f"- {p['alert']['level'].capitalize()}: {p['event']['title']}{where}{away}; {p['event']['confirmation']}.\n"
+                f"  {base}{p['link']}"
+            )
+        if not lines:
+            continue
+        more = f"\n... and {len(ids) - EMAIL_LIMIT} more." if len(ids) > EMAIL_LIMIT else ""
+        body = "New alerts:\n\n" + "\n".join(lines) + more + f"\n\n{DISCLAIMER}\n"
+        subject = f"{len(ids)} new alert" + ("s" if len(ids) != 1 else "")
+        for email in recipients:
+            mailer.send(email, subject, body)
+            sent += 1
+        for alert_id in ids:
+            conn.execute(
+                "INSERT INTO alert_events (alert_id, tenant_id, kind, detail) VALUES (%s, %s, 'notification', %s)",
+                (alert_id, tenant_id, json.dumps({"channel": "email", "recipients": len(recipients)})),
+            )
+        conn.commit()
+    return sent

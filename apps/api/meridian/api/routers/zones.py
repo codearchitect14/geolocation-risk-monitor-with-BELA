@@ -22,10 +22,27 @@ Level = Literal["low", "medium", "high", "critical"]
 _HHMM = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
 
 
+class QuietHours(BaseModel):
+    start: str
+    end: str
+
+    @field_validator("start", "end")
+    @classmethod
+    def hhmm(cls, value: str) -> str:
+        if not _HHMM.match(value):
+            raise ValueError("use HH:MM in UTC")
+        return value
+
+
+class Escalation(BaseModel):
+    after_minutes: int = Field(ge=5, le=10080, description="Escalate an alert still in status new after this long")
+
+
 class ZoneRules(BaseModel):
     min_severity: int = Field(default=1, ge=1, le=4)
     min_level: Level = "medium"
     event_types: list[str] = Field(default_factory=list, max_length=20)
+    quiet_hours: QuietHours | None = None
 
     @field_validator("event_types")
     @classmethod
@@ -35,15 +52,32 @@ class ZoneRules(BaseModel):
         return value
 
 
+class Circle(BaseModel):
+    center: list[float] = Field(min_length=2, max_length=2, description="[lon, lat]")
+    radius_km: float = Field(gt=0, le=2000)
+
+
 class ZoneBody(BaseModel):
+    """Give exactly one of: a polygon, a circle (center and radius), or an administrative region from the place table."""
+
     name: str = Field(min_length=1, max_length=100)
-    geometry: dict[str, Any]
+    geometry: dict[str, Any] | None = None
+    circle: Circle | None = None
+    region_place_id: int | None = None
     rules: ZoneRules = Field(default_factory=ZoneRules)
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {"name": "Port approaches", "circle": {"center": [4.4, 51.95], "radius_km": 25}, "rules": {"min_level": "high"}}
+        }
+    }
 
 
 class ZonePatch(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=100)
     geometry: dict[str, Any] | None = None
+    circle: Circle | None = None
+    region_place_id: int | None = None
     rules: ZoneRules | None = None
     status: Literal["active", "archived"] | None = None
 
@@ -61,6 +95,34 @@ def _polygon(geometry: dict[str, Any]) -> dict[str, Any]:
     return _validated_geometry(geometry)
 
 
+def _shape(tx: Tx, geometry: dict[str, Any] | None, circle: Circle | None, region: int | None) -> tuple[dict[str, Any], dict[str, Any]]:
+    """The polygon to store and a description of how it was made, so that an editor can reopen it as a circle or region."""
+    given = [x for x in (geometry, circle, region) if x is not None]
+    if len(given) != 1:
+        raise ProblemError(422, "Give exactly one of geometry, circle, or region_place_id.", code="invalid-shape")
+    if geometry is not None:
+        return _polygon(geometry), {"kind": "polygon"}
+    if circle is not None:
+        lon, lat = circle.center
+        if not (-180 <= lon <= 180 and -90 <= lat <= 90):
+            raise ProblemError(422, "The circle center is outside the valid range.", code="invalid-shape")
+        row = tx.one(
+            "SELECT ST_AsGeoJSON(ST_Buffer(ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography, %s, 24)::geometry)::json",
+            (lon, lat, circle.radius_km * 1000),
+        )
+        assert row is not None
+        return _polygon(row[0]), {"kind": "circle", "center": [lon, lat], "radius_km": circle.radius_km}
+    row = tx.one(
+        "SELECT name, has_polygon, ST_AsGeoJSON(ST_SimplifyPreserveTopology(geom, 0.01), 5)::json FROM places WHERE id = %s",
+        (region,),
+    )
+    if row is None:
+        raise ProblemError(404, "Place not found.", code="not-found")
+    if not row[1] or row[2]["type"] not in ("Polygon", "MultiPolygon"):
+        raise ProblemError(422, "This place has no boundary. Choose an administrative region.", code="no-boundary")
+    return _polygon(row[2]), {"kind": "region", "place_id": region, "name": row[0]}
+
+
 @router.get("/zones", summary="List watch zones")
 def list_zones(
     format: str = Query(default="json", pattern="^(json|geojson)$"),
@@ -75,14 +137,14 @@ def list_zones(
 def create_zone(
     body: ZoneBody, request: Request, principal: Principal = Depends(require("alerts.act")), tx: Tx = Depends(get_tx)
 ) -> dict[str, Any]:
-    geometry = _polygon(body.geometry)
+    geometry, origin = _shape(tx, body.geometry, body.circle, body.region_place_id)
     row = tx.one(
         "INSERT INTO watch_zones (tenant_id, name, geom, rules, created_by) VALUES (%s, %s, ST_SetSRID(ST_GeomFromGeoJSON(%s), 4326), %s, %s) RETURNING id, name, ST_AsGeoJSON(geom)::json, rules, status, created_at",
         (
             principal.tenant_id,
             clean_text(body.name, 100),
             json.dumps(geometry),
-            dumps(body.rules.model_dump()),
+            dumps({**body.rules.model_dump(), "origin": origin}),
             principal.user_id,
         ),
     )
@@ -118,12 +180,18 @@ def patch_zone(
     if data.get("name"):
         sets.append("name = %s")
         params.append(clean_text(data["name"], 100))
-    if data.get("geometry"):
+    new_origin: dict[str, Any] | None = None
+    if any(data.get(k) is not None for k in ("geometry", "circle", "region_place_id")):
+        polygon, new_origin = _shape(tx, data.get("geometry"), body.circle, data.get("region_place_id"))
         sets.append("geom = ST_SetSRID(ST_GeomFromGeoJSON(%s), 4326)")
-        params.append(json.dumps(_polygon(data["geometry"])))
-    if data.get("rules") is not None:
+        params.append(json.dumps(polygon))
+    if data.get("rules") is not None or new_origin is not None:
+        previous = tx.one("SELECT rules FROM watch_zones WHERE id = %s", (str(zone_id),))
+        merged = {**(previous[0] if previous else {}), **(body.rules.model_dump() if body.rules else {})}
+        if new_origin is not None:
+            merged["origin"] = new_origin
         sets.append("rules = %s")
-        params.append(dumps(data["rules"]))
+        params.append(dumps(merged))
     if data.get("status"):
         sets.append("status = %s")
         params.append(data["status"])
@@ -151,18 +219,6 @@ def delete_zone(
 
 
 # -- alert rules ----------------------------------------------------------------------------------------------------
-class QuietHours(BaseModel):
-    start: str
-    end: str
-
-    @field_validator("start", "end")
-    @classmethod
-    def hhmm(cls, value: str) -> str:
-        if not _HHMM.match(value):
-            raise ValueError("use HH:MM in UTC")
-        return value
-
-
 class RuleBody(BaseModel):
     name: str = Field(min_length=1, max_length=100)
     event_types: list[str] = Field(default_factory=list, max_length=20)
@@ -170,7 +226,7 @@ class RuleBody(BaseModel):
     min_level: Level = "medium"
     asset_group_ids: list[uuid.UUID] = Field(default_factory=list, max_length=50)
     quiet_hours: QuietHours | None = None
-    escalation: dict[str, int | str] = Field(default_factory=dict, max_length=5)
+    escalation: Escalation | None = None
     enabled: bool = True
 
     @field_validator("event_types")
@@ -199,6 +255,7 @@ class RulePatch(BaseModel):
     min_level: Level | None = None
     asset_group_ids: list[uuid.UUID] | None = Field(default=None, max_length=50)
     quiet_hours: QuietHours | None = None
+    escalation: Escalation | None = None
     enabled: bool | None = None
 
     @field_validator("event_types")
@@ -257,7 +314,7 @@ def create_rule(
             body.min_level,
             groups,
             dumps(body.quiet_hours.model_dump() if body.quiet_hours else {}),
-            dumps(body.escalation),
+            dumps({"after_minutes": body.escalation.after_minutes} if body.escalation else {}),
             body.enabled,
         ),
     )
@@ -290,6 +347,9 @@ def patch_rule(
     if "quiet_hours" in data:
         sets.append("quiet_hours = %s")
         params.append(dumps(data["quiet_hours"] or {}))
+    if "escalation" in data:
+        sets.append("escalation = %s")
+        params.append(dumps(data["escalation"] or {}))
     if sets:
         tx.execute(f"UPDATE alert_rules SET {', '.join(sets)} WHERE id = %s", [*params, str(rule_id)])  # noqa: S608
         audit_action(tx, request, principal, "rule.update", "rule", rule_id, {"fields": sorted(data)})
