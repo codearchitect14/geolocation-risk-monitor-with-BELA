@@ -120,3 +120,44 @@ def client(app: Any) -> Iterator[Any]:
 
     with TestClient(app, base_url="https://testserver", raise_server_exceptions=False) as test_client:
         yield test_client
+
+
+# -- business data fixtures -----------------------------------------------------------------------------------------------------
+
+
+@pytest.fixture(scope="session")
+def small_files(tmp_path_factory: pytest.TempPathFactory) -> Any:
+    import generate_demo_business_data as gen
+    from tests.business_support import last_complete_month_end
+
+    directory = tmp_path_factory.mktemp("synthetic_small")
+    gen.write_csv(gen.generate(months=24, logo_scale=0.6, end=last_complete_month_end()), directory)
+    return directory
+
+
+@pytest.fixture(scope="session")
+def full_files(tmp_path_factory: pytest.TempPathFactory) -> Any:
+    import generate_demo_business_data as gen
+    from tests.business_support import last_complete_month_end
+
+    directory = tmp_path_factory.mktemp("synthetic_full")
+    gen.write_csv(gen.generate(months=36, end=last_complete_month_end()), directory)
+    return directory
+
+
+@pytest.fixture
+def business_small(world: Any, conn: psycopg.Connection[Any], small_files: Any) -> Any:
+    """24 months of synthetic business history loaded next to the two seeded tenants."""
+    from tests.business_support import load_into
+
+    load_into(conn, small_files)
+    return small_files
+
+
+@pytest.fixture
+def business_full(world: Any, conn: psycopg.Connection[Any], full_files: Any) -> Any:
+    """36 months at full scale, for the performance and exit tests."""
+    from tests.business_support import load_into
+
+    load_into(conn, full_files)
+    return full_files

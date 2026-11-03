@@ -76,7 +76,7 @@ def email_of(name: str) -> str:
 def build_world(conn: psycopg.Connection[Any]) -> World:
     w = World()
     with conn.cursor() as cur:
-        cur.execute("TRUNCATE tenants, users, events, plans, places CASCADE")
+        cur.execute("TRUNCATE tenants, users, events, plans, places, platform_stats_daily, marketing_spend, business_events CASCADE")
         cur.execute(
             "INSERT INTO plans (id, name, monthly_price, asset_limit) VALUES ('standard', 'Standard', 900, 100)"
         )
@@ -187,6 +187,8 @@ def build_world(conn: psycopg.Connection[Any]) -> World:
                 "INSERT INTO invoices (tenant_id, period_start, period_end, status, total, issued_at, due_at) VALUES (%s, current_date - 60, current_date - 30, 'paid', 900, current_date - 59, current_date - 45)",
                 (tenant,),
             )
+    conn.commit()
+    conn.execute("SELECT refresh_metrics()")
     conn.commit()
     return w
 

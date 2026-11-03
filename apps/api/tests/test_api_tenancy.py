@@ -168,4 +168,4 @@ def test_finance_role_cannot_read_tenant_data_but_can_read_revenue(client: Any, 
     login(client, world, "finance")
     assert client.get("/api/v1/assets").status_code == 403
     summary = client.get("/api/v1/platform/revenue/summary")
-    assert summary.status_code == 200 and summary.json()["demo_data"] is True and summary.json()["active_tenants"] == 2
+    assert summary.status_code == 200 and summary.json()["demo_data"] is True and summary.json()["customers"]["value"] == 2

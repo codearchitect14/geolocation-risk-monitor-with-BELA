@@ -74,3 +74,18 @@ This page maps the security specification to what is implemented and where it is
 
 Not done in this phase: report generation runs inside the request (no queue); the alert email has no per-alert unsubscribe link, only the
 per-user switch; the browser used for map images is Chromium run with its default sandbox and has not been hardened further.
+
+
+## Phase 7 additions
+
+| Control | Where | Tested by |
+|---|---|---|
+| Revenue views readable only through finance-scoped views; the materialized views have no grant for the app role | `0008_metrics.sql` | `test_business_data.py` |
+| Revenue endpoints need `revenue.view`; refresh needs `platform.manage` and is rate limited | `routers/revenue.py` | `test_revenue_api.py`, `test_api_roles.py` |
+| Platform analytics return counts only (no asset names, positions, or tenant ids) and need `platform.manage` | `routers/analytics.py` | `test_analytics_api.py` |
+| Analytics cache keys include the scope; a scoped platform administrator never receives unscoped data | `services/analytics.py` | `test_analytics_api.py` |
+| CSV exports neutralise formula characters | `services/analytics.py` | `test_revenue_api.py` |
+| Responses are `Cache-Control: private` with an ETag; a route that sets its own header keeps it | `middleware.py` | `test_revenue_api.py` |
+| Rollups skip synthetic tenants; loader deletes only tenants it created | `services/rollups.py`, `business/loader.py` | `test_analytics_api.py`, `test_business_data.py` |
+
+Not done in this phase: the analytics cache is per process; the forecast and metric definitions have not been reviewed by a finance specialist.

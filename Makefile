@@ -1,7 +1,7 @@
 PY ?= .venv/bin/python
 SCRIPTS := data/scripts
 
-.PHONY: pdf-setup api-up api-worker api-openapi api-cov api-security valkey-up valkey-down zap events-demo events-usgs events-nws events-status events-smoke events-synth events-report eval-throughput eval-gkg nel-index nel-up nel-down llm-fetch llm-up llm-down eval-cache eval-train eval geo-up db-init db-start db-stop db-reset db-upgrade etl etl-embed etl-quality etl-plans etl-report help setup data data-small data-geonames data-natural-earth data-eupeg data-wikidata \
+.PHONY: business-data demo-assets metrics-refresh pdf-setup api-up api-worker api-openapi api-cov api-security valkey-up valkey-down zap events-demo events-usgs events-nws events-status events-smoke events-synth events-report eval-throughput eval-gkg nel-index nel-up nel-down llm-fetch llm-up llm-down eval-cache eval-train eval geo-up db-init db-start db-stop db-reset db-upgrade etl etl-embed etl-quality etl-plans etl-report help setup data data-small data-geonames data-natural-earth data-eupeg data-wikidata \
 	harvest harvest-daemon harvest-status backfill-gkg verify-data data-report tasks \
 	validate-gold lint typecheck test check-style check
 
@@ -119,6 +119,17 @@ valkey-up:
 
 valkey-down:
 	-kill `cat .local/valkey.pid` && rm -f .local/valkey.pid
+
+# Phase 7: synthetic business history (36 months, seed 42), loaded with its metric views, and illustrative demo assets.
+business-data:
+	$(PY) data/scripts/generate_demo_business_data.py
+	cd apps/api && PYTHONPATH=. ../../.venv/bin/python -m meridian.business.loader
+
+demo-assets:
+	$(PY) data/scripts/generate_demo_assets.py
+
+metrics-refresh:
+	cd apps/api && PYTHONPATH=. ../../.venv/bin/python -c "from meridian.db import connect; c = connect(); c.execute('SELECT refresh_metrics()'); c.commit()"
 
 # PDF reports: native libraries for WeasyPrint (macOS) and the browser used for report maps.
 pdf-setup:

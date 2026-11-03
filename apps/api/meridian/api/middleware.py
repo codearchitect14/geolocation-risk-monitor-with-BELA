@@ -51,7 +51,9 @@ class SecurityMiddleware:
             if message["type"] == "http.response.start":
                 status_holder["status"] = message["status"]
                 out = list(message.get("headers", []))
-                out += self.security_headers(path, settings.production)
+                present = {k.lower() for k, _ in out}
+                # A route that sets its own value for a header (for example Cache-Control on analytics) keeps it.
+                out += [(k, v) for k, v in self.security_headers(path, settings.production) if k not in present]
                 out.append((b"x-request-id", request_id.encode()))
                 message["headers"] = out
             await send(message)

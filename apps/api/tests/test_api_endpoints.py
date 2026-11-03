@@ -563,7 +563,7 @@ def test_analytics(client: Any, world: World) -> None:
     client.patch(f"{API}/alerts/{world.alerts['A']}", json={"status": "acknowledged"})
     login(client, world, "manager")
     ops = client.get(f"{API}/analytics/operations").json()
-    assert ops["alerts_by_level"] == {"high": 1} and ops["most_alerted_assets"] == [{"asset": "A near", "alerts": 1}]
+    assert ops["alerts_by_level"] == {"critical": 0, "high": 1, "medium": 0, "low": 0} and ops["most_alerted_assets"] == [{"asset": "A near", "alerts": 1}]
     assert ops["median_minutes_to_acknowledge"] is not None
     quality = client.get(f"{API}/analytics/quality").json()
     assert quality["events"] == 2 and quality["confirmed_share"] == 0.0
@@ -574,13 +574,13 @@ def test_revenue_views_are_labeled_demo_data(client: Any, world: World) -> None:
     login(client, world, "finance")
     summary = client.get(f"{API}/platform/revenue/summary").json()
     assert (
-        summary["mrr"] == 1800.0
-        and summary["arr"] == 21600.0
-        and summary["active_tenants"] == 2
+        summary["mrr"]["value"] == 1800.0
+        and summary["arr"]["value"] == 21600.0
+        and summary["customers"]["value"] == 2
         and summary["demo_data"] is True
     )
-    series = client.get(f"{API}/platform/revenue/mrr", params={"months": 3}).json()
-    assert len(series["items"]) == 3 and series["items"][-1]["mrr"] == 1800.0
+    series = client.get(f"{API}/platform/revenue/mrr").json()
+    assert series["items"][-1]["mrr"] == 1800.0 and series["demo_data"] is True
     assert [t["mrr"] for t in client.get(f"{API}/platform/revenue/tenants").json()["items"]] == [900.0, 900.0]
 
 

@@ -43,6 +43,7 @@ dependencies = [
     "email-validator>=2",
     "shapely>=2",
     "weasyprint>=68",
+    "statsmodels>=0.14",
     "playwright>=1.49",
 ]
 
@@ -73,6 +74,8 @@ extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Path", "f
 "apps/api/meridian/events/*" = ["E501"]
 "apps/api/meridian/api/*" = ["E501"]
 "apps/api/meridian/notify.py" = ["E501"]
+"apps/api/meridian/business/*" = ["E501"]
+"data/scripts/generate_demo_*" = ["E501"]
 "services/*" = ["E501"]
 "apps/api/migrations/*" = ["E501", "I001"]
 

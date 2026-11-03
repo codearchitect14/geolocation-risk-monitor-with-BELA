@@ -34,7 +34,7 @@ data/
   processed/            git-ignored parquet outputs of later ETL phases, plus row_counts.*
   gold/                 hand-labeled evaluation sets (committed, small)
   annotation/           Label Studio configurations, guidelines, generated task files
-  synthetic/            generated business data (a later phase)
+  synthetic/            generated business history and demo assets (make business-data, make demo-assets; not committed)
   seed/                 committed demo seed and replay files (a later phase)
   scripts/              acquisition scripts and shared helpers
   tests/                unit tests for the scripts

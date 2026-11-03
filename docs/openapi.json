@@ -2832,14 +2832,106 @@
     "parameters": [
      {
       "in": "query",
+      "name": "from",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "From"
+      }
+     },
+     {
+      "in": "query",
+      "name": "to",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "To"
+      }
+     },
+     {
+      "description": "Shortcut for the last n days when from is not given",
+      "in": "query",
       "name": "days",
       "required": false,
       "schema": {
-       "default": 30,
-       "maximum": 365,
-       "minimum": 1,
-       "title": "Days",
-       "type": "integer"
+       "anyOf": [
+        {
+         "maximum": 365,
+         "minimum": 1,
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Shortcut for the last n days when from is not given",
+       "title": "Days"
+      }
+     },
+     {
+      "in": "query",
+      "name": "granularity",
+      "required": false,
+      "schema": {
+       "default": "day",
+       "pattern": "^(day|week|month)$",
+       "title": "Granularity",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "compare",
+      "required": false,
+      "schema": {
+       "default": "none",
+       "pattern": "^(none|previous_period|previous_year)$",
+       "title": "Compare",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "level",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "pattern": "^(critical|high|medium|low)$",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Level"
+      }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "json",
+       "pattern": "^(json|csv)$",
+       "title": "Format",
+       "type": "string"
       }
      }
     ],
@@ -2847,11 +2939,7 @@
      "200": {
       "content": {
        "application/json": {
-        "schema": {
-         "additionalProperties": true,
-         "title": "Response Operations Api V1 Analytics Operations Get",
-         "type": "object"
-        }
+        "schema": {}
        }
       },
       "description": "Successful Response"
@@ -2867,9 +2955,9 @@
       "description": "Validation Error"
      }
     },
-    "summary": "Alert volumes and response times for this tenant",
+    "summary": "Alert volumes, acknowledgement, and response times for this tenant",
     "tags": [
-     "analytics and platform"
+     "analytics"
     ]
    }
   },
@@ -2879,14 +2967,87 @@
     "parameters": [
      {
       "in": "query",
+      "name": "from",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "From"
+      }
+     },
+     {
+      "in": "query",
+      "name": "to",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "To"
+      }
+     },
+     {
+      "in": "query",
       "name": "days",
       "required": false,
       "schema": {
-       "default": 30,
-       "maximum": 365,
-       "minimum": 1,
-       "title": "Days",
-       "type": "integer"
+       "anyOf": [
+        {
+         "maximum": 365,
+         "minimum": 1,
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Days"
+      }
+     },
+     {
+      "in": "query",
+      "name": "granularity",
+      "required": false,
+      "schema": {
+       "default": "day",
+       "pattern": "^(day|week|month)$",
+       "title": "Granularity",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "compare",
+      "required": false,
+      "schema": {
+       "default": "none",
+       "pattern": "^(none|previous_period|previous_year)$",
+       "title": "Compare",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "json",
+       "pattern": "^(json|csv)$",
+       "title": "Format",
+       "type": "string"
       }
      }
     ],
@@ -2894,11 +3055,7 @@
      "200": {
       "content": {
        "application/json": {
-        "schema": {
-         "additionalProperties": true,
-         "title": "Response Quality Api V1 Analytics Quality Get",
-         "type": "object"
-        }
+        "schema": {}
        }
       },
       "description": "Successful Response"
@@ -2914,9 +3071,9 @@
       "description": "Validation Error"
      }
     },
-    "summary": "Event quality signals: confirmation share and corrections",
+    "summary": "Location confirmation, corrections, and event confirmation for this tenant",
     "tags": [
-     "analytics and platform"
+     "analytics"
     ]
    }
   },
@@ -2926,14 +3083,87 @@
     "parameters": [
      {
       "in": "query",
+      "name": "from",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "From"
+      }
+     },
+     {
+      "in": "query",
+      "name": "to",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "To"
+      }
+     },
+     {
+      "in": "query",
       "name": "days",
       "required": false,
       "schema": {
-       "default": 30,
-       "maximum": 365,
-       "minimum": 1,
-       "title": "Days",
-       "type": "integer"
+       "anyOf": [
+        {
+         "maximum": 365,
+         "minimum": 1,
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Days"
+      }
+     },
+     {
+      "in": "query",
+      "name": "granularity",
+      "required": false,
+      "schema": {
+       "default": "day",
+       "pattern": "^(day|week|month)$",
+       "title": "Granularity",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "compare",
+      "required": false,
+      "schema": {
+       "default": "none",
+       "pattern": "^(none|previous_period|previous_year)$",
+       "title": "Compare",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "json",
+       "pattern": "^(json|csv)$",
+       "title": "Format",
+       "type": "string"
       }
      }
     ],
@@ -2941,11 +3171,7 @@
      "200": {
       "content": {
        "application/json": {
-        "schema": {
-         "additionalProperties": true,
-         "title": "Response Usage Api V1 Analytics Usage Get",
-         "type": "object"
-        }
+        "schema": {}
        }
       },
       "description": "Successful Response"
@@ -2961,9 +3187,9 @@
       "description": "Validation Error"
      }
     },
-    "summary": "Daily usage for this tenant (demo data)",
+    "summary": "Usage for this tenant against its plan (demo data)",
     "tags": [
-     "analytics and platform"
+     "analytics"
     ]
    }
   },
@@ -4995,20 +5221,75 @@
     ]
    }
   },
-  "/api/v1/platform/revenue/mrr": {
+  "/api/v1/platform/analytics/alerts": {
    "get": {
-    "operationId": "revenue_mrr_api_v1_platform_revenue_mrr_get",
+    "operationId": "platform_alerts_api_v1_platform_analytics_alerts_get",
     "parameters": [
      {
       "in": "query",
-      "name": "months",
+      "name": "from",
       "required": false,
       "schema": {
-       "default": 36,
-       "maximum": 60,
-       "minimum": 1,
-       "title": "Months",
-       "type": "integer"
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "From"
+      }
+     },
+     {
+      "in": "query",
+      "name": "to",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "To"
+      }
+     },
+     {
+      "in": "query",
+      "name": "granularity",
+      "required": false,
+      "schema": {
+       "default": "day",
+       "pattern": "^(day|week|month)$",
+       "title": "Granularity",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "compare",
+      "required": false,
+      "schema": {
+       "default": "none",
+       "pattern": "^(none|previous_period|previous_year)$",
+       "title": "Compare",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "json",
+       "pattern": "^(json|csv)$",
+       "title": "Format",
+       "type": "string"
       }
      }
     ],
@@ -5016,11 +5297,7 @@
      "200": {
       "content": {
        "application/json": {
-        "schema": {
-         "additionalProperties": true,
-         "title": "Response Revenue Mrr Api V1 Platform Revenue Mrr Get",
-         "type": "object"
-        }
+        "schema": {}
        }
       },
       "description": "Successful Response"
@@ -5036,55 +5313,1547 @@
       "description": "Validation Error"
      }
     },
-    "summary": "Monthly recurring revenue series (demo data)",
+    "summary": "Alert levels over time, acknowledgement time, and dismissal rate across tenants",
     "tags": [
-     "analytics and platform"
+     "analytics"
+    ]
+   }
+  },
+  "/api/v1/platform/analytics/exposure": {
+   "get": {
+    "operationId": "exposure_api_v1_platform_analytics_exposure_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "from",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "From"
+      }
+     },
+     {
+      "in": "query",
+      "name": "to",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "To"
+      }
+     },
+     {
+      "in": "query",
+      "name": "granularity",
+      "required": false,
+      "schema": {
+       "default": "day",
+       "pattern": "^(day|week|month)$",
+       "title": "Granularity",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "compare",
+      "required": false,
+      "schema": {
+       "default": "none",
+       "pattern": "^(none|previous_period|previous_year)$",
+       "title": "Compare",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "event_type",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 40,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Event Type"
+      }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "json",
+       "pattern": "^(json|csv)$",
+       "title": "Format",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Exposure by region and level (counts only, no asset locations)",
+    "tags": [
+     "analytics"
+    ]
+   }
+  },
+  "/api/v1/platform/analytics/incidents": {
+   "get": {
+    "operationId": "incidents_api_v1_platform_analytics_incidents_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "from",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "From"
+      }
+     },
+     {
+      "in": "query",
+      "name": "to",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "To"
+      }
+     },
+     {
+      "in": "query",
+      "name": "granularity",
+      "required": false,
+      "schema": {
+       "default": "day",
+       "pattern": "^(day|week|month)$",
+       "title": "Granularity",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "compare",
+      "required": false,
+      "schema": {
+       "default": "none",
+       "pattern": "^(none|previous_period|previous_year)$",
+       "title": "Compare",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "by",
+      "required": false,
+      "schema": {
+       "default": "type",
+       "pattern": "^(type|subtype|region|country)$",
+       "title": "By",
+       "type": "string"
+      }
+     },
+     {
+      "description": "Filter to one event type",
+      "in": "query",
+      "name": "type",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Filter to one event type",
+       "title": "Type"
+      }
+     },
+     {
+      "in": "query",
+      "name": "region",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 40,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Region"
+      }
+     },
+     {
+      "in": "query",
+      "name": "min_severity",
+      "required": false,
+      "schema": {
+       "default": 1,
+       "maximum": 4,
+       "minimum": 1,
+       "title": "Min Severity",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "json",
+       "pattern": "^(json|csv)$",
+       "title": "Format",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Incident volumes by type, subtype, region, or country",
+    "tags": [
+     "analytics"
+    ]
+   }
+  },
+  "/api/v1/platform/analytics/pipeline": {
+   "get": {
+    "operationId": "pipeline_api_v1_platform_analytics_pipeline_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "from",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "From"
+      }
+     },
+     {
+      "in": "query",
+      "name": "to",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "To"
+      }
+     },
+     {
+      "in": "query",
+      "name": "granularity",
+      "required": false,
+      "schema": {
+       "default": "day",
+       "pattern": "^(day|week|month)$",
+       "title": "Granularity",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "compare",
+      "required": false,
+      "schema": {
+       "default": "none",
+       "pattern": "^(none|previous_period|previous_year)$",
+       "title": "Compare",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "json",
+       "pattern": "^(json|csv)$",
+       "title": "Format",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Routing breakdown, latency, source mix, and freshness",
+    "tags": [
+     "analytics"
+    ]
+   }
+  },
+  "/api/v1/platform/analytics/quality": {
+   "get": {
+    "operationId": "platform_quality_api_v1_platform_analytics_quality_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "from",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "From"
+      }
+     },
+     {
+      "in": "query",
+      "name": "to",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "To"
+      }
+     },
+     {
+      "in": "query",
+      "name": "granularity",
+      "required": false,
+      "schema": {
+       "default": "day",
+       "pattern": "^(day|week|month)$",
+       "title": "Granularity",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "compare",
+      "required": false,
+      "schema": {
+       "default": "none",
+       "pattern": "^(none|previous_period|previous_year)$",
+       "title": "Compare",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "json",
+       "pattern": "^(json|csv)$",
+       "title": "Format",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Location confirmation, false alerts, detection delay, and corrections",
+    "tags": [
+     "analytics"
+    ]
+   }
+  },
+  "/api/v1/platform/revenue/annotations": {
+   "get": {
+    "operationId": "revenue_annotations_api_v1_platform_revenue_annotations_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Revenue Annotations Api V1 Platform Revenue Annotations Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Business events for chart annotations (demo data)",
+    "tags": [
+     "revenue"
+    ]
+   }
+  },
+  "/api/v1/platform/revenue/cohorts": {
+   "get": {
+    "operationId": "revenue_cohorts_api_v1_platform_revenue_cohorts_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "metric",
+      "required": false,
+      "schema": {
+       "default": "mrr",
+       "pattern": "^(mrr|customers)$",
+       "title": "Metric",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "max_months",
+      "required": false,
+      "schema": {
+       "default": 24,
+       "maximum": 60,
+       "minimum": 1,
+       "title": "Max Months",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "json",
+       "pattern": "^(json|csv)$",
+       "title": "Format",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Cohort retention by month of first subscription (demo data)",
+    "tags": [
+     "revenue"
+    ]
+   }
+  },
+  "/api/v1/platform/revenue/dimensions": {
+   "get": {
+    "operationId": "revenue_dimensions_api_v1_platform_revenue_dimensions_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "dimension",
+      "required": false,
+      "schema": {
+       "default": "plan",
+       "pattern": "^(plan|region|industry|channel|country|billing_cycle)$",
+       "title": "Dimension",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "month",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Month"
+      }
+     },
+     {
+      "in": "query",
+      "name": "compare",
+      "required": false,
+      "schema": {
+       "default": "none",
+       "pattern": "^(none|previous_period|previous_year)$",
+       "title": "Compare",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "json",
+       "pattern": "^(json|csv)$",
+       "title": "Format",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "MRR by plan, region, industry, channel, country, or billing cycle (demo data)",
+    "tags": [
+     "revenue"
+    ]
+   }
+  },
+  "/api/v1/platform/revenue/forecast": {
+   "get": {
+    "operationId": "revenue_forecast_api_v1_platform_revenue_forecast_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "horizon",
+      "required": false,
+      "schema": {
+       "default": 6,
+       "maximum": 12,
+       "minimum": 1,
+       "title": "Horizon",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "json",
+       "pattern": "^(json|csv)$",
+       "title": "Format",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "plan",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 40,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Plan"
+      }
+     },
+     {
+      "in": "query",
+      "name": "region",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 40,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Region"
+      }
+     },
+     {
+      "in": "query",
+      "name": "industry",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 60,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Industry"
+      }
+     },
+     {
+      "in": "query",
+      "name": "channel",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 40,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Channel"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Six month MRR projection with an 80 percent interval (an estimate, demo data)",
+    "tags": [
+     "revenue"
+    ]
+   }
+  },
+  "/api/v1/platform/revenue/movements": {
+   "get": {
+    "operationId": "revenue_movements_api_v1_platform_revenue_movements_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "from",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "From"
+      }
+     },
+     {
+      "in": "query",
+      "name": "to",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "To"
+      }
+     },
+     {
+      "in": "query",
+      "name": "granularity",
+      "required": false,
+      "schema": {
+       "default": "month",
+       "pattern": "^(month|quarter)$",
+       "title": "Granularity",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "compare",
+      "required": false,
+      "schema": {
+       "default": "none",
+       "pattern": "^(none|previous_period|previous_year)$",
+       "title": "Compare",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "json",
+       "pattern": "^(json|csv)$",
+       "title": "Format",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "plan",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 40,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Plan"
+      }
+     },
+     {
+      "in": "query",
+      "name": "region",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 40,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Region"
+      }
+     },
+     {
+      "in": "query",
+      "name": "industry",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 60,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Industry"
+      }
+     },
+     {
+      "in": "query",
+      "name": "channel",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 40,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Channel"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "New, expansion, contraction, and churned MRR by period (demo data)",
+    "tags": [
+     "revenue"
+    ]
+   }
+  },
+  "/api/v1/platform/revenue/mrr": {
+   "get": {
+    "operationId": "revenue_mrr_api_v1_platform_revenue_mrr_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "from",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "From"
+      }
+     },
+     {
+      "in": "query",
+      "name": "to",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "To"
+      }
+     },
+     {
+      "in": "query",
+      "name": "granularity",
+      "required": false,
+      "schema": {
+       "default": "month",
+       "pattern": "^(month|quarter)$",
+       "title": "Granularity",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "compare",
+      "required": false,
+      "schema": {
+       "default": "none",
+       "pattern": "^(none|previous_period|previous_year)$",
+       "title": "Compare",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "stack",
+      "required": false,
+      "schema": {
+       "default": "none",
+       "pattern": "^(none|plan|region|industry|channel|country|billing_cycle)$",
+       "title": "Stack",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "json",
+       "pattern": "^(json|csv)$",
+       "title": "Format",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "plan",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 40,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Plan"
+      }
+     },
+     {
+      "in": "query",
+      "name": "region",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 40,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Region"
+      }
+     },
+     {
+      "in": "query",
+      "name": "industry",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 60,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Industry"
+      }
+     },
+     {
+      "in": "query",
+      "name": "channel",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 40,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Channel"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "MRR over time, optionally stacked by a dimension, with event annotations (demo data)",
+    "tags": [
+     "revenue"
+    ]
+   }
+  },
+  "/api/v1/platform/revenue/refresh": {
+   "post": {
+    "operationId": "refresh_api_v1_platform_revenue_refresh_post",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Refresh Api V1 Platform Revenue Refresh Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Refresh the revenue metric views now",
+    "tags": [
+     "revenue"
+    ]
+   }
+  },
+  "/api/v1/platform/revenue/retention": {
+   "get": {
+    "operationId": "revenue_retention_api_v1_platform_revenue_retention_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "from",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "From"
+      }
+     },
+     {
+      "in": "query",
+      "name": "to",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "To"
+      }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "json",
+       "pattern": "^(json|csv)$",
+       "title": "Format",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Trailing twelve month net and gross revenue retention (demo data)",
+    "tags": [
+     "revenue"
     ]
    }
   },
   "/api/v1/platform/revenue/summary": {
    "get": {
     "operationId": "revenue_summary_api_v1_platform_revenue_summary_get",
+    "parameters": [
+     {
+      "description": "Any day in the month; default the latest complete month",
+      "in": "query",
+      "name": "month",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Any day in the month; default the latest complete month",
+       "title": "Month"
+      }
+     },
+     {
+      "in": "query",
+      "name": "compare",
+      "required": false,
+      "schema": {
+       "default": "none",
+       "pattern": "^(none|previous_period|previous_year)$",
+       "title": "Compare",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "json",
+       "pattern": "^(json|csv)$",
+       "title": "Format",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "plan",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 40,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Plan"
+      }
+     },
+     {
+      "in": "query",
+      "name": "region",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 40,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Region"
+      }
+     },
+     {
+      "in": "query",
+      "name": "industry",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 60,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Industry"
+      }
+     },
+     {
+      "in": "query",
+      "name": "channel",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 40,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Channel"
+      }
+     }
+    ],
     "responses": {
      "200": {
       "content": {
        "application/json": {
-        "schema": {
-         "additionalProperties": true,
-         "title": "Response Revenue Summary Api V1 Platform Revenue Summary Get",
-         "type": "object"
-        }
+        "schema": {}
        }
       },
       "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
      }
     },
-    "summary": "Revenue summary (demo data)",
+    "summary": "Headline revenue metrics for one month, with a comparison (demo data)",
     "tags": [
-     "analytics and platform"
+     "revenue"
     ]
    }
   },
   "/api/v1/platform/revenue/tenants": {
    "get": {
     "operationId": "revenue_tenants_api_v1_platform_revenue_tenants_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 100,
+       "maximum": 500,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "json",
+       "pattern": "^(json|csv)$",
+       "title": "Format",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "plan",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 40,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Plan"
+      }
+     },
+     {
+      "in": "query",
+      "name": "region",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 40,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Region"
+      }
+     },
+     {
+      "in": "query",
+      "name": "industry",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 60,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Industry"
+      }
+     },
+     {
+      "in": "query",
+      "name": "channel",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 40,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Channel"
+      }
+     }
+    ],
     "responses": {
      "200": {
       "content": {
        "application/json": {
-        "schema": {
-         "additionalProperties": true,
-         "title": "Response Revenue Tenants Api V1 Platform Revenue Tenants Get",
-         "type": "object"
-        }
+        "schema": {}
        }
       },
       "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
      }
     },
-    "summary": "Revenue by tenant (demo data)",
+    "summary": "Current MRR by tenant (demo data)",
     "tags": [
-     "analytics and platform"
+     "revenue"
+    ]
+   }
+  },
+  "/api/v1/platform/revenue/unit-economics": {
+   "get": {
+    "operationId": "revenue_unit_economics_api_v1_platform_revenue_unit_economics_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "from",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "From"
+      }
+     },
+     {
+      "in": "query",
+      "name": "to",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "To"
+      }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "json",
+       "pattern": "^(json|csv)$",
+       "title": "Format",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "ARPA, churn, quick ratio, CAC, payback, and LTV by month (demo data)",
+    "tags": [
+     "revenue"
     ]
    }
   },

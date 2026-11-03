@@ -135,3 +135,11 @@ Guided upload (`/uploads/stage`, `/uploads/{id}/commit`), bulk asset edits, circ
 escalation and email, richer incident detail, daily and weekly briefings, PDF reports, and the correction review queue. See
 `docs/workflows.md` and `docs/adr/ADR-010-product-workflows.md`. PDF output needs `make pdf-setup` once. Run the worker
 (`make api-worker`) for webhook delivery, escalation, scheduled briefings, retention, and the audit check.
+
+
+## Phase 7: business data, revenue, and analytics
+
+`make business-data` generates 36 months of synthetic history (seed 42) into `data/synthetic/` and loads it with the metric views;
+`make demo-assets` adds illustrative asset portfolios. Revenue endpoints are under `/platform/revenue/*` (finance analysts and platform
+administrators), operational analytics under `/analytics/*` (tenant) and `/platform/analytics/*` (platform). Definitions are in `docs/metrics.md`
+and the decisions in `docs/adr/ADR-011-metrics-and-analytics.md`. The worker refreshes the views and rolls up daily statistics each night.

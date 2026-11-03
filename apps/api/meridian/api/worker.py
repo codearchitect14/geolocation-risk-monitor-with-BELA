@@ -18,7 +18,7 @@ import psycopg
 
 from meridian.api import db
 from meridian.api.security import audit
-from meridian.api.services import briefings, lifecycle, webhooks
+from meridian.api.services import analytics, briefings, lifecycle, rollups, webhooks
 
 log = logging.getLogger("meridian.worker")
 DEFAULT_RETENTION_DAYS = 365
@@ -121,6 +121,25 @@ def _email_briefing(tx: db.Tx, row: tuple[Any, ...], mailer: Any, reports: Any) 
     return sent
 
 
+def nightly(conn: psycopg.Connection[Any], now: dt.datetime | None = None, force: bool = False) -> dict[str, Any]:
+    """Rollups and the metric refresh, once a day after 02:00 UTC (the metric_refresh table records the last run)."""
+    now = now or dt.datetime.now(dt.UTC)
+    if not force:
+        last = conn.execute("SELECT refreshed_at FROM metric_refresh WHERE name = 'metrics'").fetchone()
+        if now.hour < 2 or (last and last[0].date() == now.date()):
+            return {"ran": False}
+    out: dict[str, Any] = {
+        "ran": True,
+        "ops_rows": rollups.rollup_ops_stats(conn, today=now.date()),
+        "platform_rows": rollups.rollup_platform_stats(conn, today=now.date()),
+    }
+    conn.commit()
+    out["refreshed_at"] = rollups.refresh_metrics(conn).isoformat()
+    conn.commit()
+    analytics.CACHE.clear()
+    return out
+
+
 def run_once() -> dict[str, Any]:
     with db.system_connection() as conn:
         delivered = webhooks.run_due(conn)
@@ -141,7 +160,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(run_once()))
         if time.monotonic() - last_maintenance > 3600 or args.once:
             with db.system_connection() as conn:
-                print(json.dumps({"purge": purge(conn), "audit": verify_audit(conn)}))
+                print(json.dumps({"purge": purge(conn), "audit": verify_audit(conn), "nightly": nightly(conn)}))
                 conn.commit()
             last_maintenance = time.monotonic()
         if args.once:
