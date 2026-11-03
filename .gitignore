@@ -14,3 +14,4 @@ data/processed/*
 data/logs/
 data/annotation/tasks/
 .local/
+.coverage

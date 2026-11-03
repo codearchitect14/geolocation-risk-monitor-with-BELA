@@ -11,6 +11,7 @@ from typing import Any
 
 import psycopg
 
+from meridian import notify
 from meridian.events import alerts, exposure
 from meridian.events.config import EventsConfig
 from meridian.events.ingest import EventIngestor, Outcome
@@ -100,7 +101,11 @@ def _ingest_many(
             as_of = (item.updated_at or item.published_at) if replay else (now or utcnow())
             result = process_event(conn, cfg, outcome.event_id, as_of)
         run.add(outcome, result)
+        if result is not None and result.alert_ids:
+            notify.enqueue_webhooks(conn, result.alert_ids)
         conn.commit()
+        if result is not None and result.alert_ids:
+            notify.publish_alerts(conn, result.alert_ids)
     return run
 
 

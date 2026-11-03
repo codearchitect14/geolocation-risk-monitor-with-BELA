@@ -1,0 +1,57 @@
+# Security controls and test evidence (phase 5)
+
+Signals are situational awareness derived from public news and public data feeds. They are not official warnings. Verify with local
+authorities and follow their guidance.
+
+This page maps the security specification to what is implemented and where it is tested. Design reasons are in
+`docs/adr/ADR-009-api-security.md`. The API description is `docs/openapi.json` (also served at `/api/docs` outside production).
+
+## Controls
+
+| Requirement | Implementation | Tests |
+|---|---|---|
+| Argon2id passwords, 12+ characters, strength check, common password rejection | `security/passwords.py`: time 3, 64 MiB, 2 lanes (about 45 ms on the development machine); zxcvbn score of 3 or more with the user's own email and name as inputs | `test_password_policy`, reset tests |
+| Login protection | per address and per account limits, generic errors, lockout with growing duration, audit entries for failures | `test_lockout...`, `test_login_rate_limits...`, `test_wrong_password_and_unknown_account...` |
+| MFA with TOTP and recovery codes, mandatory for administrators | `routers/auth.py`, `security/mfa.py`; enrollment token flow; seeds encrypted | `test_administrators_must_use_mfa`, `test_totp_codes_are_single_use...` |
+| Short-lived EdDSA access token in an httpOnly Secure SameSite=Strict cookie | `security/tokens.py`, `services/sessions.py` | `test_login_sets_hardened_cookies`, `test_expired_and_forged_access_tokens...` |
+| Rotating opaque refresh tokens with reuse detection | `services/sessions.rotate` | `test_refresh_rotates_and_reuse_revokes_the_family`, `test_session_lifetimes...` |
+| CSRF double submit | `auth._principal_from_cookie`, `auth/refresh`, `auth/logout` | `test_csrf_is_required_for_cookie_sessions_only` |
+| Password reset without enumeration | single-use hashed 30 minute tokens, identical responses, sessions revoked on reset | `test_password_reset_flow`, `test_reset_tokens_expire` |
+| API keys: prefix and secret, hashed, scoped, expiring, last used | `services/apikeys.py` | `test_api_key_lifecycle`, `test_api_key_rate_limit` |
+| RBAC with server side checks | `permissions.py`, `auth.require`; table from section 10 | `test_role_against_every_endpoint` (6 roles x 56 requests), `test_every_route_requires_authentication...` |
+| Row Level Security, per request tenant setting | migration `0006`, `db.Tx` | `test_api_rls.py` (9 tests), `test_api_tenancy.py` (10 tests) including spatial queries and GeoJSON endpoints |
+| Append-only hash chained audit log | database trigger and `audit_verify()` | `test_audit_log_is_append_only_and_chained`, `test_audit_tampering_is_detected` |
+| Rate limits per address, user, and key | `middleware.py`, `auth.py`, `security/ratelimit.py` (Valkey or memory) | `test_user_and_ip_rate_limits`, `test_valkey_rate_limiter_is_shared_between_instances` |
+| Request size limits, strict validation | middleware byte counter, Pydantic models with bounds | `test_oversized_bodies_are_rejected`, validation cases throughout |
+| Idempotency keys for uploads | `routers/assets.upload_assets` | `test_upload_idempotency` |
+| Upload safety | size, row, and vertex limits, coordinate ranges, geometry validity, text and content checks, control character removal | `test_upload_limits_and_content_checks`, `test_geojson_upload...` |
+| Formula injection protection on exports | `services/uploads.csv_safe` on asset exports and portfolio CSV | `test_exports_neutralize_spreadsheet_formulas`, `test_reports_escape_content...` |
+| Server-sent events scoped by tenant | `routers/system.py`, `notify.py`, channels named by tenant | `test_streams_deliver_only_the_tenants_own_messages`, `test_valkey_pubsub_delivers_across_publishers` |
+| Webhooks: HMAC, retries, SSRF protection, delivery log | `services/webhooks.py`, `security/ssrf.py` | `test_api_webhooks.py` (14 tests), SSRF address matrix (14 addresses) |
+| Security headers, no CORS | `middleware.py` | `test_security_headers_on_every_response`, `test_cors_is_not_enabled` |
+| Logs without credentials or asset coordinates | access log records method, route template, status, time, request id only; audit sanitizer | `test_audit_entries_never_hold_secrets_or_coordinates` |
+| Asset coordinates absent from notifications by default | `notify.alert_payload` | `test_payload_contains_no_coordinates_unless_both_opt_in` |
+| Briefing text validated against stored fields | `services/briefings.validate_narrative` | `test_briefing_narratives_are_validated_against_the_evidence` |
+| Retention purge | `worker.purge`, per tenant `retention_days` | `test_purge_respects_retention...` |
+| Corrections process | `/corrections`, platform review queue | `test_corrections_and_review` |
+
+## Scans run in the development environment
+
+| Scan | Result |
+|---|---|
+| Bandit on `meridian/api` and `notify.py` | no high findings; 19 medium findings, all B608 (SQL built from fixed table and column names; every value is a bound parameter); 28 low (asserts used for type narrowing) |
+| pip-audit on the project environment | no known vulnerabilities |
+| `mypy --strict` and `ruff` (including the `S` security rules) | clean |
+
+## Not done in this phase
+
+- **OWASP ZAP baseline scan.** Docker is not installed on the development machine. `make zap` runs the baseline scan against the
+  OpenAPI document once Docker is available; the exit criterion "baseline scan clean of high findings" is therefore not yet met.
+- **Trivy and gitleaks** run in continuous integration (phase 10) and were not run here.
+- **TLS, HSTS at the edge, encrypted volumes, non-root containers** belong to deployment (phase 11). The application sends HSTS when
+  `MS_ENV=production` and refuses to start without configured secrets in that mode.
+- **Mail delivery** uses SMTP (Mailpit in development). Tests capture messages; delivery to a real SMTP server was not exercised.
+- **Celery.** Jobs run through `python -m meridian.api.worker` instead (see ADR-009).
+- **PDF reports** (WeasyPrint) are phase 6. Reports are HTML and CSV now.
+- **Platform settings and the correction review interface** have no dedicated endpoints beyond tenant management and `PATCH /corrections/{id}`.
+- Rate limits are fixed windows; a burst at a window boundary can briefly reach twice the limit.

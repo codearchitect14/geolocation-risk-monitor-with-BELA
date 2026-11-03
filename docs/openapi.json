@@ -1,0 +1,5107 @@
+{
+ "components": {
+  "schemas": {
+   "AlertPatch": {
+    "example": {
+     "dismissal_reason": "Known maintenance window",
+     "status": "dismissed"
+    },
+    "properties": {
+     "assignee_id": {
+      "anyOf": [
+       {
+        "format": "uuid",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Assignee Id"
+     },
+     "dismissal_reason": {
+      "anyOf": [
+       {
+        "maxLength": 300,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Dismissal Reason"
+     },
+     "status": {
+      "anyOf": [
+       {
+        "enum": [
+         "new",
+         "acknowledged",
+         "monitoring",
+         "escalated",
+         "dismissed",
+         "resolved"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Status"
+     }
+    },
+    "title": "AlertPatch",
+    "type": "object"
+   },
+   "ApiKeyCreate": {
+    "example": {
+     "expires_in_days": 90,
+     "name": "Alert export",
+     "scopes": [
+      "read",
+      "alerts"
+     ]
+    },
+    "properties": {
+     "expires_in_days": {
+      "anyOf": [
+       {
+        "maximum": 730.0,
+        "minimum": 1.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "default": 90,
+      "title": "Expires In Days"
+     },
+     "name": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+     },
+     "scopes": {
+      "items": {
+       "type": "string"
+      },
+      "maxItems": 4,
+      "minItems": 1,
+      "title": "Scopes",
+      "type": "array"
+     }
+    },
+    "required": [
+     "name",
+     "scopes"
+    ],
+    "title": "ApiKeyCreate",
+    "type": "object"
+   },
+   "AssetBody": {
+    "example": {
+     "criticality": 4,
+     "geometry": {
+      "coordinates": [
+       4.4,
+       51.95
+      ],
+      "type": "Point"
+     },
+     "name": "Rotterdam terminal (illustrative)",
+     "type": "site"
+    },
+    "properties": {
+     "country_code": {
+      "anyOf": [
+       {
+        "pattern": "^[A-Za-z]{2}$",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Country Code"
+     },
+     "criticality": {
+      "default": 3,
+      "maximum": 5.0,
+      "minimum": 1.0,
+      "title": "Criticality",
+      "type": "integer"
+     },
+     "external_id": {
+      "anyOf": [
+       {
+        "maxLength": 100,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "External Id"
+     },
+     "geometry": {
+      "additionalProperties": true,
+      "title": "Geometry",
+      "type": "object"
+     },
+     "maintenance_windows": {
+      "items": {
+       "additionalProperties": {
+        "type": "string"
+       },
+       "type": "object"
+      },
+      "maxItems": 20,
+      "title": "Maintenance Windows",
+      "type": "array"
+     },
+     "name": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+     },
+     "tags": {
+      "items": {
+       "type": "string"
+      },
+      "maxItems": 10,
+      "title": "Tags",
+      "type": "array"
+     },
+     "type": {
+      "default": "site",
+      "enum": [
+       "site",
+       "route",
+       "region"
+      ],
+      "title": "Type",
+      "type": "string"
+     }
+    },
+    "required": [
+     "name",
+     "geometry"
+    ],
+    "title": "AssetBody",
+    "type": "object"
+   },
+   "AssetPatch": {
+    "properties": {
+     "country_code": {
+      "anyOf": [
+       {
+        "pattern": "^[A-Za-z]{2}$",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Country Code"
+     },
+     "criticality": {
+      "anyOf": [
+       {
+        "maximum": 5.0,
+        "minimum": 1.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Criticality"
+     },
+     "geometry": {
+      "anyOf": [
+       {
+        "additionalProperties": true,
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Geometry"
+     },
+     "maintenance_windows": {
+      "anyOf": [
+       {
+        "items": {
+         "additionalProperties": {
+          "type": "string"
+         },
+         "type": "object"
+        },
+        "maxItems": 20,
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Maintenance Windows"
+     },
+     "name": {
+      "anyOf": [
+       {
+        "maxLength": 200,
+        "minLength": 1,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     },
+     "status": {
+      "anyOf": [
+       {
+        "enum": [
+         "active",
+         "archived"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Status"
+     },
+     "tags": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string"
+        },
+        "maxItems": 10,
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Tags"
+     }
+    },
+    "title": "AssetPatch",
+    "type": "object"
+   },
+   "Body_upload_assets_api_v1_uploads_post": {
+    "properties": {
+     "file": {
+      "contentMediaType": "application/octet-stream",
+      "title": "File",
+      "type": "string"
+     }
+    },
+    "required": [
+     "file"
+    ],
+    "title": "Body_upload_assets_api_v1_uploads_post",
+    "type": "object"
+   },
+   "BriefingBody": {
+    "properties": {
+     "kind": {
+      "default": "daily",
+      "enum": [
+       "daily",
+       "weekly",
+       "custom"
+      ],
+      "title": "Kind",
+      "type": "string"
+     },
+     "period_end": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Period End"
+     },
+     "period_start": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Period Start"
+     }
+    },
+    "title": "BriefingBody",
+    "type": "object"
+   },
+   "CommentBody": {
+    "properties": {
+     "text": {
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Text",
+      "type": "string"
+     }
+    },
+    "required": [
+     "text"
+    ],
+    "title": "CommentBody",
+    "type": "object"
+   },
+   "CorrectionBody": {
+    "properties": {
+     "consent_for_gold": {
+      "default": false,
+      "title": "Consent For Gold",
+      "type": "boolean"
+     },
+     "duplicate_of": {
+      "anyOf": [
+       {
+        "format": "uuid",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Duplicate Of"
+     },
+     "event_id": {
+      "format": "uuid",
+      "title": "Event Id",
+      "type": "string"
+     },
+     "kind": {
+      "enum": [
+       "wrong_location",
+       "wrong_type",
+       "duplicate"
+      ],
+      "title": "Kind",
+      "type": "string"
+     },
+     "note": {
+      "default": "",
+      "maxLength": 1000,
+      "title": "Note",
+      "type": "string"
+     },
+     "suggested_place": {
+      "anyOf": [
+       {
+        "maxLength": 200,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Suggested Place"
+     },
+     "suggested_type": {
+      "anyOf": [
+       {
+        "maxLength": 40,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Suggested Type"
+     }
+    },
+    "required": [
+     "event_id",
+     "kind"
+    ],
+    "title": "CorrectionBody",
+    "type": "object"
+   },
+   "CorrectionReview": {
+    "properties": {
+     "note": {
+      "default": "",
+      "maxLength": 500,
+      "title": "Note",
+      "type": "string"
+     },
+     "status": {
+      "enum": [
+       "accepted",
+       "rejected"
+      ],
+      "title": "Status",
+      "type": "string"
+     }
+    },
+    "required": [
+     "status"
+    ],
+    "title": "CorrectionReview",
+    "type": "object"
+   },
+   "DemoRequest": {
+    "properties": {
+     "company": {
+      "anyOf": [
+       {
+        "maxLength": 150,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Company"
+     },
+     "email": {
+      "format": "email",
+      "title": "Email",
+      "type": "string"
+     },
+     "message": {
+      "anyOf": [
+       {
+        "maxLength": 2000,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Message"
+     },
+     "name": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+     },
+     "website": {
+      "anyOf": [
+       {
+        "maxLength": 200,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Leave empty",
+      "title": "Website"
+     }
+    },
+    "required": [
+     "name",
+     "email"
+    ],
+    "title": "DemoRequest",
+    "type": "object"
+   },
+   "ForgotBody": {
+    "properties": {
+     "email": {
+      "maxLength": 254,
+      "minLength": 3,
+      "pattern": "^[^@\\s]+@[^@\\s]+$",
+      "title": "Email",
+      "type": "string"
+     }
+    },
+    "required": [
+     "email"
+    ],
+    "title": "ForgotBody",
+    "type": "object"
+   },
+   "GroupBody": {
+    "properties": {
+     "asset_ids": {
+      "items": {
+       "format": "uuid",
+       "type": "string"
+      },
+      "maxItems": 5000,
+      "title": "Asset Ids",
+      "type": "array"
+     },
+     "name": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+     }
+    },
+    "required": [
+     "name"
+    ],
+    "title": "GroupBody",
+    "type": "object"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "title": "Detail",
+      "type": "array"
+     }
+    },
+    "title": "HTTPValidationError",
+    "type": "object"
+   },
+   "LocateBody": {
+    "example": {
+     "lang": "en",
+     "text": "A fire broke out on Sunday at a plant in Springfield, Illinois.",
+     "title": "Fire at chemical plant in Springfield, Illinois"
+    },
+    "properties": {
+     "lang": {
+      "anyOf": [
+       {
+        "pattern": "^[a-z]{2,3}$",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Lang"
+     },
+     "outlet_country": {
+      "anyOf": [
+       {
+        "pattern": "^[A-Za-z]{2}$",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Outlet Country"
+     },
+     "text": {
+      "maxLength": 20000,
+      "minLength": 1,
+      "title": "Text",
+      "type": "string"
+     },
+     "title": {
+      "default": "",
+      "maxLength": 500,
+      "title": "Title",
+      "type": "string"
+     }
+    },
+    "required": [
+     "text"
+    ],
+    "title": "LocateBody",
+    "type": "object"
+   },
+   "LoginBody": {
+    "example": {
+     "email": "analyst@example.org",
+     "password": "a long passphrase"
+    },
+    "properties": {
+     "email": {
+      "maxLength": 254,
+      "minLength": 3,
+      "pattern": "^[^@\\s]+@[^@\\s]+$",
+      "title": "Email",
+      "type": "string"
+     },
+     "password": {
+      "maxLength": 256,
+      "minLength": 1,
+      "title": "Password",
+      "type": "string"
+     }
+    },
+    "required": [
+     "email",
+     "password"
+    ],
+    "title": "LoginBody",
+    "type": "object"
+   },
+   "MfaSetupBody": {
+    "properties": {
+     "setup_token": {
+      "anyOf": [
+       {
+        "maxLength": 2000,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Setup Token"
+     }
+    },
+    "title": "MfaSetupBody",
+    "type": "object"
+   },
+   "MfaVerifyBody": {
+    "properties": {
+     "code": {
+      "anyOf": [
+       {
+        "maxLength": 16,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Code"
+     },
+     "mfa_token": {
+      "anyOf": [
+       {
+        "maxLength": 2000,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Mfa Token"
+     },
+     "recovery_code": {
+      "anyOf": [
+       {
+        "maxLength": 40,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Recovery Code"
+     },
+     "setup_token": {
+      "anyOf": [
+       {
+        "maxLength": 2000,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Setup Token"
+     }
+    },
+    "title": "MfaVerifyBody",
+    "type": "object"
+   },
+   "QuietHours": {
+    "properties": {
+     "end": {
+      "title": "End",
+      "type": "string"
+     },
+     "start": {
+      "title": "Start",
+      "type": "string"
+     }
+    },
+    "required": [
+     "start",
+     "end"
+    ],
+    "title": "QuietHours",
+    "type": "object"
+   },
+   "ResetBody": {
+    "properties": {
+     "new_password": {
+      "maxLength": 256,
+      "minLength": 1,
+      "title": "New Password",
+      "type": "string"
+     },
+     "token": {
+      "maxLength": 200,
+      "minLength": 20,
+      "title": "Token",
+      "type": "string"
+     }
+    },
+    "required": [
+     "token",
+     "new_password"
+    ],
+    "title": "ResetBody",
+    "type": "object"
+   },
+   "RiskConfig": {
+    "example": {
+     "include_coordinates": false,
+     "min_level": "medium",
+     "model_training_opt_in": false,
+     "retention_days": 365
+    },
+    "properties": {
+     "include_coordinates": {
+      "default": false,
+      "description": "Allow webhooks to include asset coordinates",
+      "title": "Include Coordinates",
+      "type": "boolean"
+     },
+     "min_level": {
+      "default": "medium",
+      "enum": [
+       "low",
+       "medium",
+       "high",
+       "critical"
+      ],
+      "title": "Min Level",
+      "type": "string"
+     },
+     "model_training_opt_in": {
+      "default": false,
+      "title": "Model Training Opt In",
+      "type": "boolean"
+     },
+     "retention_days": {
+      "default": 365,
+      "maximum": 3650.0,
+      "minimum": 30.0,
+      "title": "Retention Days",
+      "type": "integer"
+     }
+    },
+    "title": "RiskConfig",
+    "type": "object"
+   },
+   "RuleBody": {
+    "example": {
+     "event_types": [
+      "industrial_accident"
+     ],
+     "min_level": "high",
+     "min_severity": 2,
+     "name": "High and critical industrial events"
+    },
+    "properties": {
+     "asset_group_ids": {
+      "items": {
+       "format": "uuid",
+       "type": "string"
+      },
+      "maxItems": 50,
+      "title": "Asset Group Ids",
+      "type": "array"
+     },
+     "enabled": {
+      "default": true,
+      "title": "Enabled",
+      "type": "boolean"
+     },
+     "escalation": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "string"
+        }
+       ]
+      },
+      "maxProperties": 5,
+      "title": "Escalation",
+      "type": "object"
+     },
+     "event_types": {
+      "items": {
+       "type": "string"
+      },
+      "maxItems": 20,
+      "title": "Event Types",
+      "type": "array"
+     },
+     "min_level": {
+      "default": "medium",
+      "enum": [
+       "low",
+       "medium",
+       "high",
+       "critical"
+      ],
+      "title": "Min Level",
+      "type": "string"
+     },
+     "min_severity": {
+      "default": 1,
+      "maximum": 4.0,
+      "minimum": 1.0,
+      "title": "Min Severity",
+      "type": "integer"
+     },
+     "name": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+     },
+     "quiet_hours": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/QuietHours"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "required": [
+     "name"
+    ],
+    "title": "RuleBody",
+    "type": "object"
+   },
+   "RulePatch": {
+    "properties": {
+     "asset_group_ids": {
+      "anyOf": [
+       {
+        "items": {
+         "format": "uuid",
+         "type": "string"
+        },
+        "maxItems": 50,
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Asset Group Ids"
+     },
+     "enabled": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Enabled"
+     },
+     "event_types": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string"
+        },
+        "maxItems": 20,
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Event Types"
+     },
+     "min_level": {
+      "anyOf": [
+       {
+        "enum": [
+         "low",
+         "medium",
+         "high",
+         "critical"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Min Level"
+     },
+     "min_severity": {
+      "anyOf": [
+       {
+        "maximum": 4.0,
+        "minimum": 1.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Min Severity"
+     },
+     "name": {
+      "anyOf": [
+       {
+        "maxLength": 100,
+        "minLength": 1,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     },
+     "quiet_hours": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/QuietHours"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "title": "RulePatch",
+    "type": "object"
+   },
+   "TenantCreate": {
+    "properties": {
+     "admin_email": {
+      "format": "email",
+      "title": "Admin Email",
+      "type": "string"
+     },
+     "admin_name": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Admin Name",
+      "type": "string"
+     },
+     "country_code": {
+      "anyOf": [
+       {
+        "pattern": "^[A-Za-z]{2}$",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Country Code"
+     },
+     "industry": {
+      "anyOf": [
+       {
+        "maxLength": 60,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Industry"
+     },
+     "is_demo": {
+      "default": true,
+      "title": "Is Demo",
+      "type": "boolean"
+     },
+     "name": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+     }
+    },
+    "required": [
+     "name",
+     "admin_email",
+     "admin_name"
+    ],
+    "title": "TenantCreate",
+    "type": "object"
+   },
+   "TenantPatch": {
+    "properties": {
+     "status": {
+      "enum": [
+       "active",
+       "suspended",
+       "churned"
+      ],
+      "title": "Status",
+      "type": "string"
+     }
+    },
+    "required": [
+     "status"
+    ],
+    "title": "TenantPatch",
+    "type": "object"
+   },
+   "UserCreate": {
+    "properties": {
+     "display_name": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Display Name",
+      "type": "string"
+     },
+     "email": {
+      "format": "email",
+      "title": "Email",
+      "type": "string"
+     },
+     "role": {
+      "enum": [
+       "viewer",
+       "analyst",
+       "manager",
+       "tenant_admin"
+      ],
+      "title": "Role",
+      "type": "string"
+     },
+     "tenant_id": {
+      "anyOf": [
+       {
+        "format": "uuid",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Platform administrators only",
+      "title": "Tenant Id"
+     }
+    },
+    "required": [
+     "email",
+     "display_name",
+     "role"
+    ],
+    "title": "UserCreate",
+    "type": "object"
+   },
+   "UserPatch": {
+    "properties": {
+     "display_name": {
+      "anyOf": [
+       {
+        "maxLength": 100,
+        "minLength": 1,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Display Name"
+     },
+     "role": {
+      "anyOf": [
+       {
+        "enum": [
+         "viewer",
+         "analyst",
+         "manager",
+         "tenant_admin"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Role"
+     },
+     "status": {
+      "anyOf": [
+       {
+        "enum": [
+         "active",
+         "disabled"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Status"
+     }
+    },
+    "title": "UserPatch",
+    "type": "object"
+   },
+   "ValidationError": {
+    "properties": {
+     "ctx": {
+      "title": "Context",
+      "type": "object"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "title": "Location",
+      "type": "array"
+     },
+     "msg": {
+      "title": "Message",
+      "type": "string"
+     },
+     "type": {
+      "title": "Error Type",
+      "type": "string"
+     }
+    },
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError",
+    "type": "object"
+   },
+   "WebhookBody": {
+    "properties": {
+     "include_coordinates": {
+      "default": false,
+      "title": "Include Coordinates",
+      "type": "boolean"
+     },
+     "min_level": {
+      "default": "medium",
+      "enum": [
+       "low",
+       "medium",
+       "high",
+       "critical"
+      ],
+      "title": "Min Level",
+      "type": "string"
+     },
+     "name": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+     },
+     "url": {
+      "maxLength": 500,
+      "minLength": 10,
+      "title": "Url",
+      "type": "string"
+     }
+    },
+    "required": [
+     "name",
+     "url"
+    ],
+    "title": "WebhookBody",
+    "type": "object"
+   },
+   "WebhookPatch": {
+    "properties": {
+     "enabled": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Enabled"
+     },
+     "include_coordinates": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Include Coordinates"
+     },
+     "min_level": {
+      "anyOf": [
+       {
+        "enum": [
+         "low",
+         "medium",
+         "high",
+         "critical"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Min Level"
+     },
+     "name": {
+      "anyOf": [
+       {
+        "maxLength": 100,
+        "minLength": 1,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     },
+     "url": {
+      "anyOf": [
+       {
+        "maxLength": 500,
+        "minLength": 10,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Url"
+     }
+    },
+    "title": "WebhookPatch",
+    "type": "object"
+   },
+   "ZoneBody": {
+    "properties": {
+     "geometry": {
+      "additionalProperties": true,
+      "title": "Geometry",
+      "type": "object"
+     },
+     "name": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+     },
+     "rules": {
+      "$ref": "#/components/schemas/ZoneRules"
+     }
+    },
+    "required": [
+     "name",
+     "geometry"
+    ],
+    "title": "ZoneBody",
+    "type": "object"
+   },
+   "ZonePatch": {
+    "properties": {
+     "geometry": {
+      "anyOf": [
+       {
+        "additionalProperties": true,
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Geometry"
+     },
+     "name": {
+      "anyOf": [
+       {
+        "maxLength": 100,
+        "minLength": 1,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     },
+     "rules": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ZoneRules"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "status": {
+      "anyOf": [
+       {
+        "enum": [
+         "active",
+         "archived"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Status"
+     }
+    },
+    "title": "ZonePatch",
+    "type": "object"
+   },
+   "ZoneRules": {
+    "properties": {
+     "event_types": {
+      "items": {
+       "type": "string"
+      },
+      "maxItems": 20,
+      "title": "Event Types",
+      "type": "array"
+     },
+     "min_level": {
+      "default": "medium",
+      "enum": [
+       "low",
+       "medium",
+       "high",
+       "critical"
+      ],
+      "title": "Min Level",
+      "type": "string"
+     },
+     "min_severity": {
+      "default": 1,
+      "maximum": 4.0,
+      "minimum": 1.0,
+      "title": "Min Severity",
+      "type": "integer"
+     }
+    },
+    "title": "ZoneRules",
+    "type": "object"
+   }
+  }
+ },
+ "info": {
+  "description": "Signals are situational awareness derived from public news and public data feeds. They are not official warnings. Verify with local authorities and follow their guidance.",
+  "title": "Meridian Signal API",
+  "version": "1.0.0"
+ },
+ "openapi": "3.1.0",
+ "paths": {
+  "/api/v1/admin/api-keys": {
+   "get": {
+    "operationId": "list_keys_api_v1_admin_api_keys_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response List Keys Api V1 Admin Api Keys Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "List API keys (secrets are never shown)",
+    "tags": [
+     "administration"
+    ]
+   },
+   "post": {
+    "operationId": "create_key_api_v1_admin_api_keys_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ApiKeyCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Create Key Api V1 Admin Api Keys Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Create an API key; the secret is shown once",
+    "tags": [
+     "administration"
+    ]
+   }
+  },
+  "/api/v1/admin/api-keys/{key_id}": {
+   "delete": {
+    "operationId": "revoke_key_api_v1_admin_api_keys__key_id__delete",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "key_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Key Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Revoke an API key",
+    "tags": [
+     "administration"
+    ]
+   }
+  },
+  "/api/v1/admin/audit": {
+   "get": {
+    "operationId": "audit_log_api_v1_admin_audit_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "action",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 60,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Action"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 50,
+       "maximum": 200,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "cursor",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Cursor"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Audit Log Api V1 Admin Audit Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Audit log of this tenant",
+    "tags": [
+     "administration"
+    ]
+   }
+  },
+  "/api/v1/admin/audit/verify": {
+   "get": {
+    "operationId": "audit_verify_api_v1_admin_audit_verify_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Audit Verify Api V1 Admin Audit Verify Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Verify the hash chain of the whole audit log",
+    "tags": [
+     "administration"
+    ]
+   }
+  },
+  "/api/v1/admin/risk-config": {
+   "get": {
+    "operationId": "get_risk_api_v1_admin_risk_config_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Get Risk Api V1 Admin Risk Config Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Tenant risk and privacy settings",
+    "tags": [
+     "administration"
+    ]
+   },
+   "put": {
+    "operationId": "put_risk_api_v1_admin_risk_config_put",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RiskConfig"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Put Risk Api V1 Admin Risk Config Put",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Replace tenant risk and privacy settings",
+    "tags": [
+     "administration"
+    ]
+   }
+  },
+  "/api/v1/admin/users": {
+   "get": {
+    "operationId": "list_users_api_v1_admin_users_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response List Users Api V1 Admin Users Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "List users of this tenant",
+    "tags": [
+     "administration"
+    ]
+   },
+   "post": {
+    "operationId": "create_user_api_v1_admin_users_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/UserCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Create User Api V1 Admin Users Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Invite a user",
+    "tags": [
+     "administration"
+    ]
+   }
+  },
+  "/api/v1/admin/users/{user_id}": {
+   "patch": {
+    "operationId": "patch_user_api_v1_admin_users__user_id__patch",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "user_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "User Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/UserPatch"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Patch User Api V1 Admin Users  User Id  Patch",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Change a user's role or status",
+    "tags": [
+     "administration"
+    ]
+   }
+  },
+  "/api/v1/admin/webhooks": {
+   "get": {
+    "operationId": "list_hooks_api_v1_admin_webhooks_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response List Hooks Api V1 Admin Webhooks Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "List webhooks",
+    "tags": [
+     "administration"
+    ]
+   },
+   "post": {
+    "operationId": "create_hook_api_v1_admin_webhooks_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/WebhookBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Create Hook Api V1 Admin Webhooks Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Create a webhook; the signing secret is shown once",
+    "tags": [
+     "administration"
+    ]
+   }
+  },
+  "/api/v1/admin/webhooks/{hook_id}": {
+   "delete": {
+    "operationId": "delete_hook_api_v1_admin_webhooks__hook_id__delete",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "hook_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Hook Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Delete a webhook",
+    "tags": [
+     "administration"
+    ]
+   },
+   "patch": {
+    "operationId": "patch_hook_api_v1_admin_webhooks__hook_id__patch",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "hook_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Hook Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/WebhookPatch"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Patch Hook Api V1 Admin Webhooks  Hook Id  Patch",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Update a webhook",
+    "tags": [
+     "administration"
+    ]
+   }
+  },
+  "/api/v1/admin/webhooks/{hook_id}/deliveries": {
+   "get": {
+    "operationId": "deliveries_api_v1_admin_webhooks__hook_id__deliveries_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "hook_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Hook Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 50,
+       "maximum": 200,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Deliveries Api V1 Admin Webhooks  Hook Id  Deliveries Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Delivery log",
+    "tags": [
+     "administration"
+    ]
+   }
+  },
+  "/api/v1/admin/webhooks/{hook_id}/rotate-secret": {
+   "post": {
+    "operationId": "rotate_secret_api_v1_admin_webhooks__hook_id__rotate_secret_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "hook_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Hook Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Rotate Secret Api V1 Admin Webhooks  Hook Id  Rotate Secret Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Rotate the signing secret; the old one stays valid for seven days",
+    "tags": [
+     "administration"
+    ]
+   }
+  },
+  "/api/v1/admin/webhooks/{hook_id}/test": {
+   "post": {
+    "operationId": "test_hook_api_v1_admin_webhooks__hook_id__test_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "hook_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Hook Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "202": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Test Hook Api V1 Admin Webhooks  Hook Id  Test Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Queue a test delivery",
+    "tags": [
+     "administration"
+    ]
+   }
+  },
+  "/api/v1/alerts": {
+   "get": {
+    "operationId": "list_alerts_api_v1_alerts_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "status",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "pattern": "^(new|acknowledged|monitoring|escalated|dismissed|resolved)$",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     },
+     {
+      "in": "query",
+      "name": "level",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "pattern": "^(low|medium|high|critical)$",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Level"
+      }
+     },
+     {
+      "in": "query",
+      "name": "asset_id",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "uuid",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Asset Id"
+      }
+     },
+     {
+      "in": "query",
+      "name": "event_id",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "uuid",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Event Id"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 50,
+       "maximum": 200,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "cursor",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Cursor"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response List Alerts Api V1 Alerts Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "List alerts",
+    "tags": [
+     "alerts"
+    ]
+   }
+  },
+  "/api/v1/alerts/{alert_id}": {
+   "get": {
+    "operationId": "get_alert_api_v1_alerts__alert_id__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "alert_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Alert Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Get Alert Api V1 Alerts  Alert Id  Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "One alert with its history",
+    "tags": [
+     "alerts"
+    ]
+   },
+   "patch": {
+    "operationId": "patch_alert_api_v1_alerts__alert_id__patch",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "alert_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Alert Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AlertPatch"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Patch Alert Api V1 Alerts  Alert Id  Patch",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Acknowledge, dismiss, escalate, resolve, or assign an alert",
+    "tags": [
+     "alerts"
+    ]
+   }
+  },
+  "/api/v1/alerts/{alert_id}/comments": {
+   "post": {
+    "operationId": "add_comment_api_v1_alerts__alert_id__comments_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "alert_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Alert Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CommentBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Add Comment Api V1 Alerts  Alert Id  Comments Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Comment on an alert",
+    "tags": [
+     "alerts"
+    ]
+   }
+  },
+  "/api/v1/analytics/operations": {
+   "get": {
+    "operationId": "operations_api_v1_analytics_operations_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "days",
+      "required": false,
+      "schema": {
+       "default": 30,
+       "maximum": 365,
+       "minimum": 1,
+       "title": "Days",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Operations Api V1 Analytics Operations Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Alert volumes and response times for this tenant",
+    "tags": [
+     "analytics and platform"
+    ]
+   }
+  },
+  "/api/v1/analytics/quality": {
+   "get": {
+    "operationId": "quality_api_v1_analytics_quality_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "days",
+      "required": false,
+      "schema": {
+       "default": 30,
+       "maximum": 365,
+       "minimum": 1,
+       "title": "Days",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Quality Api V1 Analytics Quality Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Event quality signals: confirmation share and corrections",
+    "tags": [
+     "analytics and platform"
+    ]
+   }
+  },
+  "/api/v1/analytics/usage": {
+   "get": {
+    "operationId": "usage_api_v1_analytics_usage_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "days",
+      "required": false,
+      "schema": {
+       "default": 30,
+       "maximum": 365,
+       "minimum": 1,
+       "title": "Days",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Usage Api V1 Analytics Usage Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Daily usage for this tenant (demo data)",
+    "tags": [
+     "analytics and platform"
+    ]
+   }
+  },
+  "/api/v1/asset-groups": {
+   "get": {
+    "operationId": "list_groups_api_v1_asset_groups_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response List Groups Api V1 Asset Groups Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "List asset groups",
+    "tags": [
+     "assets"
+    ]
+   },
+   "post": {
+    "operationId": "create_group_api_v1_asset_groups_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/GroupBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Create Group Api V1 Asset Groups Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Create an asset group",
+    "tags": [
+     "assets"
+    ]
+   }
+  },
+  "/api/v1/assets": {
+   "get": {
+    "operationId": "list_assets_api_v1_assets_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "q",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 100,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Q"
+      }
+     },
+     {
+      "in": "query",
+      "name": "type",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "pattern": "^(site|route|region)$",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Type"
+      }
+     },
+     {
+      "description": "min_lon,min_lat,max_lon,max_lat",
+      "in": "query",
+      "name": "bbox",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "min_lon,min_lat,max_lon,max_lat",
+       "title": "Bbox"
+      }
+     },
+     {
+      "in": "query",
+      "name": "status",
+      "required": false,
+      "schema": {
+       "default": "active",
+       "pattern": "^(active|archived)$",
+       "title": "Status",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "json",
+       "pattern": "^(json|geojson)$",
+       "title": "Format",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 50,
+       "maximum": 200,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "cursor",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Cursor"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response List Assets Api V1 Assets Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "List assets",
+    "tags": [
+     "assets"
+    ]
+   },
+   "post": {
+    "operationId": "create_asset_api_v1_assets_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AssetBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Create Asset Api V1 Assets Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Create an asset",
+    "tags": [
+     "assets"
+    ]
+   }
+  },
+  "/api/v1/assets-export": {
+   "get": {
+    "operationId": "export_assets_api_v1_assets_export_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Export assets as CSV (formula safe)",
+    "tags": [
+     "assets"
+    ]
+   }
+  },
+  "/api/v1/assets/{asset_id}": {
+   "delete": {
+    "operationId": "delete_asset_api_v1_assets__asset_id__delete",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "asset_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Asset Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Delete an asset",
+    "tags": [
+     "assets"
+    ]
+   },
+   "get": {
+    "operationId": "get_asset_api_v1_assets__asset_id__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "asset_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Asset Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Get Asset Api V1 Assets  Asset Id  Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "One asset",
+    "tags": [
+     "assets"
+    ]
+   },
+   "patch": {
+    "operationId": "patch_asset_api_v1_assets__asset_id__patch",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "asset_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Asset Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AssetPatch"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Patch Asset Api V1 Assets  Asset Id  Patch",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Update an asset",
+    "tags": [
+     "assets"
+    ]
+   }
+  },
+  "/api/v1/assets/{asset_id}/events": {
+   "get": {
+    "operationId": "asset_events_api_v1_assets__asset_id__events_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "asset_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Asset Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "status",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "pattern": "^(new|developing|ongoing|resolved)$",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 50,
+       "maximum": 200,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Asset Events Api V1 Assets  Asset Id  Events Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Events that affect one asset",
+    "tags": [
+     "assets"
+    ]
+   }
+  },
+  "/api/v1/assets/{asset_id}/exposure": {
+   "get": {
+    "operationId": "asset_exposure_api_v1_assets__asset_id__exposure_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "asset_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Asset Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Asset Exposure Api V1 Assets  Asset Id  Exposure Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Exposure of one asset to current events, with every score component",
+    "tags": [
+     "assets"
+    ]
+   }
+  },
+  "/api/v1/auth/login": {
+   "post": {
+    "operationId": "login_api_v1_auth_login_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/LoginBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Login Api V1 Auth Login Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Sign in with email and password",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/api/v1/auth/logout": {
+   "post": {
+    "operationId": "logout_api_v1_auth_logout_post",
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     }
+    },
+    "summary": "End the current session",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/api/v1/auth/me": {
+   "get": {
+    "operationId": "me_api_v1_auth_me_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Me Api V1 Auth Me Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "The current user or API key",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/api/v1/auth/mfa/setup": {
+   "post": {
+    "operationId": "mfa_setup_api_v1_auth_mfa_setup_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/MfaSetupBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Mfa Setup Api V1 Auth Mfa Setup Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Start TOTP enrollment",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/api/v1/auth/mfa/verify": {
+   "post": {
+    "operationId": "mfa_verify_api_v1_auth_mfa_verify_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/MfaVerifyBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Mfa Verify Api V1 Auth Mfa Verify Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Complete sign-in or enrollment with a TOTP code or recovery code",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/api/v1/auth/password/forgot": {
+   "post": {
+    "operationId": "forgot_api_v1_auth_password_forgot_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ForgotBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "202": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": {
+          "type": "string"
+         },
+         "title": "Response Forgot Api V1 Auth Password Forgot Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Request a password reset email",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/api/v1/auth/password/reset": {
+   "post": {
+    "operationId": "reset_api_v1_auth_password_reset_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ResetBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": {
+          "type": "string"
+         },
+         "title": "Response Reset Api V1 Auth Password Reset Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Choose a new password with a reset token",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/api/v1/auth/refresh": {
+   "post": {
+    "operationId": "refresh_api_v1_auth_refresh_post",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Refresh Api V1 Auth Refresh Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Rotate the refresh token and issue a new access token",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/api/v1/auth/sessions": {
+   "get": {
+    "operationId": "list_sessions_api_v1_auth_sessions_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response List Sessions Api V1 Auth Sessions Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Active sessions of the current user",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/api/v1/auth/sessions/{session_id}": {
+   "delete": {
+    "operationId": "end_session_api_v1_auth_sessions__session_id__delete",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "session_id",
+      "required": true,
+      "schema": {
+       "title": "Session Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Sign out one session",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/api/v1/billing/invoices": {
+   "get": {
+    "operationId": "billing_invoices_api_v1_billing_invoices_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 24,
+       "maximum": 100,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Billing Invoices Api V1 Billing Invoices Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Invoices (demo data)",
+    "tags": [
+     "administration"
+    ]
+   }
+  },
+  "/api/v1/billing/plan": {
+   "get": {
+    "operationId": "billing_plan_api_v1_billing_plan_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Billing Plan Api V1 Billing Plan Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Current plan (demo data)",
+    "tags": [
+     "administration"
+    ]
+   }
+  },
+  "/api/v1/briefings": {
+   "get": {
+    "operationId": "list_briefings_api_v1_briefings_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 20,
+       "maximum": 100,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response List Briefings Api V1 Briefings Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "List briefings",
+    "tags": [
+     "briefings and reports"
+    ]
+   },
+   "post": {
+    "operationId": "create_briefing_api_v1_briefings_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/BriefingBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Create Briefing Api V1 Briefings Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Create a briefing from stored alerts",
+    "tags": [
+     "briefings and reports"
+    ]
+   }
+  },
+  "/api/v1/briefings/{briefing_id}": {
+   "get": {
+    "operationId": "get_briefing_api_v1_briefings__briefing_id__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "briefing_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Briefing Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Get Briefing Api V1 Briefings  Briefing Id  Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "One briefing",
+    "tags": [
+     "briefings and reports"
+    ]
+   }
+  },
+  "/api/v1/contact/demo-request": {
+   "post": {
+    "operationId": "demo_request_api_v1_contact_demo_request_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DemoRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "202": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": {
+          "type": "string"
+         },
+         "title": "Response Demo Request Api V1 Contact Demo Request Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Request a demo",
+    "tags": [
+     "system"
+    ]
+   }
+  },
+  "/api/v1/corrections": {
+   "get": {
+    "operationId": "list_corrections_api_v1_corrections_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "status",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "pattern": "^(open|accepted|rejected)$",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 50,
+       "maximum": 200,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response List Corrections Api V1 Corrections Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Corrections submitted by this tenant (all tenants for platform administrators)",
+    "tags": [
+     "alerts"
+    ]
+   },
+   "post": {
+    "operationId": "create_correction_api_v1_corrections_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CorrectionBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Create Correction Api V1 Corrections Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Report a wrong location, wrong type, or duplicate",
+    "tags": [
+     "alerts"
+    ]
+   }
+  },
+  "/api/v1/corrections/{correction_id}": {
+   "patch": {
+    "operationId": "review_correction_api_v1_corrections__correction_id__patch",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "correction_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Correction Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CorrectionReview"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Review Correction Api V1 Corrections  Correction Id  Patch",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Review a correction (platform administrators)",
+    "tags": [
+     "alerts"
+    ]
+   }
+  },
+  "/api/v1/events": {
+   "get": {
+    "operationId": "list_events_api_v1_events_get",
+    "parameters": [
+     {
+      "description": "min_lon,min_lat,max_lon,max_lat",
+      "in": "query",
+      "name": "bbox",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "min_lon,min_lat,max_lon,max_lat",
+       "title": "Bbox"
+      }
+     },
+     {
+      "in": "query",
+      "name": "since",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date-time",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Since"
+      }
+     },
+     {
+      "in": "query",
+      "name": "until",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date-time",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Until"
+      }
+     },
+     {
+      "in": "query",
+      "name": "type",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 40,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Type"
+      }
+     },
+     {
+      "in": "query",
+      "name": "min_severity",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maximum": 4,
+         "minimum": 1,
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Min Severity"
+      }
+     },
+     {
+      "in": "query",
+      "name": "status",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "pattern": "^(new|developing|ongoing|resolved)$",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     },
+     {
+      "in": "query",
+      "name": "confirmation",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "pattern": "^(confirmed|unconfirmed)$",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Confirmation"
+      }
+     },
+     {
+      "in": "query",
+      "name": "near_my_assets",
+      "required": false,
+      "schema": {
+       "default": false,
+       "title": "Near My Assets",
+       "type": "boolean"
+      }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "json",
+       "pattern": "^(json|geojson)$",
+       "title": "Format",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 50,
+       "maximum": 200,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "cursor",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Cursor"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response List Events Api V1 Events Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "List events",
+    "tags": [
+     "events and places"
+    ]
+   }
+  },
+  "/api/v1/events/{event_id}": {
+   "get": {
+    "operationId": "get_event_api_v1_events__event_id__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "event_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Event Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Get Event Api V1 Events  Event Id  Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "One event with its sources, updates, and exposures for this tenant",
+    "tags": [
+     "events and places"
+    ]
+   }
+  },
+  "/api/v1/health": {
+   "get": {
+    "operationId": "health_api_v1_health_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": {
+          "type": "string"
+         },
+         "title": "Response Health Api V1 Health Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Liveness",
+    "tags": [
+     "system"
+    ]
+   }
+  },
+  "/api/v1/health/ready": {
+   "get": {
+    "operationId": "ready_api_v1_health_ready_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": {
+          "type": "string"
+         },
+         "title": "Response Ready Api V1 Health Ready Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Readiness: the database answers",
+    "tags": [
+     "system"
+    ]
+   }
+  },
+  "/api/v1/locate": {
+   "post": {
+    "operationId": "locate_endpoint_api_v1_locate_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/LocateBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Locate Endpoint Api V1 Locate Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Link places in ad hoc text and choose the event location",
+    "tags": [
+     "events and places"
+    ]
+   }
+  },
+  "/api/v1/places/search": {
+   "get": {
+    "operationId": "search_places_endpoint_api_v1_places_search_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "q",
+      "required": true,
+      "schema": {
+       "maxLength": 120,
+       "minLength": 1,
+       "title": "Q",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "country",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "pattern": "^[A-Za-z]{2}$",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Country"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 10,
+       "maximum": 25,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Search Places Endpoint Api V1 Places Search Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Search the place knowledge base",
+    "tags": [
+     "events and places"
+    ]
+   }
+  },
+  "/api/v1/places/{place_id}": {
+   "get": {
+    "operationId": "get_place_api_v1_places__place_id__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "place_id",
+      "required": true,
+      "schema": {
+       "title": "Place Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Get Place Api V1 Places  Place Id  Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "One place",
+    "tags": [
+     "events and places"
+    ]
+   }
+  },
+  "/api/v1/platform/revenue/mrr": {
+   "get": {
+    "operationId": "revenue_mrr_api_v1_platform_revenue_mrr_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "months",
+      "required": false,
+      "schema": {
+       "default": 36,
+       "maximum": 60,
+       "minimum": 1,
+       "title": "Months",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Revenue Mrr Api V1 Platform Revenue Mrr Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Monthly recurring revenue series (demo data)",
+    "tags": [
+     "analytics and platform"
+    ]
+   }
+  },
+  "/api/v1/platform/revenue/summary": {
+   "get": {
+    "operationId": "revenue_summary_api_v1_platform_revenue_summary_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Revenue Summary Api V1 Platform Revenue Summary Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Revenue summary (demo data)",
+    "tags": [
+     "analytics and platform"
+    ]
+   }
+  },
+  "/api/v1/platform/revenue/tenants": {
+   "get": {
+    "operationId": "revenue_tenants_api_v1_platform_revenue_tenants_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Revenue Tenants Api V1 Platform Revenue Tenants Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Revenue by tenant (demo data)",
+    "tags": [
+     "analytics and platform"
+    ]
+   }
+  },
+  "/api/v1/platform/tenants": {
+   "get": {
+    "operationId": "list_tenants_api_v1_platform_tenants_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response List Tenants Api V1 Platform Tenants Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "List tenants",
+    "tags": [
+     "analytics and platform"
+    ]
+   },
+   "post": {
+    "operationId": "create_tenant_api_v1_platform_tenants_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TenantCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Create Tenant Api V1 Platform Tenants Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Create a tenant with its first administrator",
+    "tags": [
+     "analytics and platform"
+    ]
+   }
+  },
+  "/api/v1/platform/tenants/{tenant_id}": {
+   "patch": {
+    "operationId": "patch_tenant_api_v1_platform_tenants__tenant_id__patch",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "tenant_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Tenant Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TenantPatch"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Patch Tenant Api V1 Platform Tenants  Tenant Id  Patch",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Suspend, reactivate, or close a tenant",
+    "tags": [
+     "analytics and platform"
+    ]
+   }
+  },
+  "/api/v1/reports/incident/{event_id}": {
+   "post": {
+    "operationId": "create_incident_report_api_v1_reports_incident__event_id__post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "event_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Event Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Create Incident Report Api V1 Reports Incident  Event Id  Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Create an incident report",
+    "tags": [
+     "briefings and reports"
+    ]
+   }
+  },
+  "/api/v1/reports/portfolio": {
+   "post": {
+    "operationId": "create_portfolio_report_api_v1_reports_portfolio_post",
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Create Portfolio Report Api V1 Reports Portfolio Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Create a portfolio exposure report",
+    "tags": [
+     "briefings and reports"
+    ]
+   }
+  },
+  "/api/v1/reports/{report_id}": {
+   "get": {
+    "operationId": "get_report_api_v1_reports__report_id__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "report_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Report Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "meta",
+       "pattern": "^(meta|html|csv)$",
+       "title": "Format",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "title": "Response Get Report Api V1 Reports  Report Id  Get"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "A report: metadata, or the file with format=html or format=csv",
+    "tags": [
+     "briefings and reports"
+    ]
+   }
+  },
+  "/api/v1/rules": {
+   "get": {
+    "operationId": "list_rules_api_v1_rules_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response List Rules Api V1 Rules Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "List alert rules",
+    "tags": [
+     "zones and rules"
+    ]
+   },
+   "post": {
+    "operationId": "create_rule_api_v1_rules_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RuleBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Create Rule Api V1 Rules Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Create an alert rule",
+    "tags": [
+     "zones and rules"
+    ]
+   }
+  },
+  "/api/v1/rules/{rule_id}": {
+   "patch": {
+    "operationId": "patch_rule_api_v1_rules__rule_id__patch",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "rule_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Rule Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RulePatch"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Patch Rule Api V1 Rules  Rule Id  Patch",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Update an alert rule",
+    "tags": [
+     "zones and rules"
+    ]
+   }
+  },
+  "/api/v1/sources": {
+   "get": {
+    "operationId": "list_sources_api_v1_sources_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response List Sources Api V1 Sources Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Data sources with freshness, counts, and license notes",
+    "tags": [
+     "events and places"
+    ]
+   }
+  },
+  "/api/v1/stream/alerts": {
+   "get": {
+    "operationId": "stream_alerts_api_v1_stream_alerts_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Server-sent events: alert changes for this tenant",
+    "tags": [
+     "system"
+    ]
+   }
+  },
+  "/api/v1/stream/events": {
+   "get": {
+    "operationId": "stream_events_api_v1_stream_events_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Server-sent events: event updates that affect this tenant",
+    "tags": [
+     "system"
+    ]
+   }
+  },
+  "/api/v1/uploads": {
+   "post": {
+    "operationId": "upload_assets_api_v1_uploads_post",
+    "parameters": [
+     {
+      "in": "header",
+      "name": "idempotency-key",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 100,
+         "pattern": "^[A-Za-z0-9._:-]+$",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Idempotency-Key"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/Body_upload_assets_api_v1_uploads_post"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Upload Assets Api V1 Uploads Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Upload assets as CSV or GeoJSON",
+    "tags": [
+     "assets"
+    ]
+   }
+  },
+  "/api/v1/uploads/{upload_id}": {
+   "get": {
+    "operationId": "get_upload_api_v1_uploads__upload_id__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "upload_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Upload Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Get Upload Api V1 Uploads  Upload Id  Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "One upload and its row errors",
+    "tags": [
+     "assets"
+    ]
+   }
+  },
+  "/api/v1/zones": {
+   "get": {
+    "operationId": "list_zones_api_v1_zones_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "default": "json",
+       "pattern": "^(json|geojson)$",
+       "title": "Format",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response List Zones Api V1 Zones Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "List watch zones",
+    "tags": [
+     "zones and rules"
+    ]
+   },
+   "post": {
+    "operationId": "create_zone_api_v1_zones_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ZoneBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Create Zone Api V1 Zones Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Create a watch zone",
+    "tags": [
+     "zones and rules"
+    ]
+   }
+  },
+  "/api/v1/zones/{zone_id}": {
+   "delete": {
+    "operationId": "delete_zone_api_v1_zones__zone_id__delete",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "zone_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Zone Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Delete a watch zone",
+    "tags": [
+     "zones and rules"
+    ]
+   },
+   "get": {
+    "operationId": "get_zone_api_v1_zones__zone_id__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "zone_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Zone Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Get Zone Api V1 Zones  Zone Id  Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "One watch zone",
+    "tags": [
+     "zones and rules"
+    ]
+   },
+   "patch": {
+    "operationId": "patch_zone_api_v1_zones__zone_id__patch",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "zone_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Zone Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ZonePatch"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Patch Zone Api V1 Zones  Zone Id  Patch",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Update a watch zone",
+    "tags": [
+     "zones and rules"
+    ]
+   }
+  }
+ }
+}

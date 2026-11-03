@@ -1,7 +1,7 @@
 PY ?= .venv/bin/python
 SCRIPTS := data/scripts
 
-.PHONY: events-demo events-usgs events-nws events-status events-smoke events-synth events-report eval-throughput eval-gkg nel-index nel-up nel-down llm-fetch llm-up llm-down eval-cache eval-train eval geo-up db-init db-start db-stop db-reset db-upgrade etl etl-embed etl-quality etl-plans etl-report help setup data data-small data-geonames data-natural-earth data-eupeg data-wikidata \
+.PHONY: api-up api-worker api-openapi api-cov api-security valkey-up valkey-down zap events-demo events-usgs events-nws events-status events-smoke events-synth events-report eval-throughput eval-gkg nel-index nel-up nel-down llm-fetch llm-up llm-down eval-cache eval-train eval geo-up db-init db-start db-stop db-reset db-upgrade etl etl-embed etl-quality etl-plans etl-report help setup data data-small data-geonames data-natural-earth data-eupeg data-wikidata \
 	harvest harvest-daemon harvest-status backfill-gkg verify-data data-report tasks \
 	validate-gold lint typecheck test check-style check
 
@@ -112,6 +112,33 @@ etl-quality:
 
 etl-plans:
 	$(APIRUN) -m meridian.etl plans
+
+# Backend API (phase 5)
+valkey-up:
+	mkdir -p .local && (valkey-server --port 6379 --save "" --appendonly no --bind 127.0.0.1 > .local/valkey.log 2>&1 & echo $$! > .local/valkey.pid)
+
+valkey-down:
+	-kill `cat .local/valkey.pid` && rm -f .local/valkey.pid
+
+api-up:
+	mkdir -p .local && cd $(API) && MS_ENV=development MS_COOKIE_SECURE=false PYTHONPATH=. ../../.venv/bin/uvicorn meridian.api.main:create_app --factory --host 127.0.0.1 --port 8090 --no-server-header
+
+api-worker:
+	$(APIRUN) -m meridian.api.worker
+
+api-openapi:
+	$(PY) apps/api/export_openapi.py
+
+api-cov:
+	$(PY) -m pytest apps/api/tests/test_api_*.py -q --cov=apps/api/meridian/api --cov=apps/api/meridian/notify --cov-report=term-missing:skip-covered
+
+api-security:
+	$(PY) -m bandit -q -r apps/api/meridian/api apps/api/meridian/notify.py -ll || true
+	PIPAPI_PYTHON_LOCATION=$(CURDIR)/$(PY) $(PY) -m pip_audit --progress-spinner off
+
+# OWASP ZAP baseline needs Docker and a running API (make api-up). Not run in the development environment used for phase 5.
+zap:
+	docker run --rm --network host -v $(CURDIR)/.local:/zap/wrk ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://127.0.0.1:8090/api/openapi.json -f openapi -r zap-report.html
 
 # Event pipeline (phase 4); the demo tenant is synthetic
 events-demo:

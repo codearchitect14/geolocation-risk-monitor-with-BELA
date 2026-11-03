@@ -74,3 +74,46 @@ def conn(migrated_url: str) -> Iterator[psycopg.Connection[Any]]:
         if not connection.closed:
             connection.rollback()
             connection.close()
+
+
+# -- API fixtures -------------------------------------------------------------------------------------------------------
+@pytest.fixture
+def api_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    from tests.api_support import ENV
+
+    for key, value in ENV.items():
+        monkeypatch.setenv(key, value)
+
+
+@pytest.fixture
+def mailer() -> Any:
+    from meridian.api.services.mailer import CaptureMailer
+
+    return CaptureMailer()
+
+
+@pytest.fixture
+def world(conn: psycopg.Connection[Any], api_env: None) -> Any:
+    from tests.api_support import build_world
+
+    return build_world(conn)
+
+
+@pytest.fixture
+def app(world: Any, mailer: Any) -> Any:
+    from meridian.api.main import create_app
+    from meridian.api.security import ratelimit
+    from meridian.api.services.mailer import get_mailer
+
+    application = create_app()
+    ratelimit._backend.reset()  # type: ignore[attr-defined]
+    application.dependency_overrides[get_mailer] = lambda: mailer
+    return application
+
+
+@pytest.fixture
+def client(app: Any) -> Iterator[Any]:
+    from fastapi.testclient import TestClient
+
+    with TestClient(app, base_url="https://testserver", raise_server_exceptions=False) as test_client:
+        yield test_client

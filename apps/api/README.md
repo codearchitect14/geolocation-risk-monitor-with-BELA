@@ -103,3 +103,27 @@ Rules and weights are in `meridian/config/events_config_v1.yaml`; every event, e
 `meridian/events`: `normalizers/` (usgs, nws, firms, reliefweb), `classify.py` (local model label), `news.py` (article to event),
 `ingest.py` (create, revise, supersede, merge), `status.py`, `exposure.py`, `alerts.py`, `service.py` (feed files), `cli.py`.
 Design and limits: `docs/adr/ADR-008-event-pipeline.md` and `docs/events_report.md`.
+
+## Backend API (phase 5)
+
+```
+make valkey-up                 # optional: shared rate limits and live streams (falls back to in-process without it)
+make api-up                    # http://127.0.0.1:8090/api/docs (development settings, cookies without Secure)
+make api-worker                # webhook delivery, retention purge, audit chain verification
+make api-cov                   # API tests with coverage
+make api-security              # bandit and pip-audit
+make api-openapi               # writes docs/openapi.json
+```
+
+Create the first accounts (the password comes from `MS_NEW_PASSWORD` or a prompt, never from arguments):
+
+```
+python -m meridian.api.cli create-tenant --name "Example tenant"
+python -m meridian.api.cli create-user --email admin@example.org --name "Admin" --role tenant_admin --tenant example-tenant
+python -m meridian.api.cli create-user --email ops@example.org --name "Platform" --role platform_admin
+```
+
+Layout: `meridian/api/main.py` (application factory), `auth.py` (principals, CSRF, permissions), `db.py` (row level security context),
+`routers/` (endpoint groups), `services/` (sessions, API keys, uploads, webhooks, briefings, reports), `security/` (passwords,
+tokens, MFA, rate limits, audit, SSRF checks), `worker.py`, and `meridian/notify.py` (alert payloads and streams, shared with the
+event pipeline). Security controls and test evidence: `docs/security.md`; decisions: `docs/adr/ADR-009-api-security.md`.
