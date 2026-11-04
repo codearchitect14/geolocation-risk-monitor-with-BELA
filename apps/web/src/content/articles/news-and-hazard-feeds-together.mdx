@@ -1,0 +1,78 @@
+---
+title: "News and hazard feeds together: what each can and cannot tell you"
+summary: "Structured hazard feeds are fast and precise but narrow. News is broad and late but describes effects. Combining them requires care about what each source can support."
+date: "2026-10-19"
+tags: ["Data sources", "Incidents"]
+---
+
+Disruption monitoring draws on two kinds of sources. Hazard feeds publish structured records about natural phenomena: an earthquake with a magnitude and an epicenter, a weather warning with a polygon, a satellite fire detection with a time and a position. News reports describe what happened to people, buildings and services, in prose. Each has strengths that the other lacks.
+
+## What hazard feeds provide
+
+The platform ingests three public hazard feeds.
+
+- **USGS** publishes earthquakes worldwide, with magnitude, depth, time and position.
+- **National Weather Service** publishes weather alerts for the United States, with an event type, a severity and the zones or polygon it covers.
+- **NASA FIRMS** publishes satellite fire detections worldwide, with position and detection time.
+
+Their advantages are clear. Records are structured, positions are precise, and the time of the phenomenon is known. There is no ambiguity about which Springfield is meant, because there is no name to resolve.
+
+Their limits are also clear.
+
+- **Coverage is thematic.** None of the three covers industrial accidents, civil unrest, strikes or transport disruptions.
+- **Coverage can be regional.** Weather alerts are available for the United States only. A weather warning issued by another country's agency does not appear.
+- **A phenomenon is not an impact.** A magnitude 5.5 earthquake offshore may harm nothing. A fire detection may be a controlled burn. The feeds do not say whether a facility was affected.
+
+## What news provides
+
+News reports describe consequences: a road closed, a terminal shut, a factory evacuated. They cover event types that no feed covers. They also often mention the specific facility, which a feed never does.
+
+The limits mirror those of the feeds.
+
+- **Positions are indirect.** A report gives a place name, not a coordinate, so locations carry uncertainty.
+- **Coverage is uneven.** Well-covered regions produce many reports and small places few. A lack of reports is not evidence that nothing happened.
+- **Reports repeat and diverge.** Several outlets may cover the same event with different details, and early reports are sometimes wrong.
+- **Text can be manipulated.** Article text is untrusted input and must not be allowed to instruct any component of the system.
+
+## Fusing them into one incident
+
+When a feed record and a news report describe the same event, the platform joins them into one incident. The grouping uses time, distance and type. A magnitude 5.8 earthquake at 10:14 and three reports of building damage in two nearby towns within the next hour form one incident with four sources.
+
+Fusion changes what the incident can tell you.
+
+| Property | From the feed | From news |
+|---|---|---|
+| Time of the phenomenon | Precise | Approximate |
+| Position | Precise | Place name with uncertainty |
+| Impact on facilities and services | Not available | Described |
+| Event types covered | Few | Many |
+| Confirmation | Single authority | Several independent outlets |
+
+An incident that combines both is marked with how many independent sources support it. Confirmation increases when a second source agrees, and the incident links to every original source.
+
+## Timing
+
+Feeds usually come first for phenomena they cover, and news follows with effects. For other event types, news is the only signal. The platform therefore does not wait for a feed before alerting, and does not require news before alerting on a feed record that crosses a configured threshold at a nearby asset. Rules decide, and the rule set is visible to administrators.
+
+We have not measured detection delay between feeds and news on a labeled set, and we do not publish a figure for it. The analytics pages record the delay per event when both sources exist, so the measurement will accumulate from real use.
+
+## Reduced confidence
+
+Sometimes a component of the pipeline is not available: the language model, the entity linker or a feed. The platform keeps working with the remaining components and marks affected incidents as reduced confidence. The sources page shows the state of each feed. A silent gap would be worse than a visible one.
+
+## Duplicates and updates
+
+A single event produces many records. A weather warning is issued, extended and cancelled. A fire is detected by several passes of a satellite. A news story is updated through the day. The platform keeps one incident and records each change as an update with its time, so that the history is visible and an incident that was cancelled is shown as cancelled and not deleted. Alerts follow a matching rule: an alert that was dismissed or resolved reopens only if the exposure level climbs by the configured number of steps, so that small changes do not bring back a closed item.
+
+## Choosing sources for a decision
+
+A useful habit is to ask what each source in an incident can establish. A feed record establishes that a phenomenon was observed at a time and place. A news report establishes that a named outlet described an effect. Two outlets that cite the same agency establish less than two outlets with their own reporters. The incident page lists every source with its kind and publication time so that this judgment can be made quickly.
+
+## Practical guidance
+
+- Treat feed records as precise about the phenomenon and silent about impact.
+- Treat news as informative about impact and approximate about position.
+- Prefer incidents with more than one independent source for decisions, and open the original sources before acting.
+- Remember what is missing. Weather alerts cover the United States only, and news coverage thins out for small places.
+
+The platform is situational awareness. It is not an official warning service, and an alert is a reason to check with local authorities, not a substitute for doing so.

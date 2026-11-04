@@ -1,0 +1,68 @@
+---
+title: "Exposure scoring: distance, uncertainty, and asset criticality"
+summary: "How an incident and an asset are combined into a score, what each component means, and why the components are stored with the result."
+date: "2026-11-02"
+tags: ["Exposure", "Alerts"]
+---
+
+An incident is only useful to an organization if it can be connected to the organization's own sites. Exposure scoring is the step that connects them. It answers a narrow question: given this incident, how much attention does this asset deserve?
+
+The score is not a prediction of damage. It is a way of ordering attention, built from components that a person can inspect.
+
+## The components
+
+For each incident and each asset the platform computes a set of factors and multiplies them.
+
+- **Type weight.** Some incident types are more likely to affect a site than others. A fire at a neighboring industrial plant matters more than a labor action on the other side of a city.
+- **Severity weight.** Incidents have a level from 1 to 4, and the weight rises with the level.
+- **Proximity.** A function of the distance between the asset and the incident (explained below).
+- **Location confidence.** How sure the platform is about where the incident is.
+- **Source reliability.** Feeds from official agencies carry more weight than a single news report.
+- **Recency.** Older incidents fade. The half-life is short for fast phenomena and longer for slow ones.
+- **Criticality.** The asset's importance as rated by its owner, from low to high.
+
+The product is limited to a maximum of one, and then mapped to a level.
+
+## Proximity and uncertainty
+
+Distance is the intuitive component and the subtle one. It is measured by the database with geographic functions, so polygons, lines and points all work. A route stored as a line is measured to its nearest point, and a site inside a weather alert polygon has a distance of zero.
+
+The key idea is that distance is measured to the edge of the incident's uncertainty region, not to its center. An incident located at city level carries a radius of about 25 km. An asset 20 km from the city center is inside that region, so its proximity factor is one. An asset 60 km away is 35 km outside it, and its factor falls with the extra distance at a rate that depends on the incident type.
+
+Two consequences follow.
+
+1. **A vaguer location raises exposure for nearby assets.** If you do not know where an incident is within a city, every site in the city is exposed to it.
+2. **A precise location lowers exposure for assets just outside it.** A satellite fire detection with a small radius does not implicate a site 30 km away.
+
+Country-level incidents are never matched against site assets. Their uncertainty is so large that the result would be noise.
+
+## Criticality
+
+Not every asset is equally important. A distribution center that handles a third of regional volume is not equivalent to a small office. Criticality is set by the asset's owner and multiplies the score, so a moderate incident near a critical asset can outrank a larger incident near a minor one.
+
+Criticality is the most subjective input, so we keep it simple: a small integer scale with factors that administrators can see in the rules configuration. We recommend a review of ratings at least once a year.
+
+## Why store the components
+
+Every exposure record keeps each factor separately, along with the distance and whether the asset was inside the region. There are three reasons.
+
+- **Explanation.** An analyst who asks "why is this alert high?" can see that the incident was severe, the asset was inside the region and its criticality was the highest rating.
+- **Debugging.** When an alert seems wrong, the factor that is out of line is visible.
+- **Tuning.** Changing a weight is a configuration change with a version, and previous scores remain explainable with the configuration that produced them.
+
+## From score to alert
+
+A score is not an alert. Alert rules decide, and the rules use more than the score: incident type, level, status and whether the incident is confirmed. Rules also respect quiet hours, maintenance windows and de-duplication, so that an incident that changes ten times does not produce ten messages. A language model may help summarize an incident in a briefing, but it never decides whether to alert.
+
+## What the scores do and do not mean
+
+We tested scoring against 400 synthetic scenarios with 30 assets each, using true radii that were independent of the scoring parameters. At the lowest alert level recall was 0.93 and precision 0.38. At the medium level the figures were 0.61 and 0.46. At the highest level recall dropped to 0.23 with precision of 0.49.
+
+Those figures show a trade. Lower thresholds catch more of the assets that are truly near an event and also raise more alerts that turn out to be unnecessary. We do not claim to have found the right operating point for every organization. The threshold is a setting that each organization should choose according to what a missed event costs compared with an extra review.
+
+## Using scores well
+
+- Start with a threshold that matches your capacity to review alerts, and adjust after a month of use.
+- Rate criticality honestly. If everything is critical, nothing is.
+- Prefer a precise location for sites. Each asset has its own location uncertainty, which is shown beside the distance, and a rough site position weakens every score that uses it.
+- Treat the level as a way to order work, and open the evidence before acting on it.

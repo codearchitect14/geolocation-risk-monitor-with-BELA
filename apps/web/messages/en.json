@@ -1,0 +1,35 @@
+{
+  "utility": { "support": "Support", "status": "Status", "developers": "Developers", "language": "Language" },
+  "nav": {
+    "platform": "Platform",
+    "solutions": "Solutions",
+    "industries": "Industries",
+    "resources": "Resources",
+    "pricing": "Pricing",
+    "company": "Company",
+    "login": "Log in",
+    "demo": "Request a demo",
+    "menu": "Menu",
+    "close": "Close"
+  },
+  "footer": {
+    "newsletter": "Insights by email",
+    "newsletterHint": "Occasional articles on place linking and disruption monitoring.",
+    "email": "Email address",
+    "subscribe": "Subscribe",
+    "subscribed": "Check your inbox to confirm the subscription.",
+    "legal": "Legal",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "cookies": "Cookies",
+    "copyright": "All rights reserved.",
+    "credits": "Data sources: USGS, National Weather Service, NASA FIRMS, GDELT, Wikidata, GeoNames, Natural Earth.",
+    "disclaimer": "Signals are situational awareness and not official warnings. Follow local authorities."
+  },
+  "cookie": {
+    "text": "This site uses only essential storage. No analytics or advertising cookies are set.",
+    "learn": "Cookie policy",
+    "ok": "Understood"
+  },
+  "common": { "skip": "Skip to main content", "learnMore": "Learn more", "readMore": "Read article" }
+}

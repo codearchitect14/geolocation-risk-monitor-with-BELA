@@ -43,7 +43,10 @@ class DemoRequest(BaseModel):
     name: str = Field(min_length=1, max_length=100)
     email: EmailStr
     company: str | None = Field(default=None, max_length=150)
+    role: str | None = Field(default=None, max_length=100)
+    industry: str | None = Field(default=None, max_length=100)
     message: str | None = Field(default=None, max_length=2000)
+    consent: bool = Field(default=False, description="Agreement to be contacted about this request")
     website: str | None = Field(default=None, max_length=200, description="Leave empty")
 
 
@@ -52,13 +55,18 @@ def demo_request(body: DemoRequest, request: Request) -> dict[str, str]:
     ratelimit.check(f"demo:{client_ip(request) or 'unknown'}", 5, 3600, detail="Too many requests. Try again later.")
     if body.website:  # hidden field that people leave empty; accept silently so bots learn nothing
         return {"status": "Thank you. We will be in touch."}
+    if not body.consent:
+        raise ProblemError(422, "Consent to be contacted is required.", code="consent-required")
     with db.system_connection() as conn:
         conn.execute(
-            "INSERT INTO demo_requests (name, email, company, message) VALUES (%s, %s, %s, %s)",
+            """INSERT INTO demo_requests (name, email, company, role, industry, message, consent_at)
+               VALUES (%s, %s, %s, %s, %s, %s, now())""",
             (
                 clean_text(body.name, 100),
                 body.email.lower(),
                 clean_text(body.company or "", 150) or None,
+                clean_text(body.role or "", 100) or None,
+                clean_text(body.industry or "", 100) or None,
                 clean_text(body.message or "", 2000) or None,
             ),
         )

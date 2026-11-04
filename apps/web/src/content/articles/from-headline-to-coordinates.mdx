@@ -1,0 +1,70 @@
+---
+title: "From headline to coordinates: how entity linking locates an event"
+summary: "A walk through the steps that turn the words of a news report into a location with a stated uncertainty."
+date: "2026-10-12"
+tags: ["Place linking", "Pipeline"]
+---
+
+Consider this headline: "Fire at chemical plant forces evacuation near Springfield." Nothing in it is a coordinate. The pipeline has to find the place mentions, decide which place each one means, and then decide which of them describes where the event happened. Those are three separate problems.
+
+## Step 1: find the mentions
+
+The first task is detection: which spans of text are names of places? The platform uses an entity linking model for this step. It reads the article, proposes spans such as "Springfield" and links each span to an entry in Wikidata, a public knowledge base that stores a type and, for places, coordinates.
+
+Detection is where a surprising share of errors originate. In our evaluation, 15.1 percent of the gold place mentions in the test split were not detected at all. Everything downstream depends on this step, so the platform adds a gazetteer fallback for names the model misses.
+
+## Step 2: keep only places
+
+An entity linker links many kinds of entities: people, companies, events and places. A span such as "Washington" may be linked to a person. The type filter checks the Wikidata class of the linked entity and keeps only classes that are places or facilities, such as a city, a port, an airport or an industrial site.
+
+Facilities deserve a note. A report may say "the container terminal at the river mouth", with the terminal named without naming a city. If the entity is in the knowledge base, with coordinates, the facility itself becomes the location, which is more precise than the surrounding city.
+
+## Step 3: route by confidence
+
+Each linked mention has a score. The platform sorts mentions into four routes.
+
+- **Accept** when the score is high and the entity is a place.
+- **Adjudicate** when the score is moderate: a local language model chooses among candidates using the surrounding text, with the article treated as untrusted input.
+- **Fallback** when the linker rejects the span or links it to something that is not a place: the gazetteer proposes candidates by name and alias, and a reranker uses context.
+- **Unresolved** when no candidate is credible.
+
+On the test split, 53.8 percent of mentions end as unresolved. The count includes proposed spans that are not places at all. The route exists to keep such spans, and genuinely unresolvable names, out of the output instead of guessing.
+
+## Step 4: use context to choose
+
+For ambiguous names the platform builds context features: the country and region named in the text, the distance of each candidate to other places in the same article, the population of the candidate, and whether the type fits the event. A learned reranker combines them. The model that adjudicates difficult cases only chooses among stored candidates. It cannot invent a place.
+
+## Step 5: choose the event location
+
+An article rarely contains one place. A report about a fire in Springfield may also mention a hospital in a neighboring town, the state capital and the company headquarters. The event location selector decides which place describes where it happened. It uses:
+
+- position in the text (headline and first sentences carry more weight),
+- specificity (a facility beats a city, a city beats a region),
+- hierarchy consistency (candidates that agree with each other support each other),
+- verbs and prepositions that signal location, such as "in", "near" or "outside".
+
+The selector returns one location, a level, and a confidence. If the best candidate is a country, the event is country-level and is not matched against site assets.
+
+## Step 6: state the uncertainty
+
+Coordinates alone overstate what is known. A report that names a city means "somewhere in this city". The platform stores an uncertainty radius for every event, based on the level of the location: a facility has a small radius, a city has a larger one, a region larger still. For hazard feeds with their own geometry, such as weather alert polygons or earthquake epicenters, the feed geometry is used.
+
+The uncertainty radius is drawn on the map and used in exposure scoring. An asset inside the radius is treated differently from an asset outside it, and distance is measured to the edge of the region, not to its center.
+
+## Step 7: store the result
+
+Linking and location run once, when an article arrives. The result is stored with the evidence: the spans, the candidates, the chosen entity and the reason. Alerts read the stored result, so a later change in a model does not silently rewrite history, and an analyst can open an incident and see which words produced the location.
+
+## What this means in practice
+
+Three properties follow from the design.
+
+- **The location can be audited.** Every incident links to its sources, and the highlighted spans show how the position was derived.
+- **Errors are bounded by design.** Unresolved mentions and country-level reports do not turn into pins.
+- **The system has known weak spots.** Short local names, transliterated names and places that are missing from the knowledge base are handled less well, which is why the [methodology page](/methodology) lists failure categories beside the headline figures.
+
+## An example of the output
+
+For the headline at the top of this article, a stored result might read: mention "Springfield" linked to a city in Illinois with a confidence of 0.81, because the article also names a county and a river in that state; event location level city; uncertainty 25 km; two other candidates retained with their scores. The numbers differ for every article, but the shape is constant: a choice, a level, a radius and the alternatives that were not chosen.
+
+The approach does not remove the need for human review. It reduces the time to reach the point where a person can review: the incident, the nearby assets and the evidence are already together.

@@ -1,0 +1,35 @@
+{
+  "utility": { "support": "Support", "status": "Status", "developers": "Entwickler", "language": "Sprache" },
+  "nav": {
+    "platform": "Plattform",
+    "solutions": "Lösungen",
+    "industries": "Branchen",
+    "resources": "Ressourcen",
+    "pricing": "Preise",
+    "company": "Unternehmen",
+    "login": "Anmelden",
+    "demo": "Demo anfragen",
+    "menu": "Menü",
+    "close": "Schließen"
+  },
+  "footer": {
+    "newsletter": "Neuigkeiten per E-Mail",
+    "newsletterHint": "Gelegentliche Beiträge zur Ortsverknüpfung und Störungsbeobachtung.",
+    "email": "E-Mail-Adresse",
+    "subscribe": "Abonnieren",
+    "subscribed": "Bitte bestätigen Sie das Abonnement über die E-Mail in Ihrem Posteingang.",
+    "legal": "Rechtliches",
+    "privacy": "Datenschutz",
+    "terms": "Bedingungen",
+    "cookies": "Cookies",
+    "copyright": "Alle Rechte vorbehalten.",
+    "credits": "Datenquellen: USGS, National Weather Service, NASA FIRMS, GDELT, Wikidata, GeoNames, Natural Earth.",
+    "disclaimer": "Signale dienen dem Lagebewusstsein und sind keine amtlichen Warnungen. Befolgen Sie die Hinweise der örtlichen Behörden."
+  },
+  "cookie": {
+    "text": "Diese Website verwendet nur technisch notwendigen Speicher. Es werden keine Analyse- oder Werbe-Cookies gesetzt.",
+    "learn": "Cookie-Richtlinie",
+    "ok": "Verstanden"
+  },
+  "common": { "skip": "Zum Hauptinhalt springen", "learnMore": "Mehr erfahren", "readMore": "Beitrag lesen" }
+}

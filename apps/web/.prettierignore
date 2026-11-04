@@ -1,0 +1,8 @@
+.next
+node_modules
+public/images
+reports
+*.mdx
+public
+reports
+next-env.d.ts

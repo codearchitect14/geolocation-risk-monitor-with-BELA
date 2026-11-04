@@ -89,3 +89,12 @@ per-user switch; the browser used for map images is Chromium run with its defaul
 | Rollups skip synthetic tenants; loader deletes only tenants it created | `services/rollups.py`, `business/loader.py` | `test_analytics_api.py`, `test_business_data.py` |
 
 Not done in this phase: the analytics cache is per process; the forecast and metric definitions have not been reviewed by a finance specialist.
+
+## Marketing site endpoints (phase 8)
+
+- `POST /newsletter/subscribe` and `POST /contact/demo-request` are unauthenticated and rate limited per address (five per hour). The newsletter answers
+  identically for new, pending and confirmed addresses, so it cannot be used to learn who subscribed. Confirmation uses a random token stored hashed.
+  The demo request requires explicit consent and keeps a honeypot field.
+- `GET /public/stats` returns counts only (places, incidents in 30 days, source records by kind) and is cached for five minutes. It reads no tenant data.
+- The web server sends a strict Content Security Policy, `X-Frame-Options: DENY`, `nosniff`, a referrer policy and a permissions policy. Scripts run
+  from the web origin only; `'unsafe-inline'` remains in `script-src` for the framework bootstrap until phase 9 adds nonces.

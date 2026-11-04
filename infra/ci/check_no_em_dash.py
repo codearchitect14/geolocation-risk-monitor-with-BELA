@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 EM_DASH = chr(0x2014)
-SKIP_DIRS = {".git", ".venv", "node_modules", "__pycache__", ".mypy_cache", ".ruff_cache"}
+SKIP_DIRS = {".git", ".venv", "node_modules", ".next", "__pycache__", ".mypy_cache", ".ruff_cache"}
 SKIP_PREFIXES = (("data", "raw"), ("data", "processed"))
 TEXT_SUFFIXES = {
     ".py",

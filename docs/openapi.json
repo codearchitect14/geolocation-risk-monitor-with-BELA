@@ -586,6 +586,19 @@
     "title": "CommitBody",
     "type": "object"
    },
+   "ConfirmBody": {
+    "properties": {
+     "token": {
+      "title": "Token",
+      "type": "string"
+     }
+    },
+    "required": [
+     "token"
+    ],
+    "title": "ConfirmBody",
+    "type": "object"
+   },
    "CorrectionBody": {
     "properties": {
      "consent_for_gold": {
@@ -694,10 +707,28 @@
       ],
       "title": "Company"
      },
+     "consent": {
+      "default": false,
+      "description": "Agreement to be contacted about this request",
+      "title": "Consent",
+      "type": "boolean"
+     },
      "email": {
       "format": "email",
       "title": "Email",
       "type": "string"
+     },
+     "industry": {
+      "anyOf": [
+       {
+        "maxLength": 100,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Industry"
      },
      "message": {
       "anyOf": [
@@ -716,6 +747,18 @@
       "minLength": 1,
       "title": "Name",
       "type": "string"
+     },
+     "role": {
+      "anyOf": [
+       {
+        "maxLength": 100,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Role"
      },
      "website": {
       "anyOf": [
@@ -1312,6 +1355,20 @@
      }
     },
     "title": "RulePatch",
+    "type": "object"
+   },
+   "SubscribeBody": {
+    "properties": {
+     "email": {
+      "format": "email",
+      "title": "Email",
+      "type": "string"
+     }
+    },
+    "required": [
+     "email"
+    ],
+    "title": "SubscribeBody",
     "type": "object"
    },
    "TenantCreate": {
@@ -5102,6 +5159,96 @@
     ]
    }
   },
+  "/api/v1/newsletter/confirm": {
+   "post": {
+    "operationId": "confirm_api_v1_newsletter_confirm_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ConfirmBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": {
+          "type": "string"
+         },
+         "title": "Response Confirm Api V1 Newsletter Confirm Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Confirm a newsletter subscription",
+    "tags": [
+     "public"
+    ]
+   }
+  },
+  "/api/v1/newsletter/subscribe": {
+   "post": {
+    "operationId": "subscribe_api_v1_newsletter_subscribe_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SubscribeBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "202": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": {
+          "type": "string"
+         },
+         "title": "Response Subscribe Api V1 Newsletter Subscribe Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Subscribe to the newsletter (confirmation email follows)",
+    "tags": [
+     "public"
+    ]
+   }
+  },
   "/api/v1/places/search": {
    "get": {
     "operationId": "search_places_endpoint_api_v1_places_search_get",
@@ -6973,6 +7120,30 @@
     "summary": "Suspend, reactivate, or close a tenant",
     "tags": [
      "analytics and platform"
+    ]
+   }
+  },
+  "/api/v1/public/stats": {
+   "get": {
+    "description": "Counts only. No tenant data, asset data or event text leaves this endpoint.",
+    "operationId": "public_stats_api_v1_public_stats_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Public Stats Api V1 Public Stats Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Aggregate coverage figures shown on the marketing site",
+    "tags": [
+     "public"
     ]
    }
   },

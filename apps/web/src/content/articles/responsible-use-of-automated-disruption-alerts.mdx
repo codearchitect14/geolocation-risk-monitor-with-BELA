@@ -1,0 +1,77 @@
+---
+title: "Responsible use of automated disruption alerts: verification and official guidance"
+summary: "Automated alerts speed up awareness. They do not replace verification or official warnings. This article describes how to use them safely."
+date: "2026-11-02"
+tags: ["Responsible use", "Security"]
+---
+
+An alert that arrives within minutes of a report can change what a team does with the rest of its day. That is the benefit of automation, and it is also the risk. The faster a message arrives, the less time a person has spent checking it. This article sets out how we think organizations should use automated disruption alerts, and what the platform does to support that use.
+
+## What an alert is
+
+An alert from this platform says that public reports and public data feeds indicate an incident near a registered asset. It carries the sources, the estimated location, the uncertainty of that location and the score that led to it. It does not say that the asset is affected, that anyone is in danger, or that an official body has confirmed anything.
+
+Every alert, map and report carries the same statement: signals are situational awareness derived from public news and public data feeds, they are not official warnings, and recipients should verify with local authorities and follow their guidance.
+
+## Official warnings come first
+
+In an emergency, the instructions of civil protection agencies, emergency services and local authorities take precedence over any commercial information service. Those bodies have information we do not have, such as sensor networks, field teams and legal authority to order an evacuation.
+
+A practical policy for teams:
+
+- Subscribe to official warnings for the places where you operate, and treat them as the source of record.
+- Use the platform to widen awareness, for example to learn of an incident outside your usual channels, and then check with official sources.
+- Never delay an official instruction in order to verify it with an alert.
+
+## Verification
+
+Before acting on an alert, take three steps.
+
+1. **Open the sources.** The incident lists each original report or feed record. Read at least one, and check how recent it is.
+2. **Check the location.** Look at the location level and the uncertainty circle. A city-level location means the incident is somewhere in the city.
+3. **Compare with another channel.** A phone call to a site manager, a local contact, or an official page is better than another automated source.
+
+Incidents supported by more than one independent source are marked as such, and a second source increases confidence. Even then, repeated reports can all trace to a single origin.
+
+## Known limitations
+
+The platform is built on public data and on models, and both have limits that users should know.
+
+- **Coverage is uneven.** News from well-covered regions is dense. For small places, coverage is thin and a lack of reports does not mean that nothing happened.
+- **Weather alerts are United States only.** Other regions rely on news.
+- **Location can be wrong.** In our evaluation, 11.0 percent of place mentions were linked to the wrong place and 15.1 percent were not detected at all.
+- **Models make mistakes.** A language model that helps classify or summarize may misread a report. It never decides alone whether an alert is raised.
+- **Reports can be mistaken or manipulated.** Article text is treated as untrusted input, and no instruction found in an article is followed.
+
+## Design choices that support responsible use
+
+Several design choices are meant to reduce the chance of misuse.
+
+- Unresolved place mentions stay unresolved.
+- Country-level reports do not alert against sites.
+- Dismissing an alert requires a reason, and every status change is recorded in a tamper-evident audit log.
+- Location data for your assets is isolated to your tenant and is never used in platform analytics.
+- Corrections to place links are reviewed by a person, and are used to improve models only with explicit consent.
+
+## Privacy and proportionality
+
+The platform monitors places that organizations register. It does not track people, vehicles or devices, and it should not be used to do so. Reports about private individuals are filtered out when the classifier identifies them. Organizations that use alerts to contact travelers or staff should follow their own privacy obligations and local law.
+
+## Communicating alerts inside an organization
+
+How alerts are forwarded matters as much as how they are produced.
+
+- Keep the disclaimer attached when forwarding.
+- Say who verified what. "Reported by two outlets, not yet confirmed by authorities" is more useful than "confirmed".
+- Record decisions. The audit trail shows who acknowledged an alert and what was done.
+- Review after the event. A short review of alerts that were useful, late or unnecessary improves rules and thresholds.
+
+## Training and drills
+
+Teams that receive alerts should practice with them before they matter. Run a short exercise each quarter using a past incident: who receives the alert, who verifies it, who contacts the site, and who decides. Note how long each step takes and where information was missing. The exercise often shows that the weakest link is a contact list that is out of date, not the alert itself.
+
+It also helps to agree in advance on what the organization will not do on the basis of an alert alone, such as ordering a site closure or telling staff to leave a building without confirmation from the site or from authorities.
+
+## Summary
+
+Use automated alerts to learn sooner, not to decide alone. Check the sources, read the uncertainty, compare with a second channel and follow official guidance. The platform will present its evidence and its limits. Responsibility for the decision stays with the people who make it.

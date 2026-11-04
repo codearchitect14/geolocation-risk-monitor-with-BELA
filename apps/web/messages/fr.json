@@ -1,0 +1,44 @@
+{
+  "utility": {
+    "support": "Assistance",
+    "status": "État",
+    "developers": "Développeurs",
+    "language": "Langue"
+  },
+  "nav": {
+    "platform": "Plateforme",
+    "solutions": "Solutions",
+    "industries": "Secteurs",
+    "resources": "Ressources",
+    "pricing": "Tarifs",
+    "company": "Entreprise",
+    "login": "Se connecter",
+    "demo": "Demander une démonstration",
+    "menu": "Menu",
+    "close": "Fermer"
+  },
+  "footer": {
+    "newsletter": "Actualités par courriel",
+    "newsletterHint": "Articles occasionnels sur la liaison de lieux et la surveillance des perturbations.",
+    "email": "Adresse courriel",
+    "subscribe": "S'abonner",
+    "subscribed": "Consultez votre boîte de réception pour confirmer l'abonnement.",
+    "legal": "Mentions légales",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "cookies": "Cookies",
+    "copyright": "Tous droits réservés.",
+    "credits": "Sources de données : USGS, National Weather Service, NASA FIRMS, GDELT, Wikidata, GeoNames, Natural Earth.",
+    "disclaimer": "Les signaux relèvent de la connaissance de la situation et ne constituent pas des alertes officielles. Suivez les consignes des autorités locales."
+  },
+  "cookie": {
+    "text": "Ce site n'utilise que le stockage essentiel. Aucun cookie d'analyse ou de publicité n'est déposé.",
+    "learn": "Politique relative aux cookies",
+    "ok": "Compris"
+  },
+  "common": {
+    "skip": "Passer au contenu principal",
+    "learnMore": "En savoir plus",
+    "readMore": "Lire l'article"
+  }
+}

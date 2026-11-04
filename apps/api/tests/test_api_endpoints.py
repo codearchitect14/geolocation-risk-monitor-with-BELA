@@ -641,7 +641,8 @@ def test_audit_entries_never_hold_secrets_or_coordinates(
 
 
 def test_demo_request_form(client: Any, world: World, conn: psycopg.Connection[Any]) -> None:
-    body = {"name": "Visitor", "email": "visitor@example.org", "company": "Example Co", "message": "Please contact me."}
+    body = {"name": "Visitor", "email": "visitor@example.org", "company": "Example Co", "message": "Please contact me.", "consent": True}
+    assert client.post(f"{API}/contact/demo-request", json={**body, "consent": False}).status_code == 422
     assert client.post(f"{API}/contact/demo-request", json=body).status_code == 202
     assert conn.execute("SELECT count(*) FROM demo_requests").fetchone() == (1,)
     assert (

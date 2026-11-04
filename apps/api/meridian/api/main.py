@@ -14,6 +14,7 @@ from meridian.api.routers import (
     auth,
     events,
     platform,
+    public,
     reports,
     revenue,
     staged,
@@ -44,7 +45,7 @@ def create_app() -> FastAPI:
     app.add_middleware(SecurityMiddleware)
     errors.install(app)
     v1 = APIRouter(prefix="/api/v1")
-    for module in (auth, staged, assets, zones, events, alerts, reports, admin, platform, revenue, analytics, system):
+    for module in (auth, staged, assets, zones, events, alerts, reports, admin, platform, revenue, analytics, public, system):
         v1.include_router(module.router)
     app.include_router(v1)
     return app

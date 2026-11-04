@@ -1,0 +1,44 @@
+{
+  "utility": {
+    "support": "Soporte",
+    "status": "Estado",
+    "developers": "Desarrolladores",
+    "language": "Idioma"
+  },
+  "nav": {
+    "platform": "Plataforma",
+    "solutions": "Soluciones",
+    "industries": "Sectores",
+    "resources": "Recursos",
+    "pricing": "Precios",
+    "company": "Empresa",
+    "login": "Iniciar sesión",
+    "demo": "Solicitar una demostración",
+    "menu": "Menú",
+    "close": "Cerrar"
+  },
+  "footer": {
+    "newsletter": "Novedades por correo",
+    "newsletterHint": "Artículos ocasionales sobre vinculación de lugares y monitoreo de interrupciones.",
+    "email": "Correo electrónico",
+    "subscribe": "Suscribirse",
+    "subscribed": "Revise su bandeja de entrada para confirmar la suscripción.",
+    "legal": "Legal",
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "cookies": "Cookies",
+    "copyright": "Todos los derechos reservados.",
+    "credits": "Fuentes de datos: USGS, National Weather Service, NASA FIRMS, GDELT, Wikidata, GeoNames, Natural Earth.",
+    "disclaimer": "Las señales son conocimiento de la situación y no avisos oficiales. Siga las indicaciones de las autoridades locales."
+  },
+  "cookie": {
+    "text": "Este sitio utiliza únicamente almacenamiento esencial. No se establecen cookies de análisis ni de publicidad.",
+    "learn": "Política de cookies",
+    "ok": "Entendido"
+  },
+  "common": {
+    "skip": "Saltar al contenido principal",
+    "learnMore": "Más información",
+    "readMore": "Leer el artículo"
+  }
+}

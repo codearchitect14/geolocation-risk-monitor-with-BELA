@@ -1,0 +1,78 @@
+---
+title: "Measuring a geoparsing system: distance error, accuracy at a radius, and false alerts"
+summary: "How to measure place linking honestly: the metrics that matter, how missed mentions should be counted, and why a good headline figure can hide poor behavior."
+date: "2026-10-26"
+tags: ["Evaluation", "Methodology"]
+---
+
+A geoparsing system turns text into locations. Measuring it sounds simple: compare predicted positions to true positions. In practice the choices made in measurement change the result as much as the system does. This article describes the measures we use and the reasons for them.
+
+## Distance error
+
+The most direct measure is the distance between the predicted position and the gold position, in kilometers. It has two nice properties. It treats a near miss differently from a wrong country, and it does not depend on the name of the place.
+
+From the distribution of errors we report:
+
+- **Median error.** The middle value, robust to outliers. For the hybrid system on the test split it is 0.2 km, meaning that when a mention is matched and resolved the typical position is close.
+- **Mean error.** Much larger (514 km), because a few mentions are placed on another continent. The gap between median and mean is itself informative: most results are very good and a minority are very bad.
+- **Error curve area.** The area under the curve of accuracy against distance threshold, in a form where lower is better. It summarizes behavior across all radii at once.
+
+## Accuracy at a radius
+
+Decision makers rarely ask for a median. They ask whether the system finds the right area. Accuracy at a radius gives that answer: the share of mentions placed within a given distance of the truth.
+
+We report two radii.
+
+- **25 km** approximates the right city.
+- **161 km** (100 miles) is a common convention in the geoparsing literature and approximates the right region.
+
+On the test split the hybrid system reaches 58.7 percent within 25 km and 65.8 percent within 161 km across all gold mentions.
+
+## How missed mentions are counted
+
+The most important choice in the whole evaluation is what to do with gold mentions that the system never detected. There are two ways.
+
+1. **Count them as wrong.** The denominator is every gold mention.
+2. **Exclude them.** The denominator is only mentions that the system matched.
+
+Excluding them gives a flattering number. On the test split, accuracy within 161 km is 85.7 percent among matched mentions and 65.8 percent among all mentions. Both are true, and they answer different questions. The first asks how good the system is at resolving what it found. The second asks how often a person reading the output gets the right place. We publish both, label the columns, and base statements about the product on the second.
+
+## Ambiguous names
+
+Averages hide the cases that matter. We therefore report a subset: gold mentions whose name matches at least two places in the knowledge base. On this subset the best gazetteer-only baseline (country and region context, no learned model) reaches 58.6 percent within 161 km, and the hybrid system reaches 69.5 percent. The improvement is 10.9 percentage points.
+
+We do not claim more than that figure. It was measured on public corpora of news and Wikipedia-derived text, in English, with a model that was not trained on the test split. Performance on a particular customer's reports may differ, and varies by corpus: the hybrid system ranges from 59 to 73 percent within 161 km depending on the corpus.
+
+## From mentions to events
+
+A mention is not an event. A product decision depends on the event location, and on whether an alert fires for a given asset. These need their own measures.
+
+- **Event location error.** Distance from the chosen event location to the true event position, which requires labeled events.
+- **Precision and recall of exposure.** Of the alerts raised, how many concerned assets truly near the event, and of the assets near events, how many were alerted.
+- **False alert rate.** The share of alerts that reviewers mark as not relevant.
+- **Location confirmation rate.** The share of reviewed incidents where the reviewer confirms the location. We describe this as a proxy because reviewers are a self-selected sample.
+
+On a synthetic exposure test with 400 scenarios and 30 assets each, alerts at the lowest level had precision of 0.38 and recall of 0.93. At the medium level these became 0.46 and 0.61. Precision is limited by design: a report that names a city carries 25 km of uncertainty, so sites within that distance are flagged for a smaller event. Whether this trade is right depends on how costly a missed event is compared with a false alert, which is a decision for each organization and not a property of the system.
+
+## What we have not measured
+
+Honest evaluation includes a list of what is absent.
+
+- There is no labeled set of real events for event type and severity.
+- Detection delay between hazard feeds and news has not been measured.
+- Location confidence of news events is not calibrated against real events.
+- Performance on languages other than English has not been evaluated.
+
+Until these exist, claims about them would be guesses.
+
+## A checklist
+
+When you read a geoparsing evaluation, check that it states:
+
+1. the corpora and the split, and whether the model saw the test data,
+2. how missed mentions are counted,
+3. the ambiguous subset separately from the whole,
+4. both a median and a threshold accuracy, and the radius used,
+5. the failure categories, not only the successes.
+
+If an evaluation omits these, treat the headline number as marketing and ask for the rest.

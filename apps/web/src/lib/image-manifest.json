@@ -1,0 +1,58 @@
+{
+  "logistics": {
+    "widths": [640, 960, 1440, 2400],
+    "ratio": 0.5625
+  },
+  "manufacturing": {
+    "widths": [640, 960, 1440, 2400],
+    "ratio": 0.5625
+  },
+  "retail": {
+    "widths": [640, 960, 1440, 2400],
+    "ratio": 0.5625
+  },
+  "energy": {
+    "widths": [640, 960, 1440, 2400],
+    "ratio": 0.5625
+  },
+  "insurance": {
+    "widths": [640, 960, 1440, 2400],
+    "ratio": 0.5625
+  },
+  "security-ops": {
+    "widths": [640, 960, 1440, 2400],
+    "ratio": 0.5625
+  },
+  "server-room": {
+    "widths": [640, 960, 1440, 2400],
+    "ratio": 0.5625
+  },
+  "company": {
+    "widths": [640, 960, 1440, 2400],
+    "ratio": 0.5625
+  },
+  "article-ambiguity": {
+    "widths": [640, 960, 1440, 2400],
+    "ratio": 0.5625
+  },
+  "article-linking": {
+    "widths": [640, 960, 1440, 2400],
+    "ratio": 0.5625
+  },
+  "article-feeds": {
+    "widths": [640, 960, 1440, 2400],
+    "ratio": 0.5625
+  },
+  "article-measuring": {
+    "widths": [640, 960, 1440, 2400],
+    "ratio": 0.5625
+  },
+  "article-exposure": {
+    "widths": [640, 960, 1440, 2400],
+    "ratio": 0.5625
+  },
+  "article-responsible": {
+    "widths": [640, 960, 1440, 2400],
+    "ratio": 0.5625
+  }
+}

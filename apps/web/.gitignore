@@ -1,0 +1,10 @@
+node_modules
+.next
+next-env.d.ts
+*.tsbuildinfo
+test-results
+playwright-report
+public/maplibre
+reports/screens
+reports/lighthouse-*.json
+!reports/lighthouse-home.json

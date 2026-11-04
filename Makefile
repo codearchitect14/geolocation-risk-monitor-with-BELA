@@ -215,3 +215,40 @@ eval-train:
 eval:
 	$(APIRUN) -m meridian.eval evaluate
 	$(APIRUN) -m meridian.eval.render_report
+
+# --- Web (phase 8) ---
+.PHONY: web-install web-dev web-build web-start web-check web-e2e web-axe web-quality web-screens web-images web-geo
+WEB := apps/web
+
+web-install:
+	cd $(WEB) && npm ci
+
+web-dev:
+	cd $(WEB) && npm run dev
+
+web-build:
+	cd $(WEB) && npm run build
+
+web-start:
+	cd $(WEB) && npm run start
+
+web-check:
+	cd $(WEB) && npm run lint && npm run typecheck && npm run format:check && npm test
+
+web-e2e:
+	cd $(WEB) && npx playwright test
+
+web-axe:
+	cd $(WEB) && node scripts/axe-report.mjs
+
+web-quality:
+	cd $(WEB) && node scripts/quality.mjs
+
+web-screens:
+	cd $(WEB) && node scripts/screens.mjs
+
+web-images:
+	cd $(WEB) && npm run images
+
+web-geo:
+	$(PY) data/scripts/export_web_geo.py

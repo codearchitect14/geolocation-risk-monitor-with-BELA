@@ -1,0 +1,79 @@
+---
+title: "Why place names break news geocoding"
+summary: "The same name can point to places thousands of kilometers apart. This article shows how the ambiguity problem appears in practice and what it costs."
+date: "2026-10-05"
+tags: ["Place linking", "Methodology"]
+---
+
+A news report says that a fire broke out at a plant in Springfield. Which Springfield? The United States alone has dozens of places with that name, in many different states. A system that picks the most populous match will be right some of the time and wrong in a way that is hard to notice, because the wrong answer is still a real place with real coordinates.
+
+This is the central difficulty in turning text into locations. It is called toponym resolution, and it is harder than it looks because the signal that a human reader uses to decide is rarely in the name itself.
+
+## One name, many places
+
+Place names are reused. Settlers, administrators and mapmakers have carried names across oceans for centuries. Alexandria is a city in Egypt, in Virginia, in Louisiana and in Romania. Birmingham is in England and in Alabama. Mansfield, Arlington and Washington appear in many states and countries.
+
+The effect on a monitoring system is direct. If a report about Alexandria, Louisiana is placed in Egypt, an alert may be raised for a warehouse that is nowhere near the event, and a warehouse that is near it may receive nothing. Both errors cost trust.
+
+In the evaluation that we publish on the [methodology page](/methodology), 2,969 of the 6,466 place mentions in the test split (46 percent) match two or more places in the gazetteer. Nearly half of what a geoparser sees is ambiguous by construction.
+
+## Why the simple answer fails
+
+The simplest strategy is to choose the largest matching place. It works for well-known cities and fails for everything else. In our test split, choosing the largest matching GeoNames place located 43.8 percent of mentions within 161 km of the correct position. On the ambiguous subset it reached 45.2 percent.
+
+A second strategy adds context. If the report also mentions a state or a country, restrict the candidates to that region. This helps considerably: on the ambiguous subset it reached 58.6 percent. But it depends on the author writing the qualifier, and local reports frequently do not. A regional outlet writes "Springfield" because its readers know which one.
+
+## How readers resolve ambiguity
+
+People use many cues at once.
+
+- **Explicit qualifiers.** "Springfield, Illinois" settles the question.
+- **Nearby places.** A report that mentions the Sangamon River and Decatur is about the Springfield in Illinois.
+- **The outlet.** A local newspaper is usually writing about its own area.
+- **Typical meaning.** Without other cues, a reader assumes the best-known place.
+- **Plausibility.** A plant fire is reported near industrial land, not in a national park.
+
+An automated system can use the first four directly. It can use the fifth only if the place has a type, such as port, airport or industrial site, and the event has a type that fits.
+
+## Where errors come from
+
+We list the failure categories of the hybrid system on the test split, because the distribution shows where effort should go.
+
+| Outcome | Share of gold mentions |
+|---|---:|
+| Located within 25 km | 58.7% |
+| Mention not detected as a place | 15.1% |
+| Located at the wrong place | 11.0% |
+| Detected but not resolved | 8.1% |
+| Located within 161 km but not 25 km | 7.1% |
+
+Two points follow from this table. First, a large share of failures is not a ranking problem: the system never recognized the text as a place. Second, wrong placements are a minority, but they are the dangerous ones, because they look like successes. A mention that stays unresolved is visible. A mention placed in the wrong country is not.
+
+## The design response
+
+For that reason the platform follows three rules.
+
+1. **Unresolved stays unresolved.** A mention that cannot be linked is never placed silently on the map.
+2. **Precision is stated.** Every event location carries a level (facility, city, region, country) and an uncertainty radius, so a country-level report is not drawn as a pin.
+3. **Country-level reports do not alert against sites.** A broad report cannot say whether a particular warehouse is affected, so the platform does not pretend that it can.
+
+These rules lower recall. They also keep errors visible, which matters more when the output feeds decisions.
+
+## What to ask of any geocoding system
+
+When you evaluate a vendor or a model, ask four questions.
+
+1. What share of the test set is ambiguous, and how does accuracy change on that subset alone?
+2. How is a missed mention counted: as an error, or silently excluded?
+3. What happens to mentions that cannot be resolved?
+4. Is the reported error a distance, and at which radius?
+
+A system that reports a single accuracy figure on easy examples tells you little about how it will behave on the names that matter to you.
+
+## A short example
+
+Suppose a regional outlet writes, "Crews are working to restore power after the storm in Springfield." A gazetteer lookup returns every Springfield. A population rule returns the largest. A context rule looks for a state or a country in the same article and finds none. A reader who knows the outlet would answer at once, but the text alone does not contain the answer.
+
+The practical options are to ask for more evidence, to widen the stated uncertainty, or to leave the mention unresolved. The platform uses all three, in that order, and the choice is recorded with the incident so that an analyst can see why a location is as precise as it is.
+
+The next article in this series, [From headline to coordinates](/resources/from-headline-to-coordinates), follows a single report through the steps that turn its words into a location.

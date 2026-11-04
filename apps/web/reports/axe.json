@@ -1,0 +1,316 @@
+{
+ "generated": "2026-11-03T16:53:28.831Z",
+ "base": "http://localhost:3000",
+ "results": [
+  {
+   "route": "/",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/platform",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/pricing",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/security",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/developers",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/methodology",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/resources",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/company",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/contact",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/solutions/logistics-control-tower",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/solutions/corporate-security",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/solutions/travel-risk",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/solutions/insurance-exposure",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/industries/logistics-shipping",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/industries/manufacturing",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/industries/retail-consumer-goods",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/industries/energy-utilities",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/industries/insurance",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/industries/corporate-security",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/resources/why-place-names-break-news-geocoding",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/resources/from-headline-to-coordinates",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/resources/news-and-hazard-feeds-together",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/resources/measuring-a-geoparsing-system",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/resources/exposure-scoring",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/resources/responsible-use-of-automated-disruption-alerts",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/legal/privacy",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/legal/terms",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/legal/cookies",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/login",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/forgot-password",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/reset-password?token=x",
+   "width": 375,
+   "violations": []
+  },
+  {
+   "route": "/",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/platform",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/pricing",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/security",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/developers",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/methodology",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/resources",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/company",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/contact",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/solutions/logistics-control-tower",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/solutions/corporate-security",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/solutions/travel-risk",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/solutions/insurance-exposure",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/industries/logistics-shipping",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/industries/manufacturing",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/industries/retail-consumer-goods",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/industries/energy-utilities",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/industries/insurance",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/industries/corporate-security",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/resources/why-place-names-break-news-geocoding",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/resources/from-headline-to-coordinates",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/resources/news-and-hazard-feeds-together",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/resources/measuring-a-geoparsing-system",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/resources/exposure-scoring",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/resources/responsible-use-of-automated-disruption-alerts",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/legal/privacy",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/legal/terms",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/legal/cookies",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/login",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/forgot-password",
+   "width": 1440,
+   "violations": []
+  },
+  {
+   "route": "/reset-password?token=x",
+   "width": 1440,
+   "violations": []
+  }
+ ]
+}
