@@ -159,6 +159,14 @@ def load(conn: psycopg.Connection[Any], min_natural_sitelinks: int = 3) -> dict[
     return {"wikidata_validated": validated, "wikidata_places": count, "wikidata_names": name_count}
 
 
+def stage_empty(conn: psycopg.Connection[Any]) -> None:
+    """Empty staging tables, for builds without the Wikidata subset (the demo knowledge base)."""
+    with etl_step(conn, "stage_wikidata") as stats:
+        with conn.cursor() as cur:
+            cur.execute(STAGING_DDL)
+        stats["skipped"] = 1
+
+
 def run(conn: psycopg.Connection[Any], **kwargs: Any) -> None:
     with etl_step(conn, "stage_wikidata") as stats:
         stats.update(load(conn, **kwargs))

@@ -129,6 +129,7 @@ def load(
     languages: frozenset[str] = DEFAULT_LANGUAGES,
     places_file: str = "allCountries.txt",
     include_minor_facilities: bool = False,
+    alternates_file: str | None = "alternateNamesV2.txt",
 ) -> dict[str, int]:
     root = geonames_dir()
     with conn.cursor() as cur:
@@ -156,9 +157,9 @@ def load(
     with conn.cursor() as cur:
         cur.execute("SELECT geonameid FROM stg_geonames")
         wanted = {int(row[0]) for row in cur.fetchall()}
-    alternates = root / "alternateNamesV2.txt"
+    alternates = root / (alternates_file or "")
     alt_count = 0
-    if alternates.exists():
+    if alternates_file and alternates.exists():
         with alternates.open(encoding="utf-8") as handle:
             alt_count = copy_rows(
                 conn,

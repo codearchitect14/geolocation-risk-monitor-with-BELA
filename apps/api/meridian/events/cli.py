@@ -18,6 +18,7 @@ from meridian.events.config import load_events_config
 from meridian.events.normalizers.nws import ZoneResolver
 
 DEMO_SLUG = "illustrative-demo"
+ROOT_SEED = Path(__file__).resolve().parents[4] / "data" / "seed" / "replays"
 
 
 def raw_files(kind: str, pattern: str) -> list[Path]:
@@ -133,6 +134,12 @@ def main(argv: list[str] | None = None) -> int:
     replay.add_argument("--limit", type=int, default=150)
     replay.add_argument("--seed", type=int, default=3)
     replay.add_argument("--no-llm-linking", action="store_true")
+    replay = sub.add_parser("replay", help="accelerated replay of recorded hazard feed records (the demonstration)")
+    replay.add_argument("--file", type=Path, default=ROOT_SEED / "usgs_earthquakes.jsonl")
+    replay.add_argument("--speed", type=float, default=3600.0, help="real time divided by this gives the wait between records")
+    replay.add_argument("--max-wait", type=float, default=2.0, help="longest wait between two records, in seconds")
+    replay.add_argument("--preload", type=float, default=0.7, help="share of the oldest records loaded at once as history")
+    replay.add_argument("--limit", type=int)
     sub.add_parser("report")
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
@@ -155,6 +162,24 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "update-status":
             print(json.dumps(status.refresh_all(conn, cfg, dt.datetime.now(dt.UTC))))
             conn.commit()
+            return 0
+        elif args.command == "replay":
+            from meridian.events import replay as replay_module
+
+            print(
+                json.dumps(
+                    replay_module.run(
+                        conn,
+                        cfg,
+                        args.file,
+                        speed=args.speed,
+                        max_wait=args.max_wait,
+                        preload=args.preload,
+                        limit=args.limit,
+                    ),
+                    indent=2,
+                )
+            )
             return 0
         elif args.command == "demo-tenant":
             print(json.dumps(demo_tenant(conn, args.assets, args.seed)))

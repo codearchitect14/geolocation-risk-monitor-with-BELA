@@ -77,6 +77,21 @@ test.describe("tenant application", () => {
     await expect(page.getByRole("heading", { name: "Evidence and sources" })).toBeVisible();
   });
 
+  test("incident list and map load once, without a request loop", async ({ page }) => {
+    await signIn(page, MANAGER);
+    for (const route of ["/app/incidents", "/app/map?window=30d"]) {
+      let requests = 0;
+      const count = (r: { url(): string }) => {
+        if (r.url().includes("/api/v1/events?")) requests += 1;
+      };
+      page.on("request", count);
+      await page.goto(route);
+      await page.waitForTimeout(3000);
+      page.off("request", count);
+      expect(requests, `${route} requested /events ${requests} times in 3 seconds`).toBeLessThanOrEqual(3);
+    }
+  });
+
   test("manager acknowledges an alert with the keyboard", async ({ page }) => {
     await signIn(page, MANAGER);
     await page.goto("/app/alerts");

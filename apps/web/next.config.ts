@@ -20,6 +20,8 @@ const csp = [
 ].join("; ");
 
 const config: NextConfig = {
+  // The container image builds a self-contained server (NEXT_OUTPUT=standalone); local runs use `next start`.
+  output: process.env.NEXT_OUTPUT === "standalone" ? "standalone" : undefined,
   poweredByHeader: false,
   reactStrictMode: true,
   images: { formats: ["image/avif", "image/webp"], deviceSizes: [640, 768, 1024, 1280, 1536, 1920] },

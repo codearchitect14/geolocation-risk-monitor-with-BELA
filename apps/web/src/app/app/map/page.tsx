@@ -67,9 +67,11 @@ function MapPage() {
     [router, sp],
   );
 
-  const sinceMs =
-    win === "custom" && from ? new Date(from).getTime() : Date.now() - (DAYS[win] ?? 7) * 86_400_000;
-  const untilMs = win === "custom" && to ? new Date(to).getTime() + 86_400_000 : Date.now();
+  // "Now" is fixed per window choice. Reading the clock on every render would change the request address each time and
+  // refetch without end.
+  const nowMs = useMemo(() => Date.now(), [win, from, to]); // eslint-disable-line react-hooks/exhaustive-deps
+  const sinceMs = win === "custom" && from ? new Date(from).getTime() : nowMs - (DAYS[win] ?? 7) * 86_400_000;
+  const untilMs = win === "custom" && to ? new Date(to).getTime() + 86_400_000 : nowMs;
   const path = `/events${qs({
     type: get("type"),
     min_severity: get("sev"),

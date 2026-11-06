@@ -1,0 +1,181 @@
+# Production-style stack: Caddy (TLS) in front of the web application and the API, with PostgreSQL and Valkey on a private network.
+#
+#   cp infra/compose/.env.prod.example infra/compose/.env.prod      # fill in every value
+#   docker compose -f infra/compose/docker-compose.prod.yml --env-file infra/compose/.env.prod up -d --build
+#
+# Not run on the development machine (Docker is not installed there): the file is checked for structure only. Build and test it
+# before relying on it. Resource limits are starting points sized for a small deployment; measure and adjust (docs/perf.md).
+name: meridian
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+    compress: "true"
+
+x-hardening: &hardening
+  security_opt: ["no-new-privileges:true"]
+  cap_drop: ["ALL"]
+  restart: unless-stopped
+  logging: *logging
+
+services:
+  postgres:
+    <<: *hardening
+    build:
+      context: ../..
+      dockerfile: infra/postgres/Dockerfile
+    environment:
+      POSTGRES_USER: meridian
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: meridian
+    command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements", "-c", "max_connections=120", "-c", "shared_buffers=1GB", "-c", "effective_cache_size=3GB", "-c", "log_min_duration_statement=500"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks: [backend]
+    cap_drop: []   # the image's entrypoint needs its usual capabilities to prepare the data directory
+    security_opt: []
+    deploy:
+      resources:
+        limits: {cpus: "2.0", memory: 4G}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U meridian -d meridian"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  valkey:
+    <<: *hardening
+    image: valkey/valkey:8-alpine
+    command: ["valkey-server", "--save", "", "--appendonly", "no", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
+    networks: [backend]
+    read_only: true
+    deploy:
+      resources:
+        limits: {cpus: "0.5", memory: 192M}
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  migrate:
+    <<: *hardening
+    restart: "no"
+    build:
+      context: ../..
+      dockerfile: infra/docker/api.Dockerfile
+    working_dir: /app/apps/api
+    command: ["alembic", "upgrade", "head"]
+    environment: &api-env
+      MS_ENV: production
+      DATABASE_URL: postgresql+psycopg://meridian:${POSTGRES_PASSWORD}@postgres:5432/meridian
+      MS_SECRET_KEY: ${MS_SECRET_KEY:?set MS_SECRET_KEY}
+      MS_JWT_PRIVATE_KEY: ${MS_JWT_PRIVATE_KEY:?set MS_JWT_PRIVATE_KEY}
+      MS_VALKEY_URL: redis://valkey:6379/0
+      MS_TRUST_PROXY: "true"
+      MS_PUBLIC_URL: https://${SITE_ADDRESS:?set SITE_ADDRESS}
+      MS_SMTP_HOST: ${MS_SMTP_HOST:-}
+      MS_SMTP_PORT: ${MS_SMTP_PORT:-587}
+      MS_MAIL_FROM: ${MS_MAIL_FROM:-no-reply@localhost}
+      MS_DB_POOL_MAX: "20"
+    networks: [backend]
+    depends_on:
+      postgres: {condition: service_healthy}
+    deploy:
+      resources:
+        limits: {cpus: "1.0", memory: 512M}
+
+  api:
+    <<: *hardening
+    build:
+      context: ../..
+      dockerfile: infra/docker/api.Dockerfile
+    environment: *api-env
+    networks: [backend, edge]
+    read_only: true
+    tmpfs: ["/tmp"]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      valkey: {condition: service_healthy}
+    deploy:
+      resources:
+        limits: {cpus: "2.0", memory: 1536M}
+
+  worker:
+    <<: *hardening
+    build:
+      context: ../..
+      dockerfile: infra/docker/api.Dockerfile
+    command: ["python", "-m", "meridian.api.worker"]
+    environment: *api-env
+    networks: [backend]
+    read_only: true
+    tmpfs: ["/tmp"]
+    healthcheck:
+      disable: true   # the worker has no port; a stalled loop shows as missing log lines (docs/runbook.md)
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    deploy:
+      resources:
+        limits: {cpus: "1.0", memory: 768M}
+
+  web:
+    <<: *hardening
+    build:
+      context: ../..
+      dockerfile: infra/docker/web.Dockerfile
+      args:
+        MS_API_URL: http://api:8090
+        NEXT_PUBLIC_SITE_URL: https://${SITE_ADDRESS:?set SITE_ADDRESS}
+        NEXT_PUBLIC_DEMO_MODE: ${DEMO_MODE:-}
+        NEXT_PUBLIC_DEMO_VIEWER: ${DEMO_VIEWER:-}
+    networks: [edge]
+    read_only: true
+    tmpfs: ["/tmp", "/app/.next/cache"]
+    depends_on:
+      api: {condition: service_healthy}
+    deploy:
+      resources:
+        limits: {cpus: "1.0", memory: 768M}
+
+  caddy:
+    <<: *hardening
+    image: caddy:2-alpine
+    cap_drop: ["ALL"]
+    cap_add: ["NET_BIND_SERVICE"]
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+      - caddy_logs:/var/log/caddy
+    networks: [edge]
+    depends_on:
+      web: {condition: service_healthy}
+    deploy:
+      resources:
+        limits: {cpus: "1.0", memory: 256M}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:2019/config/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+networks:
+  backend:
+    internal: true
+  edge: {}
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:
+  caddy_logs:

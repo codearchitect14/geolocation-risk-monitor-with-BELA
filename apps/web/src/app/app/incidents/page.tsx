@@ -27,9 +27,14 @@ export default function Incidents() {
     q: "",
   });
   const [open, setOpen] = useState<EventItem | null>(null);
-  const since = WINDOWS[f.window as string]
-    ? new Date(Date.now() - (WINDOWS[f.window as string] as number) * 86_400_000).toISOString()
-    : undefined;
+  // Fixed per window choice: reading the clock on every render would change the request address and refetch without end.
+  const since = useMemo(
+    () =>
+      WINDOWS[f.window as string]
+        ? new Date(Date.now() - (WINDOWS[f.window as string] as number) * 86_400_000).toISOString()
+        : undefined,
+    [f.window],
+  );
   const path = `/events${qs({ type: f.type, min_severity: f.severity, status: f.status, confirmation: f.confirmation, since, limit: 200 })}`;
   const res = useApi<{ items: EventItem[] }>(path);
   const rows = useMemo(() => {

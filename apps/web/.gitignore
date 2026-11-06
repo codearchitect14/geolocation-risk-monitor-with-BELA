@@ -8,3 +8,4 @@ public/maplibre
 reports/screens
 reports/lighthouse-*.json
 !reports/lighthouse-home.json
+reports/screenshots

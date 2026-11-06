@@ -291,3 +291,33 @@ scans:
 	cd apps/web && npm audit --omit=dev
 	gitleaks detect --source . --no-banner -c .gitleaks.toml
 	trivy fs --scanners vuln,secret,misconfig --severity HIGH,CRITICAL --skip-dirs node_modules,.venv,.next,.local,data/raw .
+
+# --- Demonstration and replay (phase 11) ---
+.PHONY: demo demo-down demo-status demo-reset demo-rotate replay replay-seed
+demo:
+	scripts/demo.sh up
+
+demo-down:
+	scripts/demo.sh down
+
+demo-status:
+	scripts/demo.sh status
+
+demo-reset:
+	scripts/demo.sh reset
+
+demo-rotate:
+	$(APIRUN) -m meridian.demo seed --rotate --accounts-only
+
+# Accelerated replay of the recorded earthquake feed against the running demo. SPEED divides the real gaps between records.
+replay:
+	$(APIRUN) -m meridian.events replay --speed $(or $(SPEED),1800) --preload $(or $(PRELOAD),0.7)
+
+# Rebuild the committed replay seed from harvested USGS records (needs data/raw/hazards/usgs).
+replay-seed:
+	$(PY) data/scripts/build_replay_seed.py
+
+# Screenshots of the marketing site and, with DEMO_EMAIL and DEMO_PASSWORD set, of the product (needs `make demo` running).
+.PHONY: screenshots
+screenshots:
+	cd $(WEB) && node scripts/capture-screenshots.mjs

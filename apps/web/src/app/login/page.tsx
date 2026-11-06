@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { AuthLayout } from "@/components/auth/auth-layout";
 import { pageMeta } from "@/lib/seo";
+import { DemoAccess } from "./demo-access";
 import { LoginFlow } from "./login-flow";
 
 export const metadata = {
@@ -11,6 +12,7 @@ export const metadata = {
 export default function LoginPage() {
   return (
     <AuthLayout title="Log in" intro="Sign in to see incidents and alerts for your sites.">
+      <DemoAccess />
       <Suspense>
         <LoginFlow />
       </Suspense>

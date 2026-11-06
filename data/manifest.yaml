@@ -41,7 +41,7 @@ sources:
   attribution: GeoNames (geonames.org)
   redistribution: Allowed with attribution
   notes: No published checksums; the first verified download is recorded.
-  retrieved_at: '2026-10-30T13:00:02Z'
+  retrieved_at: '2026-11-06T16:05:51Z'
   files:
   - path: raw/gazetteer/geonames/admin1CodesASCII.txt
     url: https://download.geonames.org/export/dump/admin1CodesASCII.txt
@@ -89,7 +89,7 @@ sources:
   attribution: Made with Natural Earth
   redistribution: Allowed
   notes: GeoJSON for admin-1 omits type_en, valid_from, valid_to (GADM dependent columns).
-  retrieved_at: '2026-10-30T12:25:24Z'
+  retrieved_at: '2026-11-06T16:05:52Z'
   files:
   - path: raw/boundaries/natural_earth/ne_10m_admin_0_countries/ne_10m_admin_0_countries.geojson
     url: null

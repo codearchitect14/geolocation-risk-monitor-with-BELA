@@ -46,6 +46,11 @@ def main(argv: list[str] | None = None) -> int:
     build = sub.choices["build"]
     build.add_argument("--min-population", type=int, default=1000)
     build.add_argument("--force", action="store_true", help="rebuild even if dependent tables hold data")
+    build.add_argument(
+        "--demo",
+        action="store_true",
+        help="small knowledge base for the demo: GeoNames cities of 15,000 people or more, no aliases, no Wikidata subset",
+    )
     sub.choices["merge"].add_argument("--force", action="store_true")
     enrich = sub.add_parser("enrich", help="add missing Wikidata places for the QIDs BELA proposes")
     enrich.add_argument("--nel-cache", required=True, help="JSONL cache written by meridian.eval cache-nel")
@@ -64,13 +69,18 @@ def main(argv: list[str] | None = None) -> int:
         if command in ("reference", "build"):
             reference.run(conn)
         if command in ("stage-geonames", "build"):
+            demo = bool(getattr(args, "demo", False))
             geonames.run(
                 conn,
-                min_population=args.min_population,
+                min_population=15000 if demo else args.min_population,
                 include_minor_facilities=getattr(args, "include_minor_facilities", False),
+                **({"places_file": "cities15000.txt", "alternates_file": None} if demo else {}),
             )
         if command in ("stage-wikidata", "build"):
-            wikidata.run(conn)
+            if getattr(args, "demo", False):
+                wikidata.stage_empty(conn)
+            else:
+                wikidata.run(conn)
         if command in ("merge", "build"):
             merge.run(conn, force=getattr(args, "force", False))
         if command in ("hierarchy", "build"):

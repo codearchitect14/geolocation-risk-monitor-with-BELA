@@ -17,3 +17,4 @@ data/annotation/tasks/
 .coverage
 data/synthetic/*.csv
 !data/synthetic/.gitkeep
+!.env.prod.example

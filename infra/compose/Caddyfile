@@ -1,0 +1,40 @@
+# Caddy terminates TLS (certificates from Let's Encrypt for a public name, an internal authority for localhost) and routes
+# /api to the API and everything else to the web application.
+{
+	# Set `email you@example.org` here to receive certificate expiry notices (an empty value is not accepted by Caddy).
+	servers {
+		protocols h1 h2 h3
+	}
+}
+
+{$SITE_ADDRESS} {
+	encode zstd gzip
+
+	log {
+		output file /var/log/caddy/access.log {
+			roll_size 20MiB
+			roll_keep 10
+			roll_keep_for 720h
+		}
+		format json
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+	}
+
+	# Event streams must not be buffered.
+	@stream path /api/v1/stream/*
+	reverse_proxy @stream api:8090 {
+		flush_interval -1
+	}
+
+	handle /api/* {
+		reverse_proxy api:8090
+	}
+
+	handle {
+		reverse_proxy web:3000
+	}
+}
