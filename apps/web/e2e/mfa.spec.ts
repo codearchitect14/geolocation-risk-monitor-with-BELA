@@ -68,7 +68,8 @@ test("administrator enrolls an authenticator, saves recovery codes, then signs i
   await expect(page.getByRole("heading", { name: "Save your recovery codes" })).toBeVisible();
   expect(await page.locator("ul.font-mono li").count()).toBeGreaterThanOrEqual(8);
   await page.getByRole("button", { name: "I have saved the codes" }).click();
-  await expect(page.getByRole("heading", { name: /Signed in as/ })).toBeVisible();
+  await expect(page).toHaveURL(/\/app$/);
+  await expect(page.getByRole("navigation", { name: "Application" })).toBeVisible();
   await page.getByRole("button", { name: "Sign out" }).click();
 
   await page.getByLabel("Email").fill(email);

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime as dt
+import json
 import uuid
 from collections.abc import Callable
 from typing import Any
@@ -17,6 +18,10 @@ from meridian.api.errors import ProblemError
 from meridian.api.pagination import clamp_limit, decode_cursor, encode_cursor, page
 from meridian.api.routers.common import EVENT_TYPES, feature_collection, not_found
 from meridian.api.security import ratelimit
+from meridian.config import get_settings
+from meridian.events.resilience import DependencyHealth
+from meridian.linking.nel_client import NelClient
+from meridian.llm.client import LlmClient
 from meridian.notify import DISCLAIMER
 
 router = APIRouter(tags=["events and places"])
@@ -138,9 +143,60 @@ def _linked_places(tx: Tx, event_id: str) -> list[dict[str, Any]]:
         (event_id,),
     )
     return [
-        {"id": r[0], "name": r[1], "type": r[2], "country_code": r[3], "admin1": r[4], "mentions": r[5], "is_event_location": r[6]}
+        {
+            "id": r[0],
+            "name": r[1],
+            "type": r[2],
+            "country_code": r[3],
+            "admin1": r[4],
+            "mentions": r[5],
+            "is_event_location": r[6],
+        }
         for r in rows
     ]
+
+
+def _location_candidates(tx: Tx, event_id: str) -> list[dict[str, Any]]:
+    """Place mentions in the source articles with every candidate considered and its score components."""
+    mentions = tx.all(
+        """SELECT m.id, m.surface, m.route, m.decision, m.place_id, count(*) OVER () AS total
+             FROM events e JOIN event_sources s ON s.event_id = e.id JOIN mentions m ON m.article_id = s.article_id
+            WHERE e.id = %s ORDER BY m.el_score DESC NULLS LAST, m.id LIMIT 12""",
+        (event_id,),
+    )
+    out: list[dict[str, Any]] = []
+    for mid, surface, route, decision, chosen, _ in mentions:
+        cands = tx.all(
+            """SELECT c.rank, p.id, p.name, p.type, p.country_code, c.bela_score, c.gazetteer_score, c.context_score,
+                      c.blink_score, c.llm_label
+                 FROM mention_candidates c JOIN places p ON p.id = c.place_id WHERE c.mention_id = %s
+                ORDER BY c.rank LIMIT 5""",
+            (mid,),
+        )
+        out.append(
+            {
+                "surface": surface,
+                "route": route,
+                "decision": decision,
+                "chosen_place_id": chosen,
+                "candidates": [
+                    {
+                        "rank": c[0],
+                        "place_id": c[1],
+                        "name": c[2],
+                        "type": c[3],
+                        "country_code": c[4],
+                        "bela_score": c[5],
+                        "gazetteer_score": c[6],
+                        "context_score": c[7],
+                        "blink_score": c[8],
+                        "llm_label": c[9],
+                    }
+                    for c in cands
+                ],
+            }
+        )
+    return out
 
 
 SIMILAR_RADIUS_KM = 100
@@ -159,7 +215,16 @@ def _similar(tx: Tx, event_id: str, limit: int = 5) -> list[dict[str, Any]]:
         (SIMILAR_WINDOW_DAYS, SIMILAR_RADIUS_KM * 1000, event_id, limit),
     )
     return [
-        {"id": str(r[0]), "title": r[1], "type": r[2], "subtype": r[3], "severity": r[4], "status": r[5], "first_seen_at": r[6], "distance_km": round(float(r[7]), 1)}
+        {
+            "id": str(r[0]),
+            "title": r[1],
+            "type": r[2],
+            "subtype": r[3],
+            "severity": r[4],
+            "status": r[5],
+            "first_seen_at": r[6],
+            "distance_km": round(float(r[7]), 1),
+        }
         for r in rows
     ]
 
@@ -195,6 +260,7 @@ def get_event(
         "timeline": _timeline(sources_view, updates_view),
         "location": _location(tx, str(event_id)),
         "linked_places": _linked_places(tx, str(event_id)),
+        "location_candidates": _location_candidates(tx, str(event_id)),
         "similar_past_incidents": _similar(tx, str(event_id)),
         "exposures": [
             {
@@ -402,7 +468,28 @@ SOURCE_NOTES = {
 }
 
 
-@router.get("/sources", summary="Data sources with freshness, counts, and license notes")
+FEED_JOBS = {"usgs": "usgs", "nws": "nws", "firms": "firms", "reliefweb": "reliefweb", "news": "gdelt"}
+_health = DependencyHealth(NelClient(), LlmClient())  # probes are cached for 20 seconds
+
+
+def feed_state(kind: str) -> dict[str, Any]:
+    """Harvest job health for a source, from the status file the job writes after every run."""
+    path = get_settings().data_dir / "raw" / "_status" / f"{FEED_JOBS[kind]}.json"
+    try:
+        state = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {"state": "not running", "consecutive_failures": 0, "last_success": None, "last_error": None}
+    failures = int(state.get("consecutive_failures", 0))
+    error = (state.get("last_error") or {}).get("error")
+    return {
+        "state": "failing" if failures >= 3 else ("retrying" if failures else "ok"),
+        "consecutive_failures": failures,
+        "last_success": state.get("last_success"),
+        "last_error": str(error)[:200] if failures and error else None,
+    }
+
+
+@router.get("/sources", summary="Data sources with freshness, counts, license notes, and pipeline component status")
 def list_sources(principal: Principal = Depends(require("view")), tx: Tx = Depends(get_tx)) -> dict[str, Any]:
     rows = {
         r[0]: r
@@ -426,6 +513,19 @@ def list_sources(principal: Principal = Depends(require("view")), tx: Tx = Depen
                 "records_total": r[2] if r else 0,
                 "records_24h": r[3] if r else 0,
                 "freshness": "no data" if age is None else ("current" if age <= stale_after else "stale"),
+                "feed": feed_state(kind),
             }  # fmt: skip
         )
-    return {"items": items, "disclaimer": DISCLAIMER}
+    reduced = tx.one(
+        "SELECT count(*) FROM events WHERE reduced_confidence AND last_seen_at > now() - interval '7 days'"
+    )
+    queue = {str(r[0]): int(r[1]) for r in tx.all("SELECT status, count(*) FROM dead_letters GROUP BY status")}
+    pipeline = {
+        "model_server": "up" if _health.up("llm") else "down",
+        "entity_linker": "up" if _health.up("nel") else "down",
+        "reduced_confidence_events_7d": int(reduced[0]) if reduced else 0,
+        "dead_letters": {"queued": queue.get("queued", 0), "abandoned": queue.get("abandoned", 0)},
+        "note": "When the model server or the entity linker is down, news reports are still processed with headline rules and "
+        "gazetteer matching, and the resulting incidents are marked reduced confidence.",
+    }
+    return {"items": items, "pipeline": pipeline, "disclaimer": DISCLAIMER}

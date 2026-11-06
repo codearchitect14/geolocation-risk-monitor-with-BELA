@@ -27,6 +27,8 @@ work_mem = 64MB
 effective_cache_size = 8GB
 max_wal_size = 8GB
 synchronous_commit = off
+shared_preload_libraries = 'pg_stat_statements'
+pg_stat_statements.track = all
 CONF
     "$PGBIN/pg_ctl" -D "$PGDATA" -l "$PGDATA/server.log" -w start >/dev/null
     "$PGBIN/psql" -h "$PGDATA" -p "$PGPORT" -U postgres -qc "CREATE ROLE $DB_USER LOGIN SUPERUSER PASSWORD '$DB_USER'"

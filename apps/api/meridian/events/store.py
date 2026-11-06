@@ -29,9 +29,9 @@ def insert_event(conn: psycopg.Connection[Any], ne: NormalizedEvent, cfg: Events
         cur.execute(
             """INSERT INTO events (type, subtype, severity, status, confirmation, first_seen_at, last_seen_at, occurred_at, title,
                                    summary, geom, uncertainty_km, location_place_id, location_level, location_confidence, h3_cell,
-                                   language_set, reliability, expires_at, details, config_version)
+                                   language_set, reliability, expires_at, details, config_version, reduced_confidence)
                VALUES (%s, %s, %s, 'new', 'unconfirmed', %s, %s, %s, %s, %s, ST_SetSRID(ST_GeomFromGeoJSON(%s), 4326), %s, %s, %s, %s,
-                       %s, %s, %s, %s, %s, %s)
+                       %s, %s, %s, %s, %s, %s, %s)
                RETURNING id""",
             (
                 ne.type,
@@ -62,6 +62,7 @@ def insert_event(conn: psycopg.Connection[Any], ne: NormalizedEvent, cfg: Events
                     }
                 ),
                 config_version,
+                ne.reduced,
             ),
         )
         row = cur.fetchone()
@@ -187,7 +188,7 @@ def maybe_replace_location(
         cur.execute(
             """UPDATE events SET geom = ST_SetSRID(ST_GeomFromGeoJSON(%s), 4326), uncertainty_km = %s, location_level = %s,
                                  location_confidence = %s, location_place_id = %s, h3_cell = %s,
-                                 details = details || %s::jsonb WHERE id = %s""",
+                                 reduced_confidence = %s, details = details || %s::jsonb WHERE id = %s""",
             (
                 json.dumps(ne.geometry),
                 ne.uncertainty_km,
@@ -195,6 +196,7 @@ def maybe_replace_location(
                 ne.location_confidence,
                 ne.location_place_id,
                 cell,
+                ne.reduced,
                 json.dumps({"location_source": ne.source_kind}),
                 event_id,
             ),

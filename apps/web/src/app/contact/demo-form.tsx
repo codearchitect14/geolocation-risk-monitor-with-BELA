@@ -11,6 +11,9 @@ import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/field"
 import { api, ApiError } from "@/lib/api";
 import { industries } from "@/content/site";
 
+// The strict content security policy has no script-eval; skip the library's attempt to compile validators with Function().
+z.config({ jitless: true });
+
 const schema = z.object({
   name: z.string().trim().min(1, "Enter your name.").max(100),
   email: z.string().trim().email("Enter a valid work email address.").max(254),
@@ -81,7 +84,7 @@ export function DemoForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="grid gap-5 sm:grid-cols-2">
+    <form method="post" onSubmit={handleSubmit(onSubmit)} noValidate className="grid gap-5 sm:grid-cols-2">
       <Field label="Name" htmlFor="name" error={errors.name?.message}>
         <Input
           id="name"

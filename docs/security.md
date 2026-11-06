@@ -98,3 +98,46 @@ Not done in this phase: the analytics cache is per process; the forecast and met
 - `GET /public/stats` returns counts only (places, incidents in 30 days, source records by kind) and is cached for five minutes. It reads no tenant data.
 - The web server sends a strict Content Security Policy, `X-Frame-Options: DENY`, `nosniff`, a referrer policy and a permissions policy. Scripts run
   from the web origin only; `'unsafe-inline'` remains in `script-src` for the framework bootstrap until phase 9 adds nonces.
+
+
+## Phase 10: review, scans, and fixes
+
+Reviewed against the security specification. Scans were run on 2026-11-04 on the development machine; `make scans` and
+`.github/workflows/security.yml` repeat them.
+
+| Scan | Result |
+|---|---|
+| Bandit, all of `apps`, `services`, `data`, `infra` (tests excluded) | no high findings; 40 medium (38 are B608, SQL built from fixed table and column names with bound values, reviewed in phase 5; the 2 B615 findings, unpinned model downloads, were fixed by pinning the encoder revision); 186 low (asserts for type narrowing and similar) |
+| pip-audit, project environment | no known vulnerabilities |
+| npm audit, production dependencies | 0 vulnerabilities after two fixes: PostCSS inside Next.js (high; forced to the patched release with an `overrides` entry) and ECharts (moderate cross-site scripting; upgraded to 6.1) |
+| npm audit, development tooling | 18 moderate advisories in the lint and Lighthouse toolchain (`minimatch` and `glob` denial of service). They do not ship in the application and cannot be reached from a request. Left open; the CI job fails only on production dependencies at high severity. |
+| gitleaks, history and working tree | no leaks. Two false positives in history (an unsigned test token and a Makefile coverage flag) are allowlisted in `.gitleaks.toml`. |
+| Trivy, filesystem (vulnerabilities, secrets, configuration), high and critical | one finding fixed: the PostgreSQL image ran as root; it now runs as the `postgres` user with a health check. Clean afterwards. |
+| Trivy, built images | not run: Docker is not installed on the development machine and no image has been built. Run `trivy image` on each image in phase 11. |
+| OWASP ZAP 2.17 automation plan (OpenAPI import of 134 URLs, spider of the web app and API, passive scan), signed in as a tenant manager | no high findings. See below. |
+
+ZAP findings and their disposition:
+
+| Finding | Where | Disposition |
+|---|---|---|
+| CSP `script-src` and `style-src` allow `'unsafe-inline'` (medium) | web app | Accepted for now. Removing it needs per-request nonces, which makes every page dynamic (the marketing site is statically generated), and the map and chart libraries set inline styles. Tracked in `docs/web.md`. All other CSP directives are strict (`default-src 'self'`, no framing, no third party origins). |
+| CSP directive without fallback, missing subresource integrity, cross-domain script (medium and low) | `/api/docs` (Swagger UI from a CDN) | Not applicable to production: the API documentation is disabled when `MS_ENV=production`. |
+| Credentials in the URL (informational) | login form submitted by the spider as a GET | A real weakness, fixed: forms that carry credentials or personal data now declare `method="post"`, so a submit before the script has loaded cannot put an address or password in the URL, the history, or an access log. |
+| Unix timestamp disclosure (low) | responses to the scanner's own session cookie | False positive: the value is the expiry in the injected token. |
+| Suspicious comments, authentication request identified, modern web application, content type missing (informational) | web app | No action. |
+
+The scan is a passive baseline; it did not attack the application actively. An authenticated active scan and a manual test
+of the tenant isolation (the automated suites cover it) should precede a production release.
+
+### Changes made in this phase that affect security
+
+- Platform staff requests run under a separate database role (`meridian_platform`) with their own allow-all policy; tenant policies
+  are plain equality on `tenant_id`. The RLS, tenancy, and role matrix suites pass unchanged. See ADR-014.
+- The connection pool returns every connection with a rollback, which ends the `SET LOCAL` role and tenant context
+  (`test_db_pool.py`).
+- The dead letter queue stores identifiers and titles only, never article text.
+- Model downloads for the entity linker are pinned to a commit.
+- A weekly and per-push security workflow runs gitleaks, Bandit, pip-audit, npm audit, and Trivy.
+
+Still open: `'unsafe-inline'` in the CSP, development tooling advisories, image scanning, an active ZAP scan, and the items listed
+under earlier phases.

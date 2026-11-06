@@ -37,7 +37,7 @@ export default function ForgotPasswordPage() {
           If the account exists, a reset message has been sent. The link works for 30 minutes.
         </div>
       ) : (
-        <form onSubmit={submit} className="space-y-5" noValidate>
+        <form method="post" onSubmit={submit} className="space-y-5" noValidate>
           <Field label="Email" htmlFor="email">
             <Input id="email" name="email" type="email" autoComplete="username" required autoFocus />
           </Field>

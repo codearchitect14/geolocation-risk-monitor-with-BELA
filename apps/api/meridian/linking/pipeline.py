@@ -17,6 +17,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from typing import Any
 
+import httpx
 import psycopg
 from rapidfuzz import fuzz
 
@@ -46,6 +47,7 @@ class Stages:
     gazetteer_fallback: bool = True
     rerank: bool = True
     llm: bool = True
+    degrade: bool = False  # production news path: continue with the gazetteer when the entity linker is unreachable
     force_rerank: bool = False  # training only: re-rank every mention to collect features, ignoring routing
 
 
@@ -196,8 +198,9 @@ class LinkingPipeline:
                     self._rerank(result, place_cands, context, stages)
             context.resolved = [r.decision for r in results if r.decision is not None]
 
+        llm_failures = 0
         if stages.llm and self.llm is not None:
-            self._adjudicate_all([r for r, _ in pending], text, context)
+            llm_failures = self._adjudicate_all([r for r, _ in pending], text, context)
             context.resolved = [r.decision for r in results if r.decision is not None]
 
         results.sort(key=lambda r: r.start)
@@ -209,7 +212,7 @@ class LinkingPipeline:
             cfg.version,
             self.reranker.version,
             ADJUDICATE_VERSION if (stages.llm and self.llm) else None,
-            {"routes": counts, "mentions": len(results)},
+            {"routes": counts, "mentions": len(results), "llm_failures": llm_failures},
         )
 
     def _fallback_spans(
@@ -327,12 +330,12 @@ class LinkingPipeline:
             "; ".join(hints) or "none",
         )
 
-    def _adjudicate_all(self, results: list[MentionResult], text: str, context: ArticleContext) -> None:
-        """Ask the local model about every mention that needs it, a few requests at a time."""
+    def _adjudicate_all(self, results: list[MentionResult], text: str, context: ArticleContext) -> int:
+        """Ask the local model about every mention that needs it, a few requests at a time. Returns how many requests failed."""
         assert self.llm is not None
         jobs = [(r, prompt) for r in results if (prompt := self._llm_prompt(r, text, context)) is not None]
         if not jobs:
-            return
+            return 0
 
         def ask(prompt: str) -> PlaceChoice | None:
             try:
@@ -348,6 +351,7 @@ class LinkingPipeline:
         for (result, _), choice in zip(jobs, choices, strict=True):
             if choice is not None:
                 self._apply_choice(result, choice)
+        return sum(choice is None for choice in choices)
 
     def _apply_choice(self, result: MentionResult, choice: PlaceChoice) -> None:
         top = result.candidates[: self.config.llm_max_candidates]
@@ -368,7 +372,20 @@ class LinkingPipeline:
     def link_article(
         self, text: str, *, lang: str | None = None, outlet_country: str | None = None, stages: Stages | None = None
     ) -> ArticleResult:
-        return self.resolve(text, self.run_nel(text, lang), lang=lang, outlet_country=outlet_country, stages=stages)
+        stages = stages or Stages()
+        degraded: list[str] = []
+        try:
+            mentions = self.run_nel(text, lang)
+        except (httpx.HTTPError, RuntimeError) as exc:
+            if not stages.degrade:
+                raise
+            log.warning("entity linker unavailable, using gazetteer rules only: %s", exc)
+            mentions, degraded = [], ["nel"]
+        result = self.resolve(text, mentions, lang=lang, outlet_country=outlet_country, stages=stages)
+        if result.stats.get("llm_failures"):
+            degraded.append("llm")
+        result.stats["degraded"] = degraded
+        return result
 
 
 _ = Route  # re-exported for type hints in callers

@@ -1,6 +1,6 @@
 # Place linking evaluation
 
-Generated 2026-11-02 11:08 by `make eval`. BELA checkpoint `model_wiki.ckpt`, configuration `geo_config_v1`.
+Generated 2026-11-04 10:25 by `make eval`. BELA checkpoint `model_wiki.ckpt`, configuration `geo_config_v1`.
 
 ## Data and protocol
 
@@ -52,7 +52,7 @@ Generated 2026-11-02 11:08 by `make eval`. BELA checkpoint `model_wiki.ckpt`, co
 
 ## Local model use (S6, test split)
 
-Mentions adjudicated by the local model: 1,484 of 11,480 resolved mentions (12.9%). Run time 1307 s.
+Mentions adjudicated by the local model: 1,484 of 11,480 resolved mentions (12.9%). Run time 1469 s.
 
 ## Throughput and latency (BELA stage on the Apple GPU)
 

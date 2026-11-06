@@ -198,6 +198,7 @@ def test_incident_detail_has_location_places_timeline_and_history(client: Any, w
     assert [s["title"] for s in detail["similar_past_incidents"]] == ["Old fire nearby"]
     assert 5 < detail["similar_past_incidents"][0]["distance_km"] < 15
     assert detail["exposures"][0]["asset_name"] == "A near" and detail["exposures"][0]["components"]
+    assert isinstance(detail["location_candidates"], list)
     assert detail["sources"][0]["snippet"] and detail["sources"][0]["url"].startswith("https://")
 
 

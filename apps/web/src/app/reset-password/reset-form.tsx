@@ -55,7 +55,7 @@ export function ResetForm() {
       </div>
     );
   return (
-    <form onSubmit={submit} className="space-y-5" noValidate>
+    <form method="post" onSubmit={submit} className="space-y-5" noValidate>
       <Field
         label="New password"
         htmlFor="password"

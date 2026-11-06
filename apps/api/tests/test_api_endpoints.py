@@ -442,6 +442,25 @@ def test_sources_report_freshness(client: Any, world: World) -> None:
     assert items["usgs"]["freshness"] == "no data" and "Public domain" in items["usgs"]["license_note"]
 
 
+def test_sources_report_pipeline_components_and_feed_jobs(
+    client: Any, world: World, conn: psycopg.Connection[Any], tmp_path: Any, monkeypatch: Any
+) -> None:
+    status = tmp_path / "raw" / "_status"
+    status.mkdir(parents=True)
+    (status / "usgs.json").write_text(json.dumps({"consecutive_failures": 4, "last_error": {"error": "timeout"}}))
+    (status / "nws.json").write_text(json.dumps({"consecutive_failures": 0, "last_success": "2026-11-04T10:00:00Z"}))
+    monkeypatch.setenv("MS_DATA_DIR", str(tmp_path))
+    conn.execute("UPDATE events SET reduced_confidence = true WHERE id = (SELECT id FROM events LIMIT 1)")
+    conn.commit()
+    login(client, world, "viewer")
+    body = client.get(f"{API}/sources").json()
+    feeds = {i["kind"]: i["feed"] for i in body["items"]}
+    assert feeds["usgs"]["state"] == "failing" and feeds["usgs"]["last_error"] == "timeout"
+    assert feeds["nws"]["state"] == "ok" and feeds["firms"]["state"] == "not running"
+    assert body["pipeline"]["model_server"] in ("up", "down") and body["pipeline"]["reduced_confidence_events_7d"] >= 0
+    assert set(body["pipeline"]["dead_letters"]) == {"queued", "abandoned"}
+
+
 # -- alerts and corrections ----------------------------------------------------------------------------------------------------
 def test_alert_workflow(client: Any, world: World, conn: psycopg.Connection[Any]) -> None:
     login(client, world, "analyst")

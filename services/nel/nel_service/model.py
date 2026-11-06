@@ -25,6 +25,7 @@ from transformers import AutoConfig, AutoModel
 EMBEDDING_DIM = 300
 MAX_MENTION_TOKENS = 10  # inclusive span length limit used in training is 10 tokens beyond the start
 ENCODER_NAME = "FacebookAI/xlm-roberta-large"
+ENCODER_REVISION = "c23d21b0620b635a76227c604d44e43a9f0ee389"  # pinned: downloads are verified against this commit
 
 
 class ClassificationHead(nn.Module):
@@ -72,7 +73,7 @@ class HFEncoder(nn.Module):
 class BelaModel(nn.Module):
     def __init__(self) -> None:
         super().__init__()
-        config = AutoConfig.from_pretrained(ENCODER_NAME)
+        config = AutoConfig.from_pretrained(ENCODER_NAME, revision=ENCODER_REVISION)
         self.encoder = HFEncoder(config)
         self.project_encoder_op = nn.Sequential(
             nn.Linear(config.hidden_size, EMBEDDING_DIM), nn.LayerNorm(EMBEDDING_DIM)

@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
 from fastapi import APIRouter, FastAPI
 
-from meridian.api import errors
+from meridian.api import db, errors
 from meridian.api.middleware import SecurityMiddleware, configure_logging
 from meridian.api.routers import (
     admin,
@@ -30,6 +33,12 @@ DESCRIPTION = (
 )
 
 
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    yield
+    db.close_pools()
+
+
 def create_app() -> FastAPI:
     settings = get_api_settings()
     configure_logging()
@@ -40,6 +49,7 @@ def create_app() -> FastAPI:
         description=DESCRIPTION,
         docs_url="/api/docs" if settings.docs_enabled else None,
         redoc_url=None,
+        lifespan=lifespan,
         openapi_url="/api/openapi.json" if settings.docs_enabled else None,
     )
     app.add_middleware(SecurityMiddleware)

@@ -34,6 +34,7 @@ class NormalizedEvent:
     supersedes: list[str] = field(default_factory=list)  # source refs this record replaces (alert updates)
     details: dict[str, Any] = field(default_factory=dict)
     article_id: str | None = None
+    reduced: bool = False  # built without the model server or the entity linker
 
     def centroid(self) -> tuple[float, float]:
         """(lat, lon) of the geometry."""

@@ -116,7 +116,7 @@ export function LoginFlow() {
 
   if (step.name === "mfa" || step.name === "enroll") {
     return (
-      <form onSubmit={onMfa} noValidate>
+      <form method="post" onSubmit={onMfa} noValidate>
         {step.name === "enroll" ? (
           <div className="mb-6">
             <h2 className="text-h4">Set up your authenticator</h2>
@@ -173,7 +173,7 @@ export function LoginFlow() {
   }
 
   return (
-    <form onSubmit={onCredentials} noValidate className="space-y-5">
+    <form method="post" onSubmit={onCredentials} noValidate className="space-y-5">
       <Field label="Email" htmlFor="email">
         <Input id="email" name="email" type="email" autoComplete="username" required autoFocus />
       </Field>

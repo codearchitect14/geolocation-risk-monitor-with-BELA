@@ -11,6 +11,9 @@
   --color-success: #1e8e5a;
   --color-warning: #c77700;
   --color-danger: #c0392b;
+  --color-pos: #14683f;
+  --color-neg: #992b20;
+  --color-caution: #8a5200;
   --color-page: #f6f8fb;
   --color-line: #dde3ec;
   --color-slate-50: #f6f8fb;
@@ -199,4 +202,37 @@
   background: var(--color-slate-100);
   padding: 0.1em 0.35em;
   border-radius: 4px;
+}
+
+/* Application dark theme: the same utility classes resolve to the dark values inside this scope. */
+.app-root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-white: #152038;
+  --color-page: #0e1626;
+  --color-line: #243252;
+  --color-ink: #eef2f9;
+  --color-brand-100: #1b2e52;
+  --color-brand-600: #6ea3f0;
+  --color-slate-50: #0e1626;
+  --color-slate-100: #1a2745;
+  --color-slate-200: #243252;
+  --color-slate-300: #34456b;
+  --color-slate-400: #7e8eab;
+  --color-slate-500: #9eabc4;
+  --color-slate-600: #b4bfd3;
+  --color-slate-700: #c9d2e2;
+  --color-slate-800: #dde3ee;
+  --color-slate-900: #eef2f9;
+  --color-pos: #5fd49b;
+  --color-neg: #ff8f80;
+  --color-caution: #f0b35a;
+  background: var(--color-page);
+  color: var(--color-slate-800);
+}
+.app-root[data-theme="dark"] .bg-brand-600 {
+  background-color: #2f74d8;
+}
+
+.app-root[data-theme="dark"] .text-white {
+  color: #ffffff;
 }

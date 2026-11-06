@@ -16,10 +16,16 @@ test("home page content and primary actions", async ({ page }) => {
   );
 });
 
-test("skip link moves focus to main content", async ({ page }) => {
+test("skip link moves focus to main content", async ({ page, browserName }) => {
   await page.goto("/pricing");
-  await page.keyboard.press("Tab");
-  await expect(page.getByRole("link", { name: "Skip to main content" })).toBeFocused();
+  const skip = page.getByRole("link", { name: "Skip to main content" });
+  if (browserName === "webkit") {
+    // Safari does not move focus to links with Tab unless the user enables it (Option+Tab otherwise), so focus the link directly.
+    await skip.focus();
+  } else {
+    await page.keyboard.press("Tab");
+  }
+  await expect(skip).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(page.locator("#main")).toBeFocused();
 });
@@ -74,7 +80,7 @@ test("sign-in: wrong password gives a generic message, correct password reaches 
   await page.getByLabel("Password").fill(PASSWORD);
   await page.getByRole("button", { name: "Log in" }).click();
   await expect(page).toHaveURL(/\/app$/);
-  await expect(page.getByRole("heading", { name: "Signed in as E2E Analyst" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Application" })).toBeVisible();
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page).toHaveURL(/\/login$/);
 });

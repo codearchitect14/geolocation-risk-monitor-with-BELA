@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-02T16:08:46Z",
+ "generated_at": "2026-11-04T15:25:42Z",
  "source": "docs/eval/report.md",
  "evaluation": "public geoparsing corpora (LGL, TR-News, GeoWebNews, GeoVirus, WikToR sample), test split",
  "places_indexed": 525626,

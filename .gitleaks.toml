@@ -1,0 +1,21 @@
+title = "Meridian Signal secret scan"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Known false positives and generated or third party directories"
+paths = [
+  '''(^|/)node_modules/''',
+  '''(^|/)\.venv/''',
+  '''(^|/)\.next/''',
+  '''(^|/)\.local/''',
+  '''^data/raw/''',
+  '''package-lock\.json$''',
+]
+regexes = [
+  # A deliberately unsigned token ({"alg":"none"}) used to prove the API rejects forged tokens.
+  '''eyJhbGciOiJub25lIn0\.e30\.''',
+  # Coverage flag in the Makefile, not a credential.
+  '''apps/api/meridian/notify''',
+]

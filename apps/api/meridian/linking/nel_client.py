@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import time
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -65,16 +66,15 @@ class NelClient:
         for offset in range(0, len(passages), batch):
             part = passages[offset : offset + batch]
             body = {"passages": [{"id": pid, "text": text} for pid, text in part], "top_k": top_k}
-            for attempt in range(5):
+            for attempt in range(4):
                 try:
                     response = self._client.post(f"{self.base_url}/v1/link", json=body)
-                except httpx.TimeoutException:
-                    if attempt == 4:
+                except httpx.TransportError:  # timeouts and refused connections: back off, then give up
+                    if attempt == 3:
                         raise
+                    time.sleep(min(4.0, 0.5 * 2**attempt))
                     continue
-                if response.status_code == 503 and attempt < 4:
-                    import time
-
+                if response.status_code == 503 and attempt < 3:
                     time.sleep(float(response.headers.get("Retry-After", "2")))
                     continue
                 response.raise_for_status()

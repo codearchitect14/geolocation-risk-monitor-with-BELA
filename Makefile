@@ -217,7 +217,7 @@ eval:
 	$(APIRUN) -m meridian.eval.render_report
 
 # --- Web (phase 8) ---
-.PHONY: web-install web-dev web-build web-start web-check web-e2e web-axe web-quality web-screens web-images web-geo
+.PHONY: web-install web-dev web-build web-start web-check web-e2e web-axe web-quality web-screens web-images web-geo web-seed web-cross
 WEB := apps/web
 
 web-install:
@@ -236,7 +236,10 @@ web-check:
 	cd $(WEB) && npm run lint && npm run typecheck && npm run format:check && npm test
 
 web-e2e:
-	cd $(WEB) && npx playwright test
+	cd $(WEB) && npx playwright test --project=chromium
+
+web-cross:
+	cd $(WEB) && npm run e2e:cross
 
 web-axe:
 	cd $(WEB) && node scripts/axe-report.mjs
@@ -252,3 +255,39 @@ web-images:
 
 web-geo:
 	$(PY) data/scripts/export_web_geo.py
+
+# Local test data for the application: illustrative assets near current incidents in the web-e2e tenant.
+# Needs the API running (make api-up) and the test accounts from `meridian.api.cli create-user`.
+web-seed:
+	$(PY) data/scripts/seed_web_tenant.py
+
+# --- Performance (phase 10); data is synthetic and the scenarios use their own tenants (slug prefix perf-) ---
+.PHONY: perf-api perf-seed perf-recompute perf-upload perf-load perf-cleanup scans
+perf-api:
+	mkdir -p .local && cd $(API) && MS_ENV=development MS_COOKIE_SECURE=false MS_RATE_IP_PER_MINUTE=1000000 MS_RATE_USER_PER_MINUTE=1000000 \
+		MS_LOGIN_IP_PER_MINUTE=100000 MS_LOGIN_ACCOUNT_PER_15MIN=100000 PYTHONPATH=. ../../.venv/bin/uvicorn meridian.api.main:create_app \
+		--factory --host 127.0.0.1 --port 8090 --no-server-header --no-access-log
+
+perf-seed:
+	$(PY) infra/perf/bulk_load.py seed --tenants 100 --assets 500 --large 5000
+
+perf-recompute:
+	$(PY) infra/perf/bulk_load.py recompute --events 40
+
+perf-upload:
+	$(PY) infra/perf/bulk_load.py upload --rows 10000 --chunk 5000 --repeat 10
+
+perf-load:
+	cd infra/perf && ../../$(PY) -m locust -f locustfile.py --headless --host http://127.0.0.1:8090 -u 50 -r 1 -t 5m \
+		--csv ../../.local/perf/locust --csv-full-history --only-summary
+
+perf-cleanup:
+	$(PY) infra/perf/bulk_load.py cleanup
+
+# Security scans (phase 10)
+scans:
+	$(PY) -m bandit -q -r apps services data infra -x apps/api/tests,apps/web/node_modules,services/nel/tests -ll
+	PIPAPI_PYTHON_LOCATION=$(CURDIR)/$(PY) $(PY) -m pip_audit --progress-spinner off
+	cd apps/web && npm audit --omit=dev
+	gitleaks detect --source . --no-banner -c .gitleaks.toml
+	trivy fs --scanners vuln,secret,misconfig --severity HIGH,CRITICAL --skip-dirs node_modules,.venv,.next,.local,data/raw .

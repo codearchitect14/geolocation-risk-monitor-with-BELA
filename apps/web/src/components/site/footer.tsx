@@ -56,7 +56,7 @@ function Newsletter() {
   }
 
   return (
-    <form onSubmit={submit} className="max-w-md" noValidate>
+    <form method="post" onSubmit={submit} className="max-w-md" noValidate>
       <p className="font-medium text-white">{t("newsletter")}</p>
       <p className="mt-1 text-small text-slate-300">{t("newsletterHint")}</p>
       {state === "done" ? (

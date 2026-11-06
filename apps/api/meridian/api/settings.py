@@ -59,6 +59,9 @@ class ApiSettings:
     login_account_per_15min: int
     lockout_threshold: int
     sse_connections_per_tenant: int
+    db_pool_min: int
+    db_pool_max: int
+    db_pool_timeout_seconds: int
     argon2_fast: bool
     docs_enabled: bool
     smtp_host: str
@@ -106,6 +109,9 @@ def get_api_settings() -> ApiSettings:
         login_account_per_15min=_int("MS_LOGIN_ACCOUNT_PER_15MIN", 10),
         lockout_threshold=_int("MS_LOCKOUT_THRESHOLD", 5),
         sse_connections_per_tenant=_int("MS_SSE_CONNECTIONS_PER_TENANT", 20),
+        db_pool_min=_int("MS_DB_POOL_MIN", 2),
+        db_pool_max=_int("MS_DB_POOL_MAX", 24),
+        db_pool_timeout_seconds=_int("MS_DB_POOL_TIMEOUT_SECONDS", 8),
         argon2_fast=_flag("MS_ARGON2_FAST", False),
         docs_enabled=_flag("MS_DOCS_ENABLED", env != "production"),
         smtp_host=os.environ.get("MS_SMTP_HOST", "localhost"),

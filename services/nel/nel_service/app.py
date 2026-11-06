@@ -24,6 +24,7 @@ from prometheus_client import CONTENT_TYPE_LATEST, Counter, Gauge, Histogram, ge
 
 from nel_service.index import EntityIndex, qid_to_int
 from nel_service.linker import Linker, Passage
+from nel_service.model import ENCODER_NAME, ENCODER_REVISION
 from nel_service.schemas import (
     CandidateOut,
     EmbedRequest,
@@ -86,7 +87,7 @@ async def lifespan(_: FastAPI) -> Any:
     place_qids = load_place_qids(dsn)
     index = EntityIndex(MODEL_DIR / "embeddings_fp16.npy", MODEL_DIR / "index.txt", place_qids, state.device)
     checkpoint = MODEL_DIR / os.environ.get("BELA_CHECKPOINT", "model_wiki.ckpt")
-    sp_model = Path(hf_hub_download("FacebookAI/xlm-roberta-large", "sentencepiece.bpe.model"))
+    sp_model = Path(hf_hub_download(ENCODER_NAME, "sentencepiece.bpe.model", revision=ENCODER_REVISION))
     state.linker = Linker(
         checkpoint, sp_model, index, state.device, md_threshold=float(os.environ.get("BELA_MD_THRESHOLD", "0.2"))
     )
