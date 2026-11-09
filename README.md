@@ -5,21 +5,6 @@
 > Signals are situational awareness derived from public news and public data feeds. They are not official warnings. Verify with
 > local authorities and follow their guidance.
 
-## Table of contents
-
-1. [Overview](#overview)
-2. [Objectives](#objectives)
-3. [What we build](#what-we-build)
-4. [How it helps](#how-it-helps)
-5. [Architecture](#architecture)
-6. [Repository layout](#repository-layout)
-7. [Quick start: the demonstration](#quick-start-the-demonstration)
-8. [Development](#development)
-9. [Quality and verification](#quality-and-verification)
-10. [Security and privacy](#security-and-privacy)
-11. [Documentation](#documentation)
-12. [Status and known limits](#status-and-known-limits)
-
 ## Overview
 
 **Geolocation Risk Monitor** is a disruption intelligence platform for operations, security, and supply chain teams. It turns
@@ -97,22 +82,19 @@ builds incidents, the exposure engine scores them against tenant assets, and the
 systems. See the note below the diagram for how to read it.
 
 ```mermaid
-%%{init: {"theme": "base", "flowchart": {"curve": "basis", "nodeSpacing": 40, "rankSpacing": 70}, "themeVariables": {"fontFamily": "Inter, Segoe UI, Helvetica, Arial, sans-serif", "fontSize": "14px", "lineColor": "#546E7A"}}}%%
-flowchart LR
+%%{init: {"theme": "base", "flowchart": {"curve": "basis", "nodeSpacing": 35, "rankSpacing": 55}, "themeVariables": {"fontFamily": "Inter, Segoe UI, Helvetica, Arial, sans-serif", "fontSize": "14px", "lineColor": "#546E7A"}}}%%
+flowchart TB
     subgraph SRC["<b>① PUBLIC SOURCES</b>"]
-        direction TB
         S1["<b>Hazard feeds</b><br/><i>earthquake, weather,<br/>disaster bulletins</i>"]
         S2["<b>News feeds</b><br/><i>headlines and articles</i>"]
     end
 
     subgraph ING["<b>② INGESTION</b>"]
-        direction TB
         H["<b>Harvest scheduler</b><br/><i>retry, backoff,<br/>per source health</i>"]
         DLQ[("<b>Dead letter queue</b><br/><i>identifiers only,<br/>timed retries</i>")]
     end
 
     subgraph INT["<b>③ LOCATION INTELLIGENCE</b>"]
-        direction TB
         CL["<b>Headline classifier</b><br/><i>type and severity</i>"]
         NEL["<b>Entity linker</b><br/><i>BELA service</i>"]
         RR["<b>Context re-ranker</b><br/><i>candidate scoring</i>"]
@@ -121,7 +103,6 @@ flowchart LR
     end
 
     subgraph CORE["<b>④ RISK ENGINE</b>"]
-        direction TB
         EV["<b>Incident builder</b><br/><i>evidence, lifecycle,<br/>corrections</i>"]
         EXP["<b>Exposure engine</b><br/><i>spatial search over<br/>tenant assets</i>"]
         ALR["<b>Alert engine</b><br/><i>rules, queue,<br/>acknowledge, assign</i>"]
@@ -129,13 +110,11 @@ flowchart LR
     end
 
     subgraph DATA["<b>⑤ DATA AND STATE</b>"]
-        direction TB
         PG[("<b>PostgreSQL 17</b><br/><i>PostGIS, pgvector,<br/>Row Level Security</i>")]
         VK[("<b>Valkey</b><br/><i>rate limits, streams<br/>optional</i>")]
     end
 
     subgraph OUT["<b>⑥ ACCESS AND DELIVERY</b>"]
-        direction TB
         API["<b>FastAPI service</b><br/><i>REST, auth, CSRF,<br/>MFA, API keys</i>"]
         CADDY{{"<b>Caddy</b><br/><i>TLS, reverse proxy</i>"}}
         WEB["<b>Web application</b><br/><i>map, incidents, alerts,<br/>assets, analytics</i>"]

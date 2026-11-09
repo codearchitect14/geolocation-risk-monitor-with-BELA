@@ -3,8 +3,6 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
-.env
-.env.*
 !.env.example
 node_modules/
 data/raw/*
@@ -18,3 +16,4 @@ data/annotation/tasks/
 data/synthetic/*.csv
 !data/synthetic/.gitkeep
 !.env.prod.example
+config.bat
