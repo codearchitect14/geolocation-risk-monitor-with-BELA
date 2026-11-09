@@ -1,4 +1,4 @@
-# Meridian Signal
+# Geolocation Risk Monitor
 
 **Disruption intelligence for operations teams.**
 
@@ -22,14 +22,38 @@
 
 ## Overview
 
-Operations, security, and supply chain teams learn about disruptions late and from scattered sources: a news article, a hazard
-agency bulletin, a message from a colleague. Meridian Signal reads public news and public hazard feeds continuously, works out
-**where** each incident happened, measures **how exposed** a customer's sites and routes are, and raises alerts that people can
-acknowledge, assign, and report on.
+**Geolocation Risk Monitor** is a disruption intelligence platform for operations, security, and supply chain teams. It turns
+public news and public hazard data into a clear, evidence backed view of which incidents are happening, where, and which of an
+organization's sites and routes they may affect.
 
-The central design rule is that every location decision is shown with its evidence. The application states which place it chose,
-which candidates it rejected, how confident it is, and which text supports the choice. Nothing is a black box, and a language model
-never decides an alert on its own.
+### The problem
+
+Disruptions such as earthquakes, floods, storms, fires, strikes, and civil unrest are reported first in scattered places: hazard
+agency bulletins, local news, and word of mouth. Teams read these sources by hand, and the hardest step is not finding the story
+but answering two questions reliably: **where exactly did this happen**, and **does it matter to us**. Place names are ambiguous
+(many towns share a name), articles are noisy, and a wrong location produces either a missed risk or a false alarm.
+
+### The approach
+
+The platform works as a pipeline with four stages:
+
+1. **Collect.** Scheduled harvesters read public hazard feeds and news, and track the health of every source.
+2. **Locate.** BELA based entity linking resolves each mention to a place in a unified gazetteer built from GeoNames and
+   Wikidata, with a context re-ranker and optional local language model adjudication. Every place carries an uncertainty radius.
+3. **Assess.** Each incident is scored against a customer's confidential asset locations and routes by severity, distance, and
+   location confidence.
+4. **Act.** Alerts enter a queue where people acknowledge, assign, and report on them, and signed webhooks deliver them to other
+   systems.
+
+### Design commitments
+
+- **Evidence with every decision.** The application shows which place it chose, which candidates it rejected, how confident it is,
+  and which text supports the choice. Analysts can correct a wrong location.
+- **People decide.** A language model never raises an alert on its own.
+- **Graceful degradation.** If a model or service is unavailable, the platform falls back to defined rules, lowers and flags
+  confidence, and never drops work silently.
+- **Isolated tenants.** Each customer's data is separated in the database itself, and asset locations are treated as confidential.
+- **Untrusted text.** Article and report content is handled as data and is never followed as instructions.
 
 ## Objectives
 
@@ -187,8 +211,8 @@ Full detail is in [docs/architecture.md](docs/architecture.md).
 |---|---|---|
 | API and worker | `apps/api` | FastAPI service, PostgreSQL schema and migrations, event pipeline, exposure and alert logic |
 | Web | `apps/web` | Next.js marketing site and the product application |
-| Place knowledge base | `apps/api/meridian/etl` | GeoNames and Wikidata merged into one gazetteer with uncertainty radii |
-| Entity linking | `services/nel`, `apps/api/meridian/linking` | BELA service, context re-ranker, optional local language model adjudication |
+| Place knowledge base | `apps/api` (ETL module) | GeoNames and Wikidata merged into one gazetteer with uncertainty radii |
+| Entity linking | `services/nel`, `apps/api` (linking module) | BELA service, context re-ranker, optional local language model adjudication |
 | Data | `data` | Acquisition scripts, manifest with checksums, gold sets, replay seed, licensing register |
 | Operations | `infra` | PostgreSQL image, container stack, load and security tooling, backup drill |
 | Documents | `docs` | Architecture, API guide, data guide, model card, evaluation, runbook, security, performance |
