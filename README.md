@@ -70,93 +70,75 @@ never decides an alert on its own.
 
 The diagram shows the end to end workflow: public sources enter through harvesters, the processing pipeline resolves places and
 builds incidents, the exposure engine scores them against tenant assets, and the alert layer delivers results to people and
-systems. Dashed lines are optional or degraded paths.
+systems. See the note below the diagram for how to read it.
 
 ```mermaid
+%%{init: {"theme": "base", "flowchart": {"curve": "basis", "nodeSpacing": 40, "rankSpacing": 70}, "themeVariables": {"fontFamily": "Inter, Segoe UI, Helvetica, Arial, sans-serif", "fontSize": "14px", "lineColor": "#546E7A"}}}%%
 flowchart LR
-    %% ---------- Sources ----------
-    subgraph SRC["<b>1. PUBLIC SOURCES</b>"]
+    subgraph SRC["<b>① PUBLIC SOURCES</b>"]
         direction TB
-        S1["<b>Hazard feeds</b><br/>earthquake, weather,<br/>disaster bulletins"]
-        S2["<b>News feeds</b><br/>headlines and articles"]
+        S1["<b>Hazard feeds</b><br/><i>earthquake, weather,<br/>disaster bulletins</i>"]
+        S2["<b>News feeds</b><br/><i>headlines and articles</i>"]
     end
 
-    %% ---------- Ingestion ----------
-    subgraph ING["<b>2. INGESTION</b>"]
+    subgraph ING["<b>② INGESTION</b>"]
         direction TB
-        H["<b>Harvest scheduler</b><br/>retry, backoff,<br/>per source health"]
-        DLQ[("<b>Dead letter queue</b><br/>identifiers only,<br/>timed retries")]
+        H["<b>Harvest scheduler</b><br/><i>retry, backoff,<br/>per source health</i>"]
+        DLQ[("<b>Dead letter queue</b><br/><i>identifiers only,<br/>timed retries</i>")]
     end
 
-    %% ---------- Intelligence ----------
-    subgraph INT["<b>3. LOCATION INTELLIGENCE</b>"]
+    subgraph INT["<b>③ LOCATION INTELLIGENCE</b>"]
         direction TB
-        CL["<b>Headline classifier</b><br/>type and severity"]
-        NEL["<b>Entity linker</b><br/>BELA service"]
-        RR["<b>Context re-ranker</b><br/>candidate scoring"]
-        LLM["<b>Language model</b><br/>optional adjudication"]
-        GZ[("<b>Place knowledge base</b><br/>GeoNames + Wikidata<br/>uncertainty radii")]
+        CL["<b>Headline classifier</b><br/><i>type and severity</i>"]
+        NEL["<b>Entity linker</b><br/><i>BELA service</i>"]
+        RR["<b>Context re-ranker</b><br/><i>candidate scoring</i>"]
+        LLM["<b>Language model</b><br/><i>optional adjudication</i>"]
+        GZ[("<b>Place knowledge base</b><br/><i>GeoNames + Wikidata,<br/>uncertainty radii</i>")]
     end
 
-    %% ---------- Core ----------
-    subgraph CORE["<b>4. CORE SERVICES</b>"]
+    subgraph CORE["<b>④ RISK ENGINE</b>"]
         direction TB
-        API["<b>FastAPI service</b><br/>REST API, auth, CSRF,<br/>MFA, API keys"]
-        EV["<b>Incident builder</b><br/>events, evidence,<br/>lifecycle, corrections"]
-        EXP["<b>Exposure engine</b><br/>spatial search over<br/>tenant assets"]
-        ALR["<b>Alert engine</b><br/>rules, queue,<br/>acknowledge, assign"]
-        WRK["<b>Worker</b><br/>webhooks, retention,<br/>audit verification"]
+        EV["<b>Incident builder</b><br/><i>evidence, lifecycle,<br/>corrections</i>"]
+        EXP["<b>Exposure engine</b><br/><i>spatial search over<br/>tenant assets</i>"]
+        ALR["<b>Alert engine</b><br/><i>rules, queue,<br/>acknowledge, assign</i>"]
+        WRK["<b>Worker</b><br/><i>webhooks, retention,<br/>audit verification</i>"]
     end
 
-    %% ---------- Data ----------
-    subgraph DATA["<b>5. DATA AND STATE</b>"]
+    subgraph DATA["<b>⑤ DATA AND STATE</b>"]
         direction TB
-        PG[("<b>PostgreSQL 17</b><br/>PostGIS, pgvector<br/>Row Level Security")]
-        VK[("<b>Valkey</b><br/>rate limits, streams<br/>optional")]
+        PG[("<b>PostgreSQL 17</b><br/><i>PostGIS, pgvector,<br/>Row Level Security</i>")]
+        VK[("<b>Valkey</b><br/><i>rate limits, streams<br/>optional</i>")]
     end
 
-    %% ---------- Delivery ----------
-    subgraph OUT["<b>6. DELIVERY AND USERS</b>"]
+    subgraph OUT["<b>⑥ ACCESS AND DELIVERY</b>"]
         direction TB
-        WEB["<b>Web application</b><br/>Next.js: map, incidents,<br/>alerts, assets, reports"]
-        WH["<b>Webhooks</b><br/>signed, retried"]
-        RPT["<b>Reports</b><br/>PDF and map images"]
-        USR(["<b>Operations teams</b><br/>viewer, analyst,<br/>manager, admin"])
+        API["<b>FastAPI service</b><br/><i>REST, auth, CSRF,<br/>MFA, API keys</i>"]
+        CADDY{{"<b>Caddy</b><br/><i>TLS, reverse proxy</i>"}}
+        WEB["<b>Web application</b><br/><i>map, incidents, alerts,<br/>assets, analytics</i>"]
+        RPT["<b>Reports</b><br/><i>PDF and map images</i>"]
+        WH["<b>Webhooks</b><br/><i>signed, retried</i>"]
+        USR(["<b>Operations teams</b><br/><i>viewer, analyst,<br/>manager, admin</i>"])
     end
-
-    CADDY{{"<b>Caddy</b><br/>TLS and reverse proxy"}}
 
     S1 --> H
     S2 --> H
-    H --> CL
-    CL -. "classifier unavailable" .-> DLQ
-    DLQ -. "timed retry" .-> CL
-    CL --> NEL
-    NEL --> RR
+    H -->|"hazard records"| EV
+    H -->|"news articles"| CL
+    CL --> NEL --> RR --> EV
     GZ --> NEL
     GZ --> RR
-    RR -.-> LLM
-    NEL -. "linker unavailable:<br/>gazetteer rules" .-> RR
-    RR --> EV
-    EV --> API
-    API --> EXP
-    EXP --> ALR
-    EV --> PG
-    EXP --> PG
-    ALR --> PG
-    API <--> PG
-    API -.-> VK
-    ALR --> WRK
-    WRK --> WH
-    WRK --> PG
-    API --> RPT
-    API --> CADDY
-    CADDY --> WEB
-    WEB --> USR
-    WH --> USR
-    RPT --> USR
+    RR <-.->|"optional"| LLM
+    NEL -.->|"fallback: gazetteer rules"| RR
+    CL -.->|"unavailable"| DLQ
+    DLQ -.->|"timed retry"| CL
+    EV --> EXP --> ALR --> WRK
+    CORE ==>|"persist"| PG
+    PG ==>|"read"| API
+    VK -.-> API
+    API --> CADDY --> WEB --> USR
+    API --> RPT --> USR
+    WRK --> WH --> USR
 
-    %% ---------- Styles ----------
     classDef source fill:#E3F2FD,stroke:#1565C0,stroke-width:2px,color:#0D2A4D
     classDef ingest fill:#FFF3E0,stroke:#EF6C00,stroke-width:2px,color:#4A2600
     classDef intel fill:#F3E5F5,stroke:#7B1FA2,stroke-width:2px,color:#2E0F3B
@@ -164,14 +146,16 @@ flowchart LR
     classDef data fill:#ECEFF1,stroke:#37474F,stroke-width:2px,color:#1B262C
     classDef out fill:#FFEBEE,stroke:#C62828,stroke-width:2px,color:#4A0E0E
     classDef edge fill:#FFFDE7,stroke:#F9A825,stroke-width:2px,color:#4A3B00
+    classDef user fill:#C62828,stroke:#7F0000,stroke-width:2px,color:#FFFFFF
 
     class S1,S2 source
     class H,DLQ ingest
     class CL,NEL,RR,LLM,GZ intel
-    class API,EV,EXP,ALR,WRK core
+    class EV,EXP,ALR,WRK core
     class PG,VK data
-    class WEB,WH,RPT,USR out
+    class API,WEB,RPT,WH out
     class CADDY edge
+    class USR user
 
     style SRC fill:#F5FAFF,stroke:#1565C0,stroke-dasharray: 4 3
     style ING fill:#FFFAF2,stroke:#EF6C00,stroke-dasharray: 4 3
@@ -180,6 +164,12 @@ flowchart LR
     style DATA fill:#F7F9FA,stroke:#37474F,stroke-dasharray: 4 3
     style OUT fill:#FFF6F6,stroke:#C62828,stroke-dasharray: 4 3
 ```
+
+**Reading the diagram.** Solid arrows are the normal flow. Dashed arrows are optional or degraded paths. Thick arrows are
+database reads and writes. Hazard feed records carry coordinates and go straight to the incident builder; news articles pass
+through classification and place linking first. If the classifier is unavailable, the article identifiers (never the text) wait
+in the dead letter queue and are retried on a timer. If the linker is unavailable, places are found with gazetteer rules and
+the incident is marked as reduced confidence.
 
 ### Design principles
 
